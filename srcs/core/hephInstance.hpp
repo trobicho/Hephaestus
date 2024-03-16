@@ -1,4 +1,6 @@
 #pragma once
+
+#include "hephResult.hpp"
 #include <cstdint>
 #include <vulkan/vulkan_core.h>
 
@@ -23,17 +25,27 @@ class		HephInstanceBase {
 struct HephInstanceCreateInfo {
 	const char*										pApplicationName;	
 	const char*										pEngineName = "";	
-	const char**									ppInstanceExtensions;
-	const uint32_t								instanceExtensionCount;
+	const char**									ppHephInstanceExtensions;
+	const uint32_t								hephInstanceExtensionCount;
+
+	const char**									ppVkInstanceExtensions;
+	const uint32_t								vkInstanceExtensionCount;
+	const char**									ppVkValidationLayers;
+	const uint32_t								vkValidationLayerCount;
 };
 
 struct HephDeviceCreateInfo {
-	const char**									ppDeviceExtensions;
-	const uint32_t								deviceExtensionCount;
-	const char**									ppValidationLayers;
-	const uint32_t								validationLayerCount;
-	const HephQueueReserveInfo*		pQueueReserveInfos;
-	const uint32_t								queueReserveInfoCount;
+	const HephQueueReserveInfo*				pQueueReserveInfos;
+	const uint32_t										queueReserveInfoCount;
+	const char**											ppHephDeviceExtensions;
+	const uint32_t										hephDeviceExtensionCount;
+
+	const char**											ppVkDeviceExtensions;
+	const uint32_t										vkDeviceExtensionCount;
+	const char**											ppVkValidationLayers;
+	const uint32_t										vkValidationLayerCount;
+	const VkPhysicalDeviceFeatures*		pVkPhysicalDeviceFeatures;
+	const VkPhysicalDeviceFeatures2*	pVkPhysicalDeviceFeatures2;
 };
 
 struct	HephInitializationInfo {
@@ -44,7 +56,8 @@ struct	HephInitializationInfo {
 class		HephInstance: public HephInstanceBase {
 	public:
 		HephInstance() {};
+		HephResult	destroy();
 
-		HephResult	create(HephInstanceCreateInfo& createInfo) {};
-		HephResult	createDevice(HephDeviceCreateInfo& createInfo) {};
+		HephResult	createInstance(HephInstanceCreateInfo& createInfo);
+		HephResult	createDevice(HephDeviceCreateInfo& createInfo);
 };
