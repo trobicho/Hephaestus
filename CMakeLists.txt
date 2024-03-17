@@ -25,4 +25,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
 
 install(TARGETS hephaestus 
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+	PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}"
+)
+install(FILES "srcs/core/hephInstance.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
+install(FILES "srcs/core/hephResult.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
+install(FILES "srcs/extensions/hephExtensionInterface.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
+install(FILES "srcs/extensions/hephExtensionDebug.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
+install(FILES "srcs/extensions/hephExtensionRayTracing.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
