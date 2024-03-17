@@ -5,7 +5,7 @@
 #include <memory>
 #include <vulkan/vulkan_core.h>
 
-class	HephExtensionRaytracing: HephDeviceExtensionInterface {
+class	HephExtensionRayTracing: HephDeviceExtensionInterface {
 	public:
 		inline std::vector<const char*>						deviceExtensions() {
 			return (std::vector<const char*> {
