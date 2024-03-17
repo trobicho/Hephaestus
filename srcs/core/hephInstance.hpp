@@ -1,23 +1,13 @@
 #pragma once
 
 #include "hephResult.hpp"
+#include "../extensions/hephExtensionInterface.hpp"
 #include <cstdint>
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
 struct	HephInstanceDebugInfo	{
 	bool	debug						= false;
-};
-
-struct	HephInstanceExtensionsInfo {
-	bool	debugUtils			= false;
-};
-
-struct	HephDeviceExtensionsInfo {
-	bool	rayTracing			= false;
-	bool	rayQuery				= false;
-	bool	hostCopy				= false;
-	bool	deviceAddress		= false;
 };
 
 struct	HephQueue {
@@ -37,7 +27,8 @@ struct HephInstanceCreateInfo {
 	uint32_t													engineVersion = VK_MAKE_VERSION(1, 0, 0);
 	uint32_t													apiVersion = VK_API_VERSION_1_3;
 	HephInstanceDebugInfo							hephInstanceDebugInfo;
-	HephInstanceExtensionsInfo				hephInstanceExtensionsInfo;
+	HephInstanceExtensionInterface**	ppHephInstanceExtensions;
+	uint32_t													hephInstanceExtensionCount;
 
 	const char**											ppVkInstanceExtensions;
 	uint32_t													kvkInstanceExtensionCount;
@@ -48,7 +39,7 @@ struct HephInstanceCreateInfo {
 struct HephDeviceCreateInfo {
 	const HephQueueReserveInfo*				pQueueReserveInfos;
 	uint32_t													queueReserveInfoCount;
-	HephDeviceExtensionsInfo					hephDeviceExtensionsInfo;
+	HephDeviceExtensionInterface*			hephDeviceExtensionsInfo;
 
 	const char**											ppVkDeviceExtensions;
 	uint32_t													vkDeviceExtensionCount;
@@ -88,4 +79,5 @@ class		HephInstance: public HephInstanceBase {
 	private:
 		std::vector<HephDevice>					m_hephDevices;
 		std::vector<VkPhysicalDevice>		m_physicalDevices;
+		VkAllocationCallbacks*					m_pAllocationCallbacks = nullptr;
 };

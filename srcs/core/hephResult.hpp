@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <iostream>
 #include <cstdint>
 #include <string>
@@ -15,9 +16,16 @@ class	HephResult {
 			m_isOk = true; 
 			if (result != VK_SUCCESS) {
 				m_isOk = false; 
-				error = err;
 				if (err.empty())
 					error = vkResultToString(result);
+				else {
+					error = err;
+					size_t formatPos = error.find("{}");
+					if (formatPos != -1) {
+						error.erase(formatPos, 2);
+						error.insert(formatPos, vkResultToString(result));
+					}
+				}
 			}
 		}
 		HephResult(std::string err, bool ok = false): m_isOk(ok), error(err) {};

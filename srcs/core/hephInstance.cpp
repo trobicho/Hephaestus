@@ -16,8 +16,16 @@ HephResult	HephInstance::create(HephInstanceCreateInfo& createInfo) {
 		.apiVersion = createInfo.apiVersion,
 	};
 
-	std::vector<const char*>	instanceLayerNames;
 	std::vector<const char*>	instanceExtensionNames;
+	std::vector<const char*>	instanceLayerNames;
+	for (int i = 0; i < createInfo.hephInstanceExtensionCount; i++) {
+		for (auto extensionName: createInfo.ppHephInstanceExtensions[i]->instanceExtensions()) {
+			instanceExtensionNames.push_back(extensionName);
+		}
+		for (auto layerName: createInfo.ppHephInstanceExtensions[i]->instanceValidationLayers()) {
+			instanceLayerNames.push_back(layerName);
+		}
+	}
 
 	VkInstanceCreateInfo	instanceCreateInfo = {
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -27,7 +35,8 @@ HephResult	HephInstance::create(HephInstanceCreateInfo& createInfo) {
 		.enabledExtensionCount = static_cast<uint32_t>(instanceExtensionNames.size()),
 		.ppEnabledExtensionNames = instanceExtensionNames.data(),
 	};
-	HEPH_CHECK_RESULT(HephResult(vkCreateInstance(&instanceCreateInfo, nullptr, &vulkanInstance), "Error in creating the Vulkan Instance"));
+	HEPH_CHECK_RESULT(HephResult(vkCreateInstance(&instanceCreateInfo, m_pAllocationCallbacks, &vulkanInstance)
+				, "Error in creating the Vulkan Instance: {} !!!"));
 	return (HephResult());
 }
 
