@@ -3,6 +3,22 @@
 #include "hephResult.hpp"
 #include <cstdint>
 #include <vulkan/vulkan_core.h>
+#include <vector>
+
+struct	HephInstanceDebugInfo	{
+	bool	debug						= false;
+};
+
+struct	HephInstanceExtensionsInfo {
+	bool	debugUtils			= false;
+};
+
+struct	HephDeviceExtensionsInfo {
+	bool	rayTracing			= false;
+	bool	rayQuery				= false;
+	bool	hostCopy				= false;
+	bool	deviceAddress		= false;
+};
 
 struct	HephQueue {
 	VkQueue				queue;
@@ -15,35 +31,29 @@ struct	HephQueueReserveInfo {
 	uint32_t			reserveCount;
 };
 
-class		HephInstanceBase {
-	public:
-		VkInstance				vulkanInstance;
-		VkDevice					device;
-		VkPhysicalDevice	physicalDevice;
-};
-
 struct HephInstanceCreateInfo {
-	const char*										pApplicationName;	
-	const char*										pEngineName = "";	
-	const char**									ppHephInstanceExtensions;
-	const uint32_t								hephInstanceExtensionCount;
+	const char*												pApplicationName;	
+	const char*												pEngineName = "";	
+	uint32_t													engineVersion = VK_MAKE_VERSION(1, 0, 0);
+	uint32_t													apiVersion = VK_API_VERSION_1_3;
+	HephInstanceDebugInfo							hephInstanceDebugInfo;
+	HephInstanceExtensionsInfo				hephInstanceExtensionsInfo;
 
-	const char**									ppVkInstanceExtensions;
-	const uint32_t								vkInstanceExtensionCount;
-	const char**									ppVkValidationLayers;
-	const uint32_t								vkValidationLayerCount;
+	const char**											ppVkInstanceExtensions;
+	uint32_t													kvkInstanceExtensionCount;
+	const char**											ppVkValidationLayers;
+	uint32_t													vkValidationLayerCount;
 };
 
 struct HephDeviceCreateInfo {
 	const HephQueueReserveInfo*				pQueueReserveInfos;
-	const uint32_t										queueReserveInfoCount;
-	const char**											ppHephDeviceExtensions;
-	const uint32_t										hephDeviceExtensionCount;
+	uint32_t													queueReserveInfoCount;
+	HephDeviceExtensionsInfo					hephDeviceExtensionsInfo;
 
 	const char**											ppVkDeviceExtensions;
-	const uint32_t										vkDeviceExtensionCount;
+	uint32_t													vkDeviceExtensionCount;
 	const char**											ppVkValidationLayers;
-	const uint32_t										vkValidationLayerCount;
+	uint32_t													vkValidationLayerCount;
 	const VkPhysicalDeviceFeatures*		pVkPhysicalDeviceFeatures;
 	const VkPhysicalDeviceFeatures2*	pVkPhysicalDeviceFeatures2;
 };
@@ -53,11 +63,29 @@ struct	HephInitializationInfo {
 	VkQueue						queue;
 };
 
+struct	HephDevice {
+	VkDevice								device;
+	std::vector<HephQueue>	queues;
+	VkPhysicalDevice				physicalDevice;
+};
+
+class		HephInstanceBase {
+	public:
+		VkInstance				vulkanInstance;
+		HephDevice				device;
+		VkPhysicalDevice	physicalDevice;
+};
+
 class		HephInstance: public HephInstanceBase {
 	public:
 		HephInstance() {};
+
+		HephResult	create(HephInstanceCreateInfo& createInfo);
 		HephResult	destroy();
 
-		HephResult	createInstance(HephInstanceCreateInfo& createInfo);
 		HephResult	createDevice(HephDeviceCreateInfo& createInfo);
+
+	private:
+		std::vector<HephDevice>					m_hephDevices;
+		std::vector<VkPhysicalDevice>		m_physicalDevices;
 };

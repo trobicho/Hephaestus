@@ -11,7 +11,15 @@
 class	HephResult {
 	public:
 		HephResult(bool ok = true): m_isOk(ok) {};
-		HephResult(VkResult result) {m_isOk = true; if (result != VK_SUCCESS) {m_isOk = false; error = vkResultToString(result);}}
+		HephResult(VkResult result, std::string err = "") {
+			m_isOk = true; 
+			if (result != VK_SUCCESS) {
+				m_isOk = false; 
+				error = err;
+				if (err.empty())
+					error = vkResultToString(result);
+			}
+		}
 		HephResult(std::string err, bool ok = false): m_isOk(ok), error(err) {};
 		HephResult(const char* err, bool ok = false): m_isOk(ok), error(std::string(err)) {};
 
