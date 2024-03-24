@@ -5,10 +5,13 @@ project ("hephaestus" VERSION 0.1 DESCRIPTION "a little vulkan wrapper")
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 
 add_library (hephaestus
+	srcs/core/hephaestus_core.hpp
 	srcs/core/hephInstance.cpp
 	srcs/core/hephInstance.hpp
 	srcs/core/hephResult.cpp
 	srcs/core/hephResult.hpp
+
+	srcs/physicalDevices/hephPhysicalDevicesSelector.hpp
 
 	srcs/extensions/hephExtensionInterface.hpp
 	srcs/extensions/hephExtensionDebug.hpp
@@ -29,6 +32,8 @@ install(TARGETS hephaestus
 )
 install(FILES "srcs/core/hephInstance.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 install(FILES "srcs/core/hephResult.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
+install(FILES "srcs/core/hephaestus_core.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
+install(FILES "srcs/physicalDevices/hephPhysicalDevicesSelector.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/physicalDevices/")
 install(FILES "srcs/extensions/hephExtensionInterface.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionDebug.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionRayTracing.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
