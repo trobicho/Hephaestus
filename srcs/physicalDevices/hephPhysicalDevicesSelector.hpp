@@ -3,7 +3,7 @@
 
 class	HephPhysicalDevicesSelectorBase {
 	public:
-		virtual HephResult	selectDevices() = 0;
+		virtual HephResult	selectDevices(HephInstance& hephInstance) = 0;
 };
 
 class	HephPhysicalDevicesSelectorTest: public HephPhysicalDevicesSelectorBase {

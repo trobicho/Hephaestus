@@ -2,26 +2,12 @@
 
 #include "hephResult.hpp"
 #include "../extensions/hephExtensionInterface.hpp"
-#include <cstdint>
+#include "hephQueueReserveInterface.hpp"
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
 struct	HephInstanceDebugInfo	{
 	bool	debug						= false;
-};
-
-struct	HephQueue {
-	VkQueue				queue;
-	VkQueueFlags	flags;
-	bool					inUse = false;
-	uint32_t			familyIndex;
-};
-
-struct	HephQueueReserveInfo {
-	VkQueueFlags						flags;
-	float										priority;
-	uint32_t								count;
-	std::vector<HephQueue*>	queues;
 };
 
 struct HephInstanceCreateInfo {
@@ -35,14 +21,13 @@ struct HephInstanceCreateInfo {
 	uint32_t													hephInstanceExtensionCount = 0;
 
 	const char**											ppVkInstanceExtensions = nullptr;
-	uint32_t													kvkInstanceExtensionCount = 0;
+	uint32_t													vkInstanceExtensionCount = 0;
 	const char**											ppVkValidationLayers = nullptr;
 	uint32_t													vkValidationLayerCount = 0;
 };
 
 struct HephDeviceCreateInfo {
-	HephQueueReserveInfo*							pQueueReserveInfos = nullptr;
-	uint32_t													queueReserveInfoCount = 0;
+	HephQueueReserveInterface*				pQueueReserveInterface = nullptr;
 	HephDeviceExtensionInterface**		ppHephDeviceExtensions;
 	uint32_t													hephDeviceExtensionsCount;
 

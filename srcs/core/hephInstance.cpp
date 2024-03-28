@@ -4,31 +4,8 @@
 #include <cstdint>
 #include <vulkan/vulkan_core.h>
 
-static void		queueReservation(std::vector<VkQueueFamilyProperties2> queueFamilyProps
-		, std::vector<HephQueueReserveInfo*>& queueReserveInfos
-		, std::vector<VkDeviceQueueCreateInfo>& queueCreateInfo)
-{
-	for (auto& reserveInfo: queueReserveInfos) {
-		for (uint32_t i = 0; i < queueFamilyProps.size(); i++) {
-			if (queueFamilyProps[i].queueFamilyProperties.queueFlags == reserveInfo->flags && queueFamilyProps[i].queueFamilyProperties.queueCount > 0) {
-				uint32_t	queueCount = std::min(queueFamilyProps[i].queueFamilyProperties.queueCount, reserveInfo->count);
-				if (queueCount == 0)
-					queueCount = queueFamilyProps[i].queueFamilyProperties.queueCount;
-				std::vector<float>	priorities;
-				priorities.resize(queueCount, reserveInfo->priority);
-				queueCreateInfo.push_back((VkDeviceQueueCreateInfo){
-					.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-					.queueFamilyIndex = i,
-					.queueCount = queueCount,
-					.pQueuePriorities = priorities.data(),
-				});
-				queueFamilyProps[i].queueFamilyProperties.queueCount -= queueCount;
-			}
-		}
-	}
-}
-
 HephResult	HephInstance::destroy() {
+	vkDestroyInstance(vulkanInstance, m_pAllocationCallbacks);
 	return (HephResult());
 }
 
@@ -52,6 +29,12 @@ HephResult	HephInstance::create(HephInstanceCreateInfo& createInfo) {
 			instanceLayerNames.push_back(layerName);
 		}
 	}
+	for (int i = 0; i < createInfo.vkInstanceExtensionCount; i++) {
+		instanceExtensionNames.push_back(createInfo.ppVkInstanceExtensions[i]);
+	}
+	for (int i = 0; i < createInfo.vkValidationLayerCount; i++) {
+		instanceLayerNames.push_back(createInfo.ppVkValidationLayers[i]);
+	}
 
 	VkInstanceCreateInfo	instanceCreateInfo = {
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -68,24 +51,17 @@ HephResult	HephInstance::create(HephInstanceCreateInfo& createInfo) {
 
 HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevice* device) {
 	if (m_physicalDevices.empty())
-		return (HephResult("No VkPhysicalDevice in instance"));
+		return (HephResult("No VkPhysicalDevice in instance."));
+	if (createInfo.pQueueReserveInterface == nullptr)
+		return (HephResult("No HephQueueReserveInterface provided."));
 	HephDevice deviceTmp;
 	deviceTmp.physicalDevice = m_physicalDevices[0];//multiple physicalDevices
 
-
-	std::vector<VkQueueFamilyProperties2>										queueFamilyProps;
-	std::vector<VkQueueFamilyGlobalPriorityPropertiesKHR>		queueFamilyGlobalPriorityProps;
-	uint32_t																								queueCount = 0;
-
-	vkGetPhysicalDeviceQueueFamilyProperties2(deviceTmp.physicalDevice, &queueCount, nullptr);
-	if (queueCount == 0)
-		return (HephResult("No Queue Found !"));
-	queueFamilyProps.resize(queueCount);
-	queueFamilyGlobalPriorityProps.resize(queueCount);
-	for (int i = 0; i < queueCount; i++) {
-		queueFamilyProps[i].pNext = &queueFamilyGlobalPriorityProps[i];
-	}
-	vkGetPhysicalDeviceQueueFamilyProperties2(deviceTmp.physicalDevice, &queueCount, queueFamilyProps.data());
+	HEPH_CHECK_RESULT(createInfo.pQueueReserveInterface->reserve(deviceTmp.physicalDevice));
+	uint32_t												queueCreateInfoCount = 0;
+	const VkDeviceQueueCreateInfo*	queueCreateInfos = createInfo.pQueueReserveInterface->getQueueCreateInfos(&queueCreateInfoCount);
+	if (queueCreateInfoCount == 0)
+		return (HephResult("empty QueueCreateInfo."));
 
 	if (device != nullptr)
 		*device = deviceTmp;

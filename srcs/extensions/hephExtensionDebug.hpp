@@ -3,7 +3,7 @@
 #include "hephExtensionInterface.hpp"
 #include <vulkan/vulkan_core.h>
 
-class	HephExtensionDebug: HephInstanceExtensionInterface {
+class	HephExtensionDebug: public HephInstanceExtensionInterface {
 	public:
 		inline std::vector<const char*>						instanceExtensions() {
 			return (std::vector<const char*> {
