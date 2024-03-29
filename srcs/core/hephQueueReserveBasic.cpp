@@ -1,7 +1,32 @@
 #include "hephQueueReserveBasic.hpp"
+#include "hephHelper.hpp"
+#include <algorithm>
+#include <bitset>
 
-static void	printQueueFamilyInfo(HephQueueFamilyProperties) {
-
+void	HephQueueReserveBasic::rateQueueFamily() {
+	for (auto& reserveInfo: m_queueReserveInfos) {
+		std::vector<QueueFamilyRating>	familyRatings;
+		for (int i = 0; i < m_queueFamilyProps.size(); i++) {
+			auto& props = m_queueFamilyProps[i]; 
+			VkQueueFlags propFlags = props.props.queueFamilyProperties.queueFlags;
+			if (reserveInfo.flags & propFlags) {
+				QueueFamilyRating	rating;
+				rating.family = i;
+				rating.rating = 1.0;
+				propFlags -= reserveInfo.flags;
+				if (propFlags != 0) {
+					if (propFlags & VK_QUEUE_GRAPHICS_BIT) {
+						rating.rating -= 0.5;
+					}
+					std::bitset<32> flagsBitSet(propFlags);
+					rating.rating /= flagsBitSet.count() + 1;
+				}
+				familyRatings.push_back(rating);
+			}
+		}
+		std::sort(familyRatings.begin(), familyRatings.end());
+		m_queueFamilyRatings.push_back(familyRatings);
+	}
 }
 
 HephResult	HephQueueReserveBasic::reserve(VkPhysicalDevice physicalDevice) {
@@ -9,30 +34,36 @@ HephResult	HephQueueReserveBasic::reserve(VkPhysicalDevice physicalDevice) {
 		return (HephResult("in HephQueueReserveBasic QueueReserveInfo shouldn't be empty"));
 	m_queueFamilyProps.clear();
 	HEPH_CHECK_RESULT(getFamilyProps(physicalDevice));
+	for (uint32_t i = 0; i < m_queueFamilyProps.size(); i++) {
+		HephHelper::printQueueFamilyInfo(m_queueFamilyProps[i]);
+	}
+	rateQueueFamily();
 
-	for (auto& reserveInfo: m_queueReserveInfos) {
-		for (uint32_t i = 0; i < m_queueFamilyProps.size(); i++) {
-			printQueueFamilyInfo(m_queueFamilyProps[i]);
-			if (m_queueFamilyProps[i].props.queueFamilyProperties.queueFlags == reserveInfo.flags
-					&& m_queueFamilyProps[i].props.queueFamilyProperties.queueCount > m_queueFamilyCurrentIndex[i]) {
-				std::cout << "TEST" << i << std::endl;
-				uint32_t	queueCount = std::min(m_queueFamilyProps[i].props.queueFamilyProperties.queueCount - m_queueFamilyCurrentIndex[i], reserveInfo.count);
-				if (queueCount == 0)
-					queueCount = m_queueFamilyProps[i].props.queueFamilyProperties.queueCount;
-				std::vector<float>	priorities;
-				priorities.resize(queueCount, reserveInfo.priority);
+	for (int r = 0; r < m_queueReserveInfos.size(); r++) {
+		auto& reserve = m_queueReserveInfos[r];
+		auto& ratings = m_queueFamilyRatings[r];
+
+		for (auto& rating : ratings) {
+			uint32_t	queueCount = std::min(m_queueFamilyProps[rating.family].props.queueFamilyProperties.queueCount
+					- m_queueFamilyCurrentIndex[rating.family], reserve.count);
+			if (queueCount == 0)
+				queueCount = m_queueFamilyProps[rating.family].props.queueFamilyProperties.queueCount;
+			std::vector<float>	priorities;
+				priorities.resize(queueCount, reserve.priority);
 				m_queueCreateInfos.push_back((VkDeviceQueueCreateInfo){
 					.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-					.queueFamilyIndex = i,
+					.queueFamilyIndex = rating.family,
 					.queueCount = queueCount,
 					.pQueuePriorities = priorities.data(),
 				});
-				for (int j = 0; j < queueCount; j++) {
-					m_queueReserveInfos[i].retrieveInfo[j].familyIndex = i;
-					m_queueReserveInfos[i].retrieveInfo[j].queueIndex = j + m_queueFamilyCurrentIndex[i];
+				for (int i = 0; i < queueCount; i++) {
+					HephQueueRetrieveInfo retrieveInfo;
+					retrieveInfo.familyIndex = rating.family;
+					retrieveInfo.queueIndex = i + m_queueFamilyCurrentIndex[rating.family];
+					reserve.retrieveInfo.push_back(retrieveInfo);
 				}
-				m_queueFamilyCurrentIndex[i] += queueCount;
-			}
+				m_queueFamilyCurrentIndex[rating.family] += queueCount;
+				reserve.count -= queueCount;
 		}
 	}
 	return (HephResult());

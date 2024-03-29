@@ -11,6 +11,7 @@ add_library (hephaestus
 	srcs/core/hephInstance.hpp
 	srcs/core/hephResult.cpp
 	srcs/core/hephResult.hpp
+	srcs/core/hephHelper.hpp
 	srcs/core/hephQueueReserveInterface.hpp
 	srcs/core/hephQueueReserveBasic.cpp
 	srcs/core/hephQueueReserveBasic.hpp
@@ -37,6 +38,7 @@ install(TARGETS hephaestus
 install(FILES "srcs/core/hephaestus_core.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 install(FILES "srcs/core/hephInstance.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 install(FILES "srcs/core/hephResult.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
+install(FILES "srcs/core/hephHelper.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 install(FILES "srcs/core/hephQueueReserveInterface.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 install(FILES "srcs/core/hephQueueReserveBasic.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 

@@ -56,6 +56,24 @@ HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevi
 		return (HephResult("No HephQueueReserveInterface provided."));
 	HephDevice deviceTmp;
 	deviceTmp.physicalDevice = m_physicalDevices[0];//multiple physicalDevices
+	
+	std::vector<const char*>						deviceExtensionNames;
+	std::vector<const char*>						deviceLayerNames;
+	std::list<std::unique_ptr<void*>>		featuresBuffer;
+	for (int i = 0; i < createInfo.hephDeviceExtensionsCount; i++) {
+		for (auto extensionName: createInfo.ppHephDeviceExtensions[i]->deviceExtensions()) {
+			deviceExtensionNames.push_back(extensionName);
+		}
+		for (auto layerName: createInfo.ppHephDeviceExtensions[i]->deviceValidationLayers()) {
+			deviceLayerNames.push_back(layerName);
+		}
+		if (i == 0)
+			featuresBuffer = createInfo.ppHephDeviceExtensions[i]->deviceFeatures();
+		else {
+			VkPhysicalDeviceFeatures2KHR* feats = static_cast<VkPhysicalDeviceFeatures2KHR*>(*featuresBuffer.end()->get());
+			feats->pNext = *createInfo.ppHephDeviceExtensions[i]->deviceFeatures().front();
+		}
+	}
 
 	HEPH_CHECK_RESULT(createInfo.pQueueReserveInterface->reserve(deviceTmp.physicalDevice));
 	uint32_t												queueCreateInfoCount = 0;
@@ -63,7 +81,21 @@ HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevi
 	if (queueCreateInfoCount == 0)
 		return (HephResult("empty QueueCreateInfo."));
 
+	VkDeviceCreateInfo	deviceInfo = {
+		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+		//.pNext = featuresBuffer.front().get(),
+		.queueCreateInfoCount = queueCreateInfoCount,
+		.pQueueCreateInfos = queueCreateInfos,
+		.enabledLayerCount= static_cast<uint32_t>(deviceLayerNames.size()),
+		.ppEnabledLayerNames= deviceLayerNames.data(),
+		.enabledExtensionCount = static_cast<uint32_t>(deviceExtensionNames.size()),
+		.ppEnabledExtensionNames = deviceExtensionNames.data(),
+	};
+
+	HEPH_CHECK_RESULT(HephResult(vkCreateDevice(deviceTmp.physicalDevice, &deviceInfo, m_pAllocationCallbacks, &deviceTmp.device)
+				, "Failed to create Logical Device! ({})"))
+
 	if (device != nullptr)
-		*device = deviceTmp;
+		m_hephDevices.push_back(deviceTmp);
 	return (HephResult());
 }
