@@ -2,6 +2,7 @@
 #include "hephHelper.hpp"
 #include <algorithm>
 #include <bitset>
+#include <cstdint>
 
 void	HephQueueReserveBasic::rateQueueFamily() {
 	for (auto& reserveInfo: m_queueReserveInfos) {
@@ -42,12 +43,19 @@ HephResult	HephQueueReserveBasic::reserve(VkPhysicalDevice physicalDevice) {
 	for (int r = 0; r < m_queueReserveInfos.size(); r++) {
 		auto& reserve = m_queueReserveInfos[r];
 		auto& ratings = m_queueFamilyRatings[r];
+		uint32_t	queueTotal = 0;
 
 		for (auto& rating : ratings) {
+			if (reserve.count == 0 && queueTotal > 0)
+				break;
 			uint32_t	queueCount = std::min(m_queueFamilyProps[rating.family].props.queueFamilyProperties.queueCount
-					- m_queueFamilyCurrentIndex[rating.family], reserve.count);
-			if (queueCount == 0)
-				queueCount = m_queueFamilyProps[rating.family].props.queueFamilyProperties.queueCount;
+					- m_queueFamilyCurrentIndex[rating.family], reserve.count - queueTotal);
+			if (queueCount == 0) {
+				if (queueTotal == 0)
+					queueCount = m_queueFamilyProps[rating.family].props.queueFamilyProperties.queueCount;
+				else
+					break;
+			}
 			std::vector<float>	priorities;
 				priorities.resize(queueCount, reserve.priority);
 				m_queueCreateInfos.push_back((VkDeviceQueueCreateInfo){
@@ -56,6 +64,7 @@ HephResult	HephQueueReserveBasic::reserve(VkPhysicalDevice physicalDevice) {
 					.queueCount = queueCount,
 					.pQueuePriorities = priorities.data(),
 				});
+				queueTotal += queueCount;
 				for (int i = 0; i < queueCount; i++) {
 					HephQueueRetrieveInfo retrieveInfo;
 					retrieveInfo.familyIndex = rating.family;
@@ -63,8 +72,8 @@ HephResult	HephQueueReserveBasic::reserve(VkPhysicalDevice physicalDevice) {
 					reserve.retrieveInfo.push_back(retrieveInfo);
 				}
 				m_queueFamilyCurrentIndex[rating.family] += queueCount;
-				reserve.count -= queueCount;
 		}
+		reserve.count -= queueTotal;
 	}
 	return (HephResult());
 }
