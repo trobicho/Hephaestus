@@ -28,8 +28,8 @@ class	HephResult {
 				}
 			}
 		}
-		HephResult(std::string err, bool ok = false): m_isOk(ok), error(err) {};
-		HephResult(const char* err, bool ok = false): m_isOk(ok), error(std::string(err)) {};
+		HephResult(std::string err, bool ok = false): m_isOk(ok) {error = (ok)? "" : err;}
+		HephResult(const char* err, bool ok = false): m_isOk(ok) {error = (ok)? "" : std::string(err);}
 
 		bool	valid(){return (m_isOk);}
 

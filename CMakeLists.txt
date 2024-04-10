@@ -48,6 +48,8 @@ install(FILES "srcs/core/hephQueueReserveBasic.hpp" DESTINATION "${CMAKE_INSTALL
 
 install(FILES "srcs/physicalDevices/hephPhysicalDevicesSelector.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/physicalDevices/")
 
+install(FILES "srcs/rendering/hephSwapchain.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/rendering/")
+
 install(FILES "srcs/extensions/hephExtensionInterface.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionDebug.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionRayTracing.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")

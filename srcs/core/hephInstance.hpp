@@ -48,6 +48,7 @@ struct	HephDevice {
 	VkDevice								device;
 	std::vector<HephQueue>	queues;
 	VkPhysicalDevice				physicalDevice;
+	VkAllocationCallbacks*	pAllocationCallbacks = nullptr;
 };
 
 class		HephInstanceBase {
@@ -58,6 +59,7 @@ class		HephInstanceBase {
 class		HephInstance: public HephInstanceBase {
 	public:
 		HephInstance() {};
+		~HephInstance() {destroy();}
 
 		HephResult	create(HephInstanceCreateInfo& createInfo);
 		HephResult	destroy();
