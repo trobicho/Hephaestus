@@ -19,10 +19,8 @@ inline void	printQueueFamilyInfo(HephQueueFamilyProperties props) {
 		std::cout << "VK_QUEUE_BINDING_BIT ";
 	if (flags & VK_QUEUE_VIDEO_DECODE_BIT_KHR) // Provided by VK_KHR_video_decode_queue
 		std::cout << "VK_QUEUE_VIDEO_DECODE_BIT_KHR ";
-	/*
 	if (flags & VK_QUEUE_VIDEO_ENCODE_BIT_KHR) // Provided by VK_KHR_video_encode_queue
 		std::cout << "VK_QUEUE_VIDEO_ENCODE_BIT_KHR ";
-		*/
 	if (flags & VK_QUEUE_OPTICAL_FLOW_BIT_NV) // Provided by VK_NV_optical_flow
 		std::cout << "VK_QUEUE_OPTICAL_FLOW_BIT_NV ";
 	std::cout << std::endl;

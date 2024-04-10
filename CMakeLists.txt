@@ -16,11 +16,15 @@ add_library (hephaestus
 	srcs/core/hephQueueReserveBasic.cpp
 	srcs/core/hephQueueReserveBasic.hpp
 
+	srcs/rendering/hephSwapchain.cpp
+	srcs/rendering/hephSwapchain.hpp
+
 	srcs/physicalDevices/hephPhysicalDevicesSelector.hpp
 
 	srcs/extensions/hephExtensionInterface.hpp
 	srcs/extensions/hephExtensionDebug.hpp
 	srcs/extensions/hephExtensionRayTracing.hpp
+	srcs/extensions/hephExtensionVideo.hpp
 )
 set_target_properties(hephaestus PROPERTIES
 	VERSION ${PROJECT_VERSION}
@@ -47,3 +51,4 @@ install(FILES "srcs/physicalDevices/hephPhysicalDevicesSelector.hpp" DESTINATION
 install(FILES "srcs/extensions/hephExtensionInterface.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionDebug.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionRayTracing.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
+install(FILES "srcs/extensions/hephExtensionVideo.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
