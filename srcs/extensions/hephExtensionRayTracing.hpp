@@ -60,4 +60,5 @@ class	HephExtensionRayTracing: public HephDeviceExtensionInterface {
 
 			return (featuresBuffer);
 		}
+		void	deviceFunctionLoader(VkDevice device);
 };

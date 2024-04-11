@@ -93,7 +93,11 @@ HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevi
 	};
 
 	HEPH_CHECK_RESULT(HephResult(vkCreateDevice(deviceTmp.physicalDevice, &deviceInfo, m_pAllocationCallbacks, &deviceTmp.device)
-				, "Failed to create Logical Device! ({})"))
+				, "Failed to create Logical Device! ({})"));
+
+	for (int i = 0; i < createInfo.hephDeviceExtensionsCount; i++) {
+		createInfo.ppHephDeviceExtensions[i]->deviceFunctionLoader(deviceTmp.device);
+	}
 
 	if (device != nullptr)
 		m_hephDevices.push_back(deviceTmp);

@@ -21,7 +21,8 @@ class	HephExtensionVideo: public HephDeviceExtensionInterface {
 		}
 		inline std::list<std::unique_ptr<void*>>	deviceFeatures() {
 			std::list<std::unique_ptr<void*>>	featuresBuffer;
-			//RAYTRACING FEATURES
+			//VIDEO FEATURES
 			return (featuresBuffer);
 		}
+		void	deviceFunctionLoader(VkDevice device);
 };

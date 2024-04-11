@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <list>
+#include <vulkan/vulkan_core.h>
 		
 class	HephInstanceExtensionInterface {
 	public:
@@ -16,4 +17,5 @@ class	HephDeviceExtensionInterface {
 		inline virtual std::list<std::unique_ptr<void*>>		deviceFeatures() = 0;
 		inline virtual std::vector<const char*>							deviceValidationLayers()
 			{return (std::vector<const char*>());}
+		inline virtual void																	deviceFunctionLoader(VkDevice	device) {};
 };

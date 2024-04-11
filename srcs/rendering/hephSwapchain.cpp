@@ -8,6 +8,10 @@ HephResult	HephSwapchain::create(HephDevice& device, HephSwapchainCreateInfo cre
 	return (createSwapchain());
 }
 
+HephResult	HephSwapchain::destroy() {
+	return (HephResult());
+}
+
 HephResult	HephSwapchain::createSwapchain() {
 	m_createInfo.swapchainCreateInfo.oldSwapchain = m_swapchain;
 	HEPH_CHECK_RESULT(HephResult(vkCreateSwapchainKHR(m_device.device, &m_createInfo.swapchainCreateInfo, m_device.pAllocationCallbacks, &m_swapchain)
