@@ -1,7 +1,7 @@
 #include "hephExtensionVideo.hpp"
 #include <vulkan/vulkan_core.h>
 
-void	printDeviceProperties(VkDevice	device) {
+void	HephExtensionVideo::printDeviceProperties(VkDevice	device) {
 }
 
 static PFN_vkCmdDecodeVideoKHR			pfn_vkCmdDecodeVideoKHR	= 0;

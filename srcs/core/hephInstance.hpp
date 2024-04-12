@@ -45,6 +45,17 @@ struct	HephInitializationInfo {
 };
 
 struct	HephDevice {
+	HephDevice() {};
+	HephDevice(const HephDevice &dev, VkQueueFlags flags = 0xFFFFFF) {
+		device = dev.device;
+		physicalDevice = dev.physicalDevice;
+		pAllocationCallbacks = dev.pAllocationCallbacks;
+		for (auto& queue : dev.queues) {
+			if (queue.flags & flags)
+				queues.push_back(queue);
+		}
+	};
+
 	VkDevice								device;
 	std::vector<HephQueue>	queues;
 	VkPhysicalDevice				physicalDevice;

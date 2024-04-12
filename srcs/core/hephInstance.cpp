@@ -49,10 +49,8 @@ HephResult	HephInstance::create(HephInstanceCreateInfo& createInfo) {
 }
 
 HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevice* device) {
-	if (m_physicalDevices.empty())
-		return (HephResult("No VkPhysicalDevice in instance."));
-	if (createInfo.pQueueReserveInterface == nullptr)
-		return (HephResult("No HephQueueReserveInterface provided."));
+	HEPH_CHECK_RESULT(HephResult("No VkPhysicalDevice in instance.", !m_physicalDevices.empty()));
+	HEPH_CHECK_RESULT(HephResult("No HephQueueReserveInterface provided.", createInfo.pQueueReserveInterface != nullptr));
 	HephDevice deviceTmp;
 	deviceTmp.physicalDevice = m_physicalDevices[0];//multiple physicalDevices
 	
@@ -93,12 +91,14 @@ HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevi
 
 	HEPH_CHECK_RESULT(HephResult(vkCreateDevice(deviceTmp.physicalDevice, &deviceInfo, m_pAllocationCallbacks, &deviceTmp.device)
 				, "Failed to create Logical Device! ({})"));
+	std::cout << "DEBUG DEVICE CREATE: 94" << std::endl;
 
 	for (int i = 0; i < createInfo.hephDeviceExtensionsCount; i++) {
 		createInfo.ppHephDeviceExtensions[i]->deviceFunctionLoader(deviceTmp.device);
 	}
 
 	if (device != nullptr)
-		m_hephDevices.push_back(deviceTmp);
+		*device = deviceTmp;
+	m_hephDevices.push_back(deviceTmp);
 	return (HephResult());
 }
