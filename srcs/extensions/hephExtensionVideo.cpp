@@ -1,6 +1,9 @@
 #include "hephExtensionVideo.hpp"
 #include <vulkan/vulkan_core.h>
 
+void	printDeviceProperties(VkDevice	device) {
+}
+
 static PFN_vkCmdDecodeVideoKHR			pfn_vkCmdDecodeVideoKHR	= 0;
 
 static PFN_vkCmdEncodeVideoKHR			pfn_vkCmdEncodeVideoKHR = 0;
@@ -19,7 +22,6 @@ static PFN_vkGetPhysicalDeviceVideoCapabilitiesKHR	pfn_vkGetPhysicalDeviceVideoC
 static PFN_vkUpdateVideoSessionParametersKHR	pfn_vkUpdateVideoSessionParametersKHR = 0;
 static PFN_vkGetPhysicalDeviceVideoFormatPropertiesKHR	pfn_vkGetPhysicalDeviceVideoFormatPropertiesKHR = 0;
 static PFN_vkGetVideoSessionMemoryRequirementsKHR	pfn_vkGetVideoSessionMemoryRequirementsKHR = 0;
-
 
 void  HephExtensionVideo::deviceFunctionLoader(VkDevice device) {
   pfn_vkCmdDecodeVideoKHR =

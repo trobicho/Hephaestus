@@ -25,4 +25,5 @@ class	HephExtensionVideo: public HephDeviceExtensionInterface {
 			return (featuresBuffer);
 		}
 		void	deviceFunctionLoader(VkDevice device);
+		void	printDeviceProperties(VkDevice	device);
 };

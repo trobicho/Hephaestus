@@ -18,4 +18,5 @@ class	HephDeviceExtensionInterface {
 		inline virtual std::vector<const char*>							deviceValidationLayers()
 			{return (std::vector<const char*>());}
 		inline virtual void																	deviceFunctionLoader(VkDevice	device) {};
+		inline virtual void																	printDeviceProperties(VkDevice	device) {};
 };

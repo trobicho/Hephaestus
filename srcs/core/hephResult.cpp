@@ -102,8 +102,6 @@ std::string	HephResult::vkResultToString(VkResult result) {
       // Provided by VK_EXT_descriptor_indexing:
     case VK_ERROR_FRAGMENTATION_EXT:
       return ("VK_ERROR_FRAGMENTATION_EXT");
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-      return ("VK_ENABLE_BETA_EXTENSIONS");
       // Provided by VK_KHR_video_queue:
     case VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR:
       return ("VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR");
@@ -123,7 +121,6 @@ std::string	HephResult::vkResultToString(VkResult result) {
       // Provided by VK_KHR_video_queue:
     case VK_ERROR_VIDEO_STD_VERSION_NOT_SUPPORTED_KHR:
       return ("VK_ERROR_VIDEO_STD_VERSION_NOT_SUPPORTED_KHR");
-#endif
     case VK_RESULT_MAX_ENUM:
       return ("VK_RESULT_MAX_ENUM");
 		default:

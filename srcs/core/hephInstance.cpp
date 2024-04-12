@@ -1,6 +1,5 @@
 #include "hephInstance.hpp"
 #include "hephResult.hpp"
-#include <algorithm>
 #include <cstdint>
 #include <vulkan/vulkan_core.h>
 

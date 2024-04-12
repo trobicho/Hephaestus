@@ -4,6 +4,8 @@
 #include <vulkan/vulkan_core.h>
 
 struct	HephSurfaceSupportDetails {
+	HephSurfaceSupportDetails(){};
+	HephSurfaceSupportDetails(const HephDevice& device, VkSurfaceKHR surface) {getSurfaceSupportDetails(device, surface);}
 	VkSurfaceCapabilitiesKHR					capabilies;
 	std::vector<VkSurfaceFormatKHR>		formats;
 	std::vector<VkPresentModeKHR>			presentModes;

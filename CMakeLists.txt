@@ -23,7 +23,9 @@ add_library (hephaestus
 
 	srcs/extensions/hephExtensionInterface.hpp
 	srcs/extensions/hephExtensionDebug.hpp
+	srcs/extensions/hephExtensionRayTracing.cpp
 	srcs/extensions/hephExtensionRayTracing.hpp
+	srcs/extensions/hephExtensionVideo.cpp
 	srcs/extensions/hephExtensionVideo.hpp
 )
 set_target_properties(hephaestus PROPERTIES
