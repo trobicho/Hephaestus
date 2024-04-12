@@ -1,7 +1,6 @@
 #pragma once
 
 #include "hephExtensionInterface.hpp"
-#include <algorithm>
 #include <memory>
 #include <vulkan/vulkan_core.h>
 

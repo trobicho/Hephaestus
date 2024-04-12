@@ -25,17 +25,17 @@ HephResult	HephSwapchain::createSwapchain() {
 
 	m_images.resize(m_imageCount);
 	for (int i = 0; i < m_imageCount; i++) {
+		m_images[i].image = imageData[i];
 		VkImageViewCreateInfo	viewInfo = {
 			.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 			.image = m_images[i].image,
 			.viewType = VK_IMAGE_VIEW_TYPE_2D,
 			.format = m_createInfo.swapchainCreateInfo.imageFormat,
-			.components = m_createInfo.componenMapping,
+			.components = m_createInfo.componentMapping,
 			.subresourceRange = m_createInfo.imageSubresourceRange,
 		};
 		HEPH_CHECK_RESULT(HephResult(vkCreateImageView(m_device.device, &viewInfo, m_device.pAllocationCallbacks, &m_images[i].imageView)
 					, "Failed to create the image views"));
-		m_images[i].image = imageData[i];
 	}
 	if (m_createInfo.renderPass != VK_NULL_HANDLE)
 		createFramebuffers(m_createInfo.renderPass);

@@ -4,6 +4,7 @@ project ("hephaestus" VERSION 0.1 DESCRIPTION "a little vulkan wrapper")
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 set(CMAKE_CXX_FLAGS_DEBUG  "-g")
+set(CMAKE_C_FLAGS "-g")
 
 add_library (hephaestus
 	srcs/core/hephaestus_core.hpp
@@ -27,6 +28,8 @@ add_library (hephaestus
 	srcs/extensions/hephExtensionRayTracing.hpp
 	srcs/extensions/hephExtensionVideo.cpp
 	srcs/extensions/hephExtensionVideo.hpp
+	srcs/extensions/hephExtensionScreenRendering.cpp
+	srcs/extensions/hephExtensionScreenRendering.hpp
 )
 set_target_properties(hephaestus PROPERTIES
 	VERSION ${PROJECT_VERSION}
@@ -56,3 +59,4 @@ install(FILES "srcs/extensions/hephExtensionInterface.hpp" DESTINATION "${CMAKE_
 install(FILES "srcs/extensions/hephExtensionDebug.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionRayTracing.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionVideo.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
+install(FILES "srcs/extensions/hephExtensionScreenRendering.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")

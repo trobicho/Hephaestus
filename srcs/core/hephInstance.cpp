@@ -64,7 +64,7 @@ HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevi
 		for (auto layerName: createInfo.ppHephDeviceExtensions[i]->deviceValidationLayers()) {
 			deviceLayerNames.push_back(layerName);
 		}
-		if (i == 0)
+		if (featuresBuffer.empty())
 			featuresBuffer = createInfo.ppHephDeviceExtensions[i]->deviceFeatures();
 		else {
 			VkPhysicalDeviceFeatures2KHR* feats = static_cast<VkPhysicalDeviceFeatures2KHR*>(*featuresBuffer.end()->get());
@@ -91,7 +91,6 @@ HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevi
 
 	HEPH_CHECK_RESULT(HephResult(vkCreateDevice(deviceTmp.physicalDevice, &deviceInfo, m_pAllocationCallbacks, &deviceTmp.device)
 				, "Failed to create Logical Device! ({})"));
-	std::cout << "DEBUG DEVICE CREATE: 94" << std::endl;
 
 	for (int i = 0; i < createInfo.hephDeviceExtensionsCount; i++) {
 		createInfo.ppHephDeviceExtensions[i]->deviceFunctionLoader(deviceTmp.device);

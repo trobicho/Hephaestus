@@ -45,7 +45,7 @@ struct	HephSwapchainImage {
 struct	HephSwapchainCreateInfo {
 	VkSwapchainCreateInfoKHR	swapchainCreateInfo;
 	VkRenderPass 							renderPass = VK_NULL_HANDLE;
-	VkComponentMapping				componenMapping = (VkComponentMapping){
+	VkComponentMapping				componentMapping = (VkComponentMapping){
 		.r = VK_COMPONENT_SWIZZLE_IDENTITY,
 		.g = VK_COMPONENT_SWIZZLE_IDENTITY,
 		.b = VK_COMPONENT_SWIZZLE_IDENTITY,
