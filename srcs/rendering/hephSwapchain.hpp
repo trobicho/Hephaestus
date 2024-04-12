@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../core/hephaestus_core.hpp"
-#include <vulkan/vulkan_core.h>
 
 struct	HephSurfaceSupportDetails {
 	HephSurfaceSupportDetails(){};
@@ -79,6 +78,8 @@ class		HephSwapchain {
 		HephResult	createFramebuffers(VkRenderPass renderPass);
 		HephResult	acquireNextImage(HephSwapchainPresentData& presentData);
 		HephResult	destroy();
+
+		uint32_t		getImageCount() {return(m_imageCount);}
 
 	private:
 		HephResult	createSwapchain();

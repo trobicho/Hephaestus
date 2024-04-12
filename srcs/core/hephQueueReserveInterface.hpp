@@ -22,7 +22,7 @@ struct	HephQueueReserveInfo {
 	VkQueueFlags												flags;
 	float																priority;
 	uint32_t														count;
-	std::vector<HephQueueRetrieveInfo>	retrieveInfo;
+	std::vector<HephQueueRetrieveInfo>	retrieveInfos;
 };
 
 struct	HephQueueFamilyProperties {
@@ -51,6 +51,7 @@ class	HephQueueReserveInterface {
 				*queueCreateInfoCount = m_queueCreateInfos.size();
 			return (m_queueCreateInfos.data());
 		}
+		const std::vector<HephQueueReserveInfo>&			getReserveInfo() {return (m_queueReserveInfos);}
 
 	protected:
 		HephResult	getFamilyProps(VkPhysicalDevice	physicalDevice) {

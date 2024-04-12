@@ -69,7 +69,7 @@ HephResult	HephQueueReserveBasic::reserve(VkPhysicalDevice physicalDevice) {
 					HephQueueRetrieveInfo retrieveInfo;
 					retrieveInfo.familyIndex = rating.family;
 					retrieveInfo.queueIndex = i + m_queueFamilyCurrentIndex[rating.family];
-					reserve.retrieveInfo.push_back(retrieveInfo);
+					reserve.retrieveInfos.push_back(retrieveInfo);
 				}
 				m_queueFamilyCurrentIndex[rating.family] += queueCount;
 		}

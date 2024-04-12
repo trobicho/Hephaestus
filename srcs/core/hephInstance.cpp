@@ -91,6 +91,16 @@ HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevi
 
 	HEPH_CHECK_RESULT(HephResult(vkCreateDevice(deviceTmp.physicalDevice, &deviceInfo, m_pAllocationCallbacks, &deviceTmp.device)
 				, "Failed to create Logical Device! ({})"));
+	for (const auto& queueReserveInfo : createInfo.pQueueReserveInterface->getReserveInfo()) {
+		for (const auto& retrieveInfo : queueReserveInfo.retrieveInfos) {
+			HephQueue queueTmp;
+			queueTmp.queueIndex = retrieveInfo.queueIndex;
+			queueTmp.familyIndex = retrieveInfo.familyIndex;
+			queueTmp.flags = queueReserveInfo.flags;
+			vkGetDeviceQueue(deviceTmp.device, retrieveInfo.familyIndex, retrieveInfo.queueIndex, &queueTmp.queue);
+			deviceTmp.queues.push_back(queueTmp);
+		}
+	}
 
 	for (int i = 0; i < createInfo.hephDeviceExtensionsCount; i++) {
 		createInfo.ppHephDeviceExtensions[i]->deviceFunctionLoader(deviceTmp.device);

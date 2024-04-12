@@ -17,6 +17,12 @@ add_library (hephaestus
 	srcs/core/hephQueueReserveBasic.cpp
 	srcs/core/hephQueueReserveBasic.hpp
 
+	srcs/command/hephCommandPool.cpp
+	srcs/command/hephCommandPool.hpp
+
+	srcs/memory/hephMemoryAllocator.cpp
+	srcs/memory/hephMemoryAllocator.hpp
+
 	srcs/rendering/hephSwapchain.cpp
 	srcs/rendering/hephSwapchain.hpp
 
@@ -50,6 +56,9 @@ install(FILES "srcs/core/hephResult.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR
 install(FILES "srcs/core/hephHelper.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 install(FILES "srcs/core/hephQueueReserveInterface.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 install(FILES "srcs/core/hephQueueReserveBasic.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
+
+install(FILES "srcs/command/hephCommandPool.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/command/")
+install(FILES "srcs/memory/hephMemoryAllocator.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/memory/")
 
 install(FILES "srcs/physicalDevices/hephPhysicalDevicesSelector.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/physicalDevices/")
 
