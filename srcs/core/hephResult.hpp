@@ -15,6 +15,7 @@ class	HephResult {
 		HephResult(VkResult result, std::string err = "") {
 			m_isOk = true; 
 			if (result != VK_SUCCESS) {
+				vkResult = result;
 				m_isOk = false; 
 				if (err.empty())
 					error = vkResultToString(result);
@@ -34,6 +35,7 @@ class	HephResult {
 		bool	valid(){return (m_isOk);}
 
 		std::string		error = "";
+		VkResult			vkResult = VK_SUCCESS;
 
 		static std::string	vkResultToString(VkResult result);
 

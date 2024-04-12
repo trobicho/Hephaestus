@@ -40,6 +40,9 @@ struct	HephSwapchainImage {
 	VkImage					image = VK_NULL_HANDLE;
 	VkImageView			imageView = VK_NULL_HANDLE;
 	VkFramebuffer		framebuffer = VK_NULL_HANDLE;
+	VkSemaphore			semaphoreAvailable = VK_NULL_HANDLE;
+	VkSemaphore			semaphoreFinish = VK_NULL_HANDLE;
+	VkFence					fence = VK_NULL_HANDLE;
 };
 
 struct	HephSwapchainCreateInfo {
@@ -60,6 +63,13 @@ struct	HephSwapchainCreateInfo {
 	};
 };
 
+struct  HephSwapchainPresentData {
+	HephSwapchainImage	image;
+  VkExtent2D      		extent;
+  uint32_t        		imageIndex;
+	VkSwapchainKHR			swapchain;
+};
+
 class		HephSwapchain {
 	public:
 		HephSwapchain() {};
@@ -67,15 +77,31 @@ class		HephSwapchain {
 
 		HephResult	create(HephDevice& device, HephSwapchainCreateInfo createInfo); 
 		HephResult	createFramebuffers(VkRenderPass renderPass);
+		HephResult	acquireNextImage(HephSwapchainPresentData& presentData);
 		HephResult	destroy();
 
 	private:
 		HephResult	createSwapchain();
+		HephResult	destroySwapImage(HephSwapchainImage &image) {
+			vkDestroyImage(m_device.device, image.image, m_device.pAllocationCallbacks);
+			vkDestroyImageView(m_device.device, image.imageView, m_device.pAllocationCallbacks);
+			vkDestroyFramebuffer(m_device.device, image.framebuffer, m_device.pAllocationCallbacks);
+			vkDestroySemaphore(m_device.device, image.semaphoreAvailable, m_device.pAllocationCallbacks);
+			vkDestroySemaphore(m_device.device, image.semaphoreFinish, m_device.pAllocationCallbacks);
+			vkDestroyFence(m_device.device, image.fence, m_device.pAllocationCallbacks);
+			image = HephSwapchainImage();
+			return (HephResult());
+		}
+		HephResult	setExtent(VkExtent2D extent) {
+			m_extent = extent;
+			return (createSwapchain());
+		}
 
 		HephSwapchainCreateInfo						m_createInfo;
 		VkSwapchainKHR										m_swapchain = VK_NULL_HANDLE;
 		HephDevice												m_device;
 		uint32_t													m_imageCount = 0;
+		uint32_t													m_imageCurrent = 0;
 		std::vector<HephSwapchainImage>		m_images;
 		VkExtent2D												m_extent;
 };
