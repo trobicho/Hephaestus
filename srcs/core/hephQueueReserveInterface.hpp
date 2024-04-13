@@ -26,6 +26,15 @@ struct	HephQueueReserveInfo {
 };
 
 struct	HephQueueFamilyProperties {
+	HephQueueFamilyProperties() {
+		props = (VkQueueFamilyProperties2) {
+			.sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2,
+			.pNext = &globalPriorityProps,
+		};
+		globalPriorityProps = (VkQueueFamilyGlobalPriorityPropertiesKHR) {
+			.sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_KHR
+		};
+	}
 	VkQueueFamilyProperties2									props;
 	VkQueueFamilyGlobalPriorityPropertiesKHR	globalPriorityProps;
 };
@@ -65,7 +74,7 @@ class	HephQueueReserveInterface {
 			m_queueFamilyProps.resize(queueCount);
 			m_queueFamilyCurrentIndex.resize(queueCount);
 			for (int i = 0; i < queueCount; i++) {
-				queueFamilyProps[i].pNext = &m_queueFamilyProps[i].globalPriorityProps;
+				queueFamilyProps[i] = m_queueFamilyProps[i].props;
 			}
 			vkGetPhysicalDeviceQueueFamilyProperties2(physicalDevice, &queueCount, queueFamilyProps.data());
 			for (int i = 0; i < queueCount; i++) {

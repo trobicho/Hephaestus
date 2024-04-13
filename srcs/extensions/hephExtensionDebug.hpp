@@ -10,7 +10,7 @@ class	HephExtensionDebug: public HephInstanceExtensionInterface {
 				VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 			});
 		}
-		inline std::vector<const char*>						instanceValidationLayer() {
+		inline std::vector<const char*>						instanceValidationLayers() {
 			return (std::vector<const char*> {
 				"VK_LAYER_KHRONOS_validation",
 			});

@@ -34,6 +34,17 @@ class	HephResult {
 
 		bool	valid(){return (m_isOk);}
 
+		HephResult	errorFormat(std::string formatStr) {
+			size_t formatPos = formatStr.find("{}");
+			if (formatPos != -1) {
+				formatStr.erase(formatPos, 2);
+				formatStr.insert(formatPos, error);
+			}
+			HephResult result = *this;
+			result.error = formatStr;
+			return (result);
+		}
+
 		std::string		error = "";
 		VkResult			vkResult = VK_SUCCESS;
 
