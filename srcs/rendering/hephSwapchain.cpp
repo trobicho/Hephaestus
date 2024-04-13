@@ -46,7 +46,8 @@ HephResult	HephSwapchain::createSwapchain() {
 	HEPH_CHECK_RESULT(HephResult(vkGetSwapchainImagesKHR(m_device.device, m_swapchain, &m_imageCount, nullptr)
 				, "Failed to retrieve Swapchain image !"));
 	HEPH_CHECK_RESULT(HephResult("Empty Swapchain", (m_imageCount > 0)));
-	std::vector<VkImage>	imageData(m_imageCount);
+	std::vector<VkImage>	imageData;
+	imageData.resize(m_imageCount);
 	HEPH_CHECK_RESULT(HephResult(vkGetSwapchainImagesKHR(m_device.device, m_swapchain, &m_imageCount, imageData.data())
 				, "Failed to retrieve Swapchain image !"));
 

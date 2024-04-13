@@ -3,7 +3,7 @@
 HephResult	HephCommandPool::create(HephDevice& device, HephCommandPoolCreateInfo createInfo) {
 	m_device = device;
 	m_flags = createInfo.flags;
-	m_queueFamilyIndex = createInfo.flags;
+	m_queueFamilyIndex = createInfo.queueFamilyIndex;
 	VkCommandPoolCreateInfo poolInfo = {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		.flags = m_flags,
