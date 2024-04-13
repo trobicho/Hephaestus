@@ -56,24 +56,32 @@ HephResult	HephQueueReserveBasic::reserve(VkPhysicalDevice physicalDevice) {
 				else
 					break;
 			}
-			std::vector<float>	priorities;
-				priorities.resize(queueCount, reserve.priority);
-				m_queueCreateInfos.push_back((VkDeviceQueueCreateInfo){
-					.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-					.queueFamilyIndex = rating.family,
-					.queueCount = queueCount,
-					.pQueuePriorities = priorities.data(),
-				});
-				queueTotal += queueCount;
-				for (int i = 0; i < queueCount; i++) {
-					HephQueueRetrieveInfo retrieveInfo;
-					retrieveInfo.familyIndex = rating.family;
-					retrieveInfo.queueIndex = i + m_queueFamilyCurrentIndex[rating.family];
-					reserve.retrieveInfos.push_back(retrieveInfo);
-				}
-				m_queueFamilyCurrentIndex[rating.family] += queueCount;
+			uint64_t	size = m_prioritiesBuffer.size();
+			m_prioritiesBuffer.resize(size + queueCount);
+			for (int i = 0; i < queueCount; i++) {
+				m_prioritiesBuffer[size + i] = reserve.priority;
+			}
+
+			m_queueCreateInfos.push_back((VkDeviceQueueCreateInfo){
+				.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+				.queueFamilyIndex = rating.family,
+				.queueCount = queueCount,
+				.pQueuePriorities = (const float*)size,
+			});
+			queueTotal += queueCount;
+			for (int i = 0; i < queueCount; i++) {
+				HephQueueRetrieveInfo retrieveInfo;
+				retrieveInfo.familyIndex = rating.family;
+				retrieveInfo.queueIndex = i + m_queueFamilyCurrentIndex[rating.family];
+				reserve.retrieveInfos.push_back(retrieveInfo);
+			}
+			m_queueFamilyCurrentIndex[rating.family] += queueCount;
 		}
 		reserve.count -= queueTotal;
+	}
+	for (auto& queueCreateInfo: m_queueCreateInfos) {
+		uint64_t index = (uint64_t)queueCreateInfo.pQueuePriorities;
+		queueCreateInfo.pQueuePriorities = m_prioritiesBuffer.data() + index;
 	}
 	return (HephResult());
 }

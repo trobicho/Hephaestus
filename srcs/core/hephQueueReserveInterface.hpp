@@ -88,6 +88,7 @@ class	HephQueueReserveInterface {
 		std::vector<HephQueueFamilyProperties>	m_queueFamilyProps;
 		std::vector<uint32_t>										m_queueFamilyCurrentIndex;
 		std::vector<VkDeviceQueueCreateInfo>		m_queueCreateInfos;
+		std::vector<float>											m_prioritiesBuffer;
 
 		std::vector<HephQueue*>	queues;
 };

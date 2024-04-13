@@ -3,8 +3,8 @@ cmake_minimum_required (VERSION 3.9)
 project ("hephaestus" VERSION 0.1 DESCRIPTION "a little vulkan wrapper")
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
-set(CMAKE_CXX_FLAGS_DEBUG  "-g")
-set(CMAKE_C_FLAGS "-g")
+
+add_compile_options("-g")
 
 add_library (hephaestus
 	srcs/core/hephaestus_core.hpp
