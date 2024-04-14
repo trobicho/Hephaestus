@@ -14,7 +14,9 @@ HephResult	HephCommandPool::create(HephDevice& device, HephCommandPoolCreateInfo
 }
 
 HephResult	HephCommandPool::destroy() {
-	vkDestroyCommandPool(m_device.device, m_commandPool, m_device.pAllocationCallbacks);
+	if (m_commandPool != VK_NULL_HANDLE)
+		vkDestroyCommandPool(m_device.device, m_commandPool, m_device.pAllocationCallbacks);
+	m_commandPool = VK_NULL_HANDLE;
 	return (HephResult());
 }
 

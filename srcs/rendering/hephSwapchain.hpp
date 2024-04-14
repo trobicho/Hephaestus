@@ -84,7 +84,6 @@ class		HephSwapchain {
 	private:
 		HephResult	createSwapchain();
 		HephResult	destroySwapImage(HephSwapchainImage &image) {
-			vkDestroyImage(m_device.device, image.image, m_device.pAllocationCallbacks);
 			vkDestroyImageView(m_device.device, image.imageView, m_device.pAllocationCallbacks);
 			vkDestroyFramebuffer(m_device.device, image.framebuffer, m_device.pAllocationCallbacks);
 			vkDestroySemaphore(m_device.device, image.semaphoreAvailable, m_device.pAllocationCallbacks);

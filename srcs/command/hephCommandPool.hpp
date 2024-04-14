@@ -18,7 +18,6 @@ class		HephCommandPool : private HephCommandPoolCreateInfo {
 
 	private:
 		HephDevice										m_device;
-		std::vector<VkCommandBuffer>	m_commandBuffers;
 		VkCommandPool									m_commandPool;
 		VkCommandPoolCreateFlagBits 	m_flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
 		uint32_t											m_queueFamilyIndex;

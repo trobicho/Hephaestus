@@ -9,11 +9,13 @@ HephResult	HephSwapchain::create(HephDevice& device, HephSwapchainCreateInfo cre
 }
 
 HephResult	HephSwapchain::destroy() {
-	for (auto& image : m_images) {
-		HEPH_PRINT_RESULT(destroySwapImage(image));
+	if (m_swapchain != VK_NULL_HANDLE) {
+		for (auto& image : m_images) {
+			HEPH_PRINT_RESULT(destroySwapImage(image));
+		}
+		vkDestroySwapchainKHR(m_device.device, m_swapchain, m_device.pAllocationCallbacks);
+		m_swapchain = VK_NULL_HANDLE;
 	}
-  vkDestroySwapchainKHR(m_device.device, m_swapchain, m_device.pAllocationCallbacks);
-  m_swapchain = VK_NULL_HANDLE;
 	return (HephResult());
 }
 

@@ -4,7 +4,12 @@
 #include <vulkan/vulkan_core.h>
 
 HephResult	HephInstance::destroy() {
+	for (auto& dev: m_hephDevices) {
+		vkDestroyDevice(dev.device, dev.pAllocationCallbacks);
+		dev.device = VK_NULL_HANDLE;
+	}
 	vkDestroyInstance(vulkanInstance, m_pAllocationCallbacks);
+	vulkanInstance = VK_NULL_HANDLE;
 	return (HephResult());
 }
 
