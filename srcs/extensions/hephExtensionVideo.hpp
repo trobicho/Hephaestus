@@ -4,7 +4,7 @@
 #include <memory>
 #include <vulkan/vulkan_core.h>
 
-class	HephExtensionVideo: public HephDeviceExtensionInterface {
+class	HephExtensionVideo: public HephDeviceExtensionInterface, public HephInstanceExtensionInterface {
 	public:
 		inline std::vector<const char*>						deviceExtensions() {
 			return (std::vector<const char*> {
@@ -23,6 +23,7 @@ class	HephExtensionVideo: public HephDeviceExtensionInterface {
 			//VIDEO FEATURES
 			return (featuresBuffer);
 		}
+		void	instanceFunctionLoader(VkInstance instance);
 		void	deviceFunctionLoader(VkDevice device);
 		void	printDeviceProperties(VkDevice	device);
 };

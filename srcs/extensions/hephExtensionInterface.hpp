@@ -6,9 +6,11 @@
 		
 class	HephInstanceExtensionInterface {
 	public:
-		inline virtual std::vector<const char*>							instanceExtensions() = 0;
+		inline virtual std::vector<const char*>							instanceExtensions()
+			{return (std::vector<const char*>());}
 		inline virtual std::vector<const char*>							instanceValidationLayers()
 			{return (std::vector<const char*>());}
+		inline virtual void																	instanceFunctionLoader(VkInstance device) {};
 };
 
 class	HephDeviceExtensionInterface {

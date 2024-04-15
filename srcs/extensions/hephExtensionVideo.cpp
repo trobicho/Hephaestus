@@ -23,6 +23,15 @@ static PFN_vkUpdateVideoSessionParametersKHR	pfn_vkUpdateVideoSessionParametersK
 static PFN_vkGetPhysicalDeviceVideoFormatPropertiesKHR	pfn_vkGetPhysicalDeviceVideoFormatPropertiesKHR = 0;
 static PFN_vkGetVideoSessionMemoryRequirementsKHR	pfn_vkGetVideoSessionMemoryRequirementsKHR = 0;
 
+void  HephExtensionVideo::instanceFunctionLoader(VkInstance instance) {
+	pfn_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR =
+    reinterpret_cast<PFN_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR "));
+	pfn_vkGetPhysicalDeviceVideoCapabilitiesKHR =
+		reinterpret_cast<PFN_vkGetPhysicalDeviceVideoCapabilitiesKHR>(vkGetInstanceProcAddr(instance,  "vkGetPhysicalDeviceVideoCapabilitiesKHR"));
+	pfn_vkGetPhysicalDeviceVideoFormatPropertiesKHR =
+		reinterpret_cast<PFN_vkGetPhysicalDeviceVideoFormatPropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceVideoFormatPropertiesKHR"));
+}
+
 void  HephExtensionVideo::deviceFunctionLoader(VkDevice device) {
   pfn_vkCmdDecodeVideoKHR =
     reinterpret_cast<PFN_vkCmdDecodeVideoKHR>(vkGetDeviceProcAddr(device, "vkCmdDecodeVideoKHR"));
@@ -30,8 +39,6 @@ void  HephExtensionVideo::deviceFunctionLoader(VkDevice device) {
     reinterpret_cast<PFN_vkCmdEncodeVideoKHR>(vkGetDeviceProcAddr(device, "vkCmdEncodeVideoKHR"));
 	pfn_vkGetEncodedVideoSessionParametersKHR =
 		reinterpret_cast<PFN_vkGetEncodedVideoSessionParametersKHR>(vkGetDeviceProcAddr(device, "vkGetEncodedVideoSessionParametersKHR"));
-	pfn_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR =
-    reinterpret_cast<PFN_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR>(vkGetDeviceProcAddr(device, "vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR "));
 
 	pfn_vkBindVideoSessionMemoryKHR =
 		reinterpret_cast<PFN_vkBindVideoSessionMemoryKHR>(vkGetDeviceProcAddr(device, "vkBindVideoSessionMemoryKHR"));
@@ -49,10 +56,6 @@ void  HephExtensionVideo::deviceFunctionLoader(VkDevice device) {
 		reinterpret_cast<PFN_vkDestroyVideoSessionKHR>(vkGetDeviceProcAddr(device, "vkDestroyVideoSessionKHR"));
 	pfn_vkDestroyVideoSessionParametersKHR =
 		reinterpret_cast<PFN_vkDestroyVideoSessionParametersKHR>(vkGetDeviceProcAddr(device, "vkDestroyVideoSessionParametersKHR"));
-	pfn_vkGetPhysicalDeviceVideoCapabilitiesKHR =
-		reinterpret_cast<PFN_vkGetPhysicalDeviceVideoCapabilitiesKHR>(vkGetDeviceProcAddr(device, "vkGetPhysicalDeviceVideoCapabilitiesKHR"));
-	pfn_vkGetPhysicalDeviceVideoFormatPropertiesKHR =
-		reinterpret_cast<PFN_vkGetPhysicalDeviceVideoFormatPropertiesKHR>(vkGetDeviceProcAddr(device, "vkGetPhysicalDeviceVideoFormatPropertiesKHR"));
 	pfn_vkGetVideoSessionMemoryRequirementsKHR =
 		reinterpret_cast<PFN_vkGetVideoSessionMemoryRequirementsKHR>(vkGetDeviceProcAddr(device, "vkGetVideoSessionMemoryRequirementsKHR"));
 	pfn_vkUpdateVideoSessionParametersKHR =
@@ -165,4 +168,3 @@ VKAPI_ATTR VkResult VKAPI_CALL	vkGetVideoSessionMemoryRequirementsKHR(VkDevice d
 {
 	return (pfn_vkGetVideoSessionMemoryRequirementsKHR(device, videoSession, pMemoryRequirementsCount, pMemoryRequirements));
 }
-

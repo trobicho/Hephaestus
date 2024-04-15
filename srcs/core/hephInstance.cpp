@@ -50,6 +50,9 @@ HephResult	HephInstance::create(HephInstanceCreateInfo& createInfo) {
 	};
 	HEPH_CHECK_RESULT(HephResult(vkCreateInstance(&instanceCreateInfo, m_pAllocationCallbacks, &vulkanInstance)
 				, "Error in creating the Vulkan Instance: {} !!!"));
+	for (int i = 0; i < createInfo.hephInstanceExtensionCount; i++) {
+		createInfo.ppHephInstanceExtensions[i]->instanceFunctionLoader(vulkanInstance);
+	}
 	return (HephResult());
 }
 
