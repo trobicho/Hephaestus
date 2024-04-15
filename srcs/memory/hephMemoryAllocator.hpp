@@ -34,9 +34,12 @@ class		HephMemoryAllocator {
 	public:
 		HephMemoryAllocator() {};
 
-		HephResult	create(HephDevice& device);
+		HephResult					create(HephDevice& device);
+		
+		static HephResult		findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags, uint32_t* memoryType);
 
-		HephResult	allocateBuffer(const HephBufferCreateInfo &createInfo, HephBufferWrapper &buffer);
+		HephResult					createBuffer(const HephBufferCreateInfo &createInfo, HephBufferWrapper &buffer);
+		void								destroyBuffer(HephBufferWrapper &buffer);
 
 	private:
 		HephDevice	m_device;
