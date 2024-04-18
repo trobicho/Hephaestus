@@ -10,8 +10,10 @@ HephResult	HephMemoryAllocator::findMemoryType(VkPhysicalDevice physicalDevice, 
   vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProps);
   for (uint32_t i = 0; i < memProps.memoryTypeCount; i++) {
     if (typeFilter & (1 << i) && (memProps.memoryTypes[i].propertyFlags & propertyFlags)) {
-			if (memoryType != nullptr)
+			if (memoryType != nullptr) {
 				*memoryType = i;
+				return (HephResult());
+			}
 		}
   }
 	return (HephResult("Unable to find Memory types"));
