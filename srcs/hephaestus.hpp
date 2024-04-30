@@ -10,4 +10,3 @@
 #include "extensions/hephExtensionDebug.hpp"
 
 #include "rendering/hephSwapchain.hpp"
-#include "rendering/hephSwapchain.hpp"

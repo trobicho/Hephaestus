@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../core/hephaestus_core.hpp"
+#include <vulkan/vulkan_core.h>
 
 struct	HephSurfaceSupportDetails {
 	HephSurfaceSupportDetails(){};
@@ -72,8 +73,9 @@ struct  HephSwapchainPresentData {
 class		HephSwapchain {
 	public:
 		HephSwapchain() {};
-		~HephSwapchain() {destroy();}
+		~HephSwapchain() {};
 
+		HephResult	recreate(VkExtent2D extent, VkSurfaceKHR surface); 
 		HephResult	create(HephDevice& device, HephSwapchainCreateInfo createInfo); 
 		HephResult	createFramebuffers(VkRenderPass renderPass);
 		HephResult	acquireNextImage(HephSwapchainPresentData& presentData);

@@ -4,3 +4,4 @@
 #include "hephInstance.hpp"
 #include "hephQueueReserveInterface.hpp"
 #include "hephQueueReserveBasic.hpp"
+#include "hephShaderModule.hpp"

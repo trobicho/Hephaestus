@@ -70,7 +70,15 @@ class		HephInstanceBase {
 class		HephInstance: public HephInstanceBase {
 	public:
 		HephInstance() {};
-		~HephInstance() {destroy();}
+		~HephInstance() {};
+
+		HephInstance& operator=(const HephInstance& other) {
+			vulkanInstance = other.vulkanInstance;
+			m_physicalDevices = other.m_physicalDevices;
+			m_hephDevices = other.m_hephDevices;
+			m_pAllocationCallbacks = other.m_pAllocationCallbacks;
+			return (*this);
+		}
 
 		HephResult	create(HephInstanceCreateInfo& createInfo);
 		HephResult	destroy();

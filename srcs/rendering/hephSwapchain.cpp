@@ -8,6 +8,12 @@ HephResult	HephSwapchain::create(HephDevice& device, HephSwapchainCreateInfo cre
 	return (createSwapchain());
 }
 
+HephResult	HephSwapchain::recreate(VkExtent2D extent, VkSurfaceKHR surface) {
+	m_extent = extent;
+	m_createInfo.swapchainCreateInfo.surface = surface;
+	return (createSwapchain());
+}
+
 HephResult	HephSwapchain::destroy() {
 	if (m_swapchain != VK_NULL_HANDLE) {
 		for (auto& image : m_images) {
