@@ -34,13 +34,15 @@ HephResult	HephSwapchain::acquireNextImage(HephSwapchainPresentData& presentData
 		.imageIndex = m_imageCurrent,
     .swapchain = m_swapchain,
   };
-  vkResetFences(m_device.device, 1, &image.fence);
 	HephResult result(vkAcquireNextImageKHR(m_device.device
-      , m_swapchain, UINT64_MAX
+      , m_swapchain, UINT64_MAX 
       , image.semaphoreAvailable
       , VK_NULL_HANDLE, &presentData.imageIndex));
-  m_imageCurrent = (m_imageCurrent + 1) % m_imageCount;
-  return (result);
+	if (result.vkResult != VK_NOT_READY) {
+		m_imageCurrent = (m_imageCurrent + 1) % m_imageCount;
+		vkResetFences(m_device.device, 1, &image.fence);
+	}
+	return (result);
 }
 
 HephResult	HephSwapchain::createSwapchain() {
