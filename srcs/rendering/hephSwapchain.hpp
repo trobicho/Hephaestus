@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../core/hephaestus_core.hpp"
+#include <cstdint>
 #include <vulkan/vulkan_core.h>
 
 struct	HephSurfaceSupportDetails {
@@ -40,6 +41,9 @@ struct	HephSwapchainImage {
 	VkImage					image = VK_NULL_HANDLE;
 	VkImageView			imageView = VK_NULL_HANDLE;
 	VkFramebuffer		framebuffer = VK_NULL_HANDLE;
+};
+
+struct	HephSwapchainSync {
 	VkSemaphore			semaphoreAvailable = VK_NULL_HANDLE;
 	VkSemaphore			semaphoreFinish = VK_NULL_HANDLE;
 	VkFence					fence = VK_NULL_HANDLE;
@@ -64,8 +68,10 @@ struct	HephSwapchainCreateInfo {
 };
 
 struct  HephSwapchainPresentData {
+	HephSwapchainSync		syncObject;
 	HephSwapchainImage	image;
   VkExtent2D      		extent;
+	uint32_t						imageCurrent;
   uint32_t        		imageIndex;
 	VkSwapchainKHR			swapchain;
 };
@@ -88,10 +94,14 @@ class		HephSwapchain {
 		HephResult	destroySwapImage(HephSwapchainImage &image) {
 			vkDestroyImageView(m_device.device, image.imageView, m_device.pAllocationCallbacks);
 			vkDestroyFramebuffer(m_device.device, image.framebuffer, m_device.pAllocationCallbacks);
-			vkDestroySemaphore(m_device.device, image.semaphoreAvailable, m_device.pAllocationCallbacks);
-			vkDestroySemaphore(m_device.device, image.semaphoreFinish, m_device.pAllocationCallbacks);
-			vkDestroyFence(m_device.device, image.fence, m_device.pAllocationCallbacks);
 			image = HephSwapchainImage();
+			return (HephResult());
+		}
+		HephResult	destroySyncObject(HephSwapchainSync &sync) {
+			vkDestroySemaphore(m_device.device, sync.semaphoreAvailable, m_device.pAllocationCallbacks);
+			vkDestroySemaphore(m_device.device, sync.semaphoreFinish, m_device.pAllocationCallbacks);
+			vkDestroyFence(m_device.device, sync.fence, m_device.pAllocationCallbacks);
+			sync = HephSwapchainSync();
 			return (HephResult());
 		}
 		HephResult	setExtent(VkExtent2D extent) {
@@ -105,5 +115,6 @@ class		HephSwapchain {
 		uint32_t													m_imageCount = 0;
 		uint32_t													m_imageCurrent = 0;
 		std::vector<HephSwapchainImage>		m_images;
+		std::vector<HephSwapchainSync>		m_syncObjects;
 		VkExtent2D												m_extent;
 };

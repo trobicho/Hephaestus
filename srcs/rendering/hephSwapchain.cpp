@@ -19,6 +19,9 @@ HephResult	HephSwapchain::destroy() {
 		for (auto& image : m_images) {
 			HEPH_PRINT_RESULT(destroySwapImage(image));
 		}
+		for (auto& sync: m_syncObjects) {
+			HEPH_PRINT_RESULT(destroySyncObject(sync));
+		}
 		vkDestroySwapchainKHR(m_device.device, m_swapchain, m_device.pAllocationCallbacks);
 		m_swapchain = VK_NULL_HANDLE;
 	}
@@ -26,28 +29,33 @@ HephResult	HephSwapchain::destroy() {
 }
 
 HephResult	HephSwapchain::acquireNextImage(HephSwapchainPresentData& presentData) {
-	auto& image = m_images[m_imageCurrent];
-  vkWaitForFences(m_device.device, 1, &image.fence, VK_TRUE, UINT64_MAX);
+	auto& syncObject = m_syncObjects[m_imageCurrent];
+  vkWaitForFences(m_device.device, 1, &syncObject.fence, VK_TRUE, UINT64_MAX);
   presentData = HephSwapchainPresentData{
-    .image = image,
+    .syncObject = syncObject,
     .extent = m_extent,
+		.imageCurrent = m_imageCurrent,
 		.imageIndex = m_imageCurrent,
     .swapchain = m_swapchain,
   };
 	HephResult result(vkAcquireNextImageKHR(m_device.device
       , m_swapchain, UINT64_MAX 
-      , image.semaphoreAvailable
+      , syncObject.semaphoreAvailable
       , VK_NULL_HANDLE, &presentData.imageIndex));
-	if (result.vkResult != VK_NOT_READY) {
+	if (result.valid() && result.vkResult != VK_NOT_READY) {
 		m_imageCurrent = (m_imageCurrent + 1) % m_imageCount;
-		vkResetFences(m_device.device, 1, &image.fence);
+		vkResetFences(m_device.device, 1, &syncObject.fence);
 	}
+	presentData.image = m_images[presentData.imageIndex];
 	return (result);
 }
 
 HephResult	HephSwapchain::createSwapchain() {
 	for (auto& image : m_images) {
 		HEPH_PRINT_RESULT(destroySwapImage(image));
+	}
+	for (auto& sync: m_syncObjects) {
+		HEPH_PRINT_RESULT(destroySyncObject(sync));
 	}
 	m_createInfo.swapchainCreateInfo.oldSwapchain = m_swapchain;
 	m_createInfo.swapchainCreateInfo.imageExtent = m_extent;
@@ -62,6 +70,7 @@ HephResult	HephSwapchain::createSwapchain() {
 				, "Failed to retrieve Swapchain image !"));
 
 	m_images.resize(m_imageCount);
+	m_syncObjects.resize(m_imageCount);
 	m_imageCurrent = 0;
 	for (int i = 0; i < m_imageCount; i++) {
 		m_images[i].image = imageData[i];
@@ -79,15 +88,15 @@ HephResult	HephSwapchain::createSwapchain() {
 			.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
 		};
     HEPH_CHECK_RESULT(HephResult(vkCreateSemaphore(m_device.device, &semaphoreInfo, m_device.pAllocationCallbacks
-          , &m_images[i].semaphoreAvailable), "Failed to create Semaphores!"));
+          , &m_syncObjects[i].semaphoreAvailable), "Failed to create Semaphores!"));
     HEPH_CHECK_RESULT(HephResult(vkCreateSemaphore(m_device.device, &semaphoreInfo, m_device.pAllocationCallbacks
-          , &m_images[i].semaphoreFinish), "Failed to create Semaphores!"));
+          , &m_syncObjects[i].semaphoreFinish), "Failed to create Semaphores!"));
 		VkFenceCreateInfo	fenceInfo = {
 			.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
 			.flags = VK_FENCE_CREATE_SIGNALED_BIT,
 		};
     HEPH_CHECK_RESULT(HephResult(vkCreateFence(m_device.device, &fenceInfo, m_device.pAllocationCallbacks
-          , &m_images[i].fence), "Failed to create Semaphores!"));
+          , &m_syncObjects[i].fence), "Failed to create Semaphores!"));
 	}
 	if (m_createInfo.renderPass != VK_NULL_HANDLE)
 		createFramebuffers(m_createInfo.renderPass);

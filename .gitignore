@@ -1,5 +1,6 @@
 # CCLS
 .ccls-cache/
+.cache/
 
 # Swap
 [._]*.s[a-v][a-z]
