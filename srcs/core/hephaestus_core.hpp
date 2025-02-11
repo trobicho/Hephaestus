@@ -5,3 +5,4 @@
 #include "hephQueueReserveInterface.hpp"
 #include "hephQueueReserveBasic.hpp"
 #include "hephShaderModule.hpp"
+#include "hephDescriptorSet.hpp"

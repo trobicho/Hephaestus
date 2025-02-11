@@ -2,7 +2,6 @@
 
 #include "hephInstance.hpp"
 #include <vector>
-#include <vulkan/vulkan_core.h>
 
 //PLACEHOLDER
 
@@ -12,6 +11,7 @@ struct	HephShaderModuleWrapper {
 
 	std::string					sourceFilename = "";
 	std::string					binaryFilename = "";
+	std::string					pName = "main";
 	VkShaderStageFlags	stageFlags = 0;
 	VkShaderModule			shaderModule;
 };

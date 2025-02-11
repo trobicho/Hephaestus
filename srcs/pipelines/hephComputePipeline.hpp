@@ -2,12 +2,20 @@
 
 #include "../core/hephaestus_core.hpp"
 
-class	HephComputePipeline {
-	public:
-		HephComputePipeline(){};
-		~HephComputePipeline(){};
+struct	HephComputePipeline {
+		HephComputePipeline() {};
+		~HephComputePipeline() {};
 
-	private:
-		VkPipeline				m_pipeline;
-		VkPipelineLayout	m_pipelineLayout;
+		void	destroy(HephDevice& device) {
+			vkDestroyPipelineLayout(device.device, pipelineLayout, device.pAllocationCallbacks);
+			vkDestroyPipeline(device.device, pipeline, device.pAllocationCallbacks);
+			pipeline = VK_NULL_HANDLE;
+			pipelineLayout = VK_NULL_HANDLE;
+		};
+
+		HephResult	create(HephDevice& device, HephDescriptorSetWrapper& descSet, HephShaderModuleWrapper& shaderModule);
+
+		VkPipeline								pipeline = VK_NULL_HANDLE;
+		VkPipelineLayout					pipelineLayout = VK_NULL_HANDLE;
+		HephDescriptorSetWrapper	descriptorSet;
 };

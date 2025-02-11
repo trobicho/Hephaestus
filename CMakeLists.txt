@@ -18,6 +18,8 @@ add_library (hephaestus
 	srcs/core/hephQueueReserveBasic.hpp
 	srcs/core/hephShaderModule.cpp
 	srcs/core/hephShaderModule.hpp
+	srcs/core/hephDescriptorSet.cpp
+	srcs/core/hephDescriptorSet.hpp
 
 	srcs/command/hephCommandPool.cpp
 	srcs/command/hephCommandPool.hpp
