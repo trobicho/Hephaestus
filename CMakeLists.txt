@@ -31,6 +31,9 @@ add_library (hephaestus
 	srcs/rendering/hephSwapchain.hpp
 
 	srcs/physicalDevices/hephPhysicalDevicesSelector.hpp
+	
+	srcs/compiler/hephCompiler.cpp
+	srcs/compiler/hephCompiler.hpp
 
 	srcs/extensions/hephExtensionInterface.hpp
 	srcs/extensions/hephExtensionDebug.hpp
@@ -61,6 +64,7 @@ install(FILES "srcs/core/hephHelper.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR
 install(FILES "srcs/core/hephQueueReserveInterface.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 install(FILES "srcs/core/hephQueueReserveBasic.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 install(FILES "srcs/core/hephShaderModule.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
+install(FILES "srcs/core/hephDescriptorSet.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/core/")
 
 install(FILES "srcs/command/hephCommandPool.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/command/")
 install(FILES "srcs/memory/hephMemoryAllocator.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/memory/")
@@ -68,6 +72,8 @@ install(FILES "srcs/memory/hephMemoryAllocator.hpp" DESTINATION "${CMAKE_INSTALL
 install(FILES "srcs/physicalDevices/hephPhysicalDevicesSelector.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/physicalDevices/")
 
 install(FILES "srcs/rendering/hephSwapchain.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/rendering/")
+
+install(FILES "srcs/compiler/hephCompiler.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/compiler/")
 
 install(FILES "srcs/extensions/hephExtensionInterface.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionDebug.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
