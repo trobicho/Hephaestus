@@ -4,6 +4,7 @@
 #include <vector>
 
 //PLACEHOLDER
+int hephGetShaderStageFromFileExtension(std::string stage);
 
 struct	HephShaderModuleWrapper {
 	bool	loadFromSource(HephDevice& device);

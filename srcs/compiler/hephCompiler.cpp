@@ -1,4 +1,5 @@
 #include "hephCompiler.hpp"
+#include <glslang/Public/ShaderLang.h>
 #include <iostream>
 #include <stdexcept>
 #include <cstdint>
@@ -15,7 +16,7 @@ HephCompiler::~HephCompiler() {
 HephResult HephCompiler::setShader(const std::string &filename) {
   m_shaderIfs = std::ifstream(filename, std::ifstream::in);
   if (!m_shaderIfs.is_open())
-    throw std::invalid_argument("Cannot open file: " + filename);
+    return (HephResult("Cannot open file" + filename));
 
   std::string filenameWithoutPath = filename;
   auto posBegin = filename.find_last_of('/');
@@ -24,46 +25,19 @@ HephResult HephCompiler::setShader(const std::string &filename) {
 
   auto pos = filenameWithoutPath.find_last_of('.');
   if (pos == std::string::npos)
-    throw std::invalid_argument("cannot deduce shader stage from filename: " + filenameWithoutPath);
+    return (HephResult("cannot deduce shader stage from filename: " + filenameWithoutPath));
   std::string stage = filenameWithoutPath.substr(pos + 1);
 
-  if (stage == "vert") //for a vertex shader
-    m_stage = EShLanguage::EShLangVertex;
-  else if (stage == "frag") //for a fragment shader
-    m_stage = EShLanguage::EShLangFragment;
-  else if (stage == "comp") //for a compute shader
-    m_stage = EShLanguage::EShLangCompute;
-  else if (stage == "rgen ") //for a ray generation shader
-    m_stage = EShLanguage::EShLangRayGen;
-  else if (stage == "rint ") //for a ray intersection shader
-    m_stage = EShLanguage::EShLangIntersect;
-  else if (stage == "rahit") //for a ray any hit shader
-    m_stage = EShLanguage::EShLangAnyHit;
-  else if (stage == "rchit") //for a ray closest hit shader
-    m_stage = EShLanguage::EShLangClosestHit;
-  else if (stage == "rmiss") //for a ray miss shader
-    m_stage = EShLanguage::EShLangMiss;
-  else if (stage == "rcall") //for a ray callable shader
-    m_stage = EShLanguage::EShLangCallable;
-  else if (stage == "tesc") //for a tessellation control shader
-    m_stage = EShLanguage::EShLangTessControl;
-  else if (stage == "tese") //for a tessellation evaluation shader
-    m_stage = EShLanguage::EShLangTessEvaluation;
-  else if (stage == "geom") //for a geometry shader
-    m_stage = EShLanguage::EShLangGeometry;
-  else if (stage == "mesh") //for a mesh shader
-    m_stage = EShLanguage::EShLangMeshNV;
-  else if (stage == "task") //for a task shader
-    m_stage = EShLanguage::EShLangTaskNV;
-  else
-		return (HephResult("invalid stage"));
+	int stageV = hephGetShaderStageFromFileExtension(stage);
+	if (stageV != -1)
+		m_stage = static_cast<EShLanguage>(stageV);
+	else
+		return (HephResult("invalid stage " + stage));
 	return (HephResult());
 }
 
 HephResult	HephCompiler::shaderValidate() {
-  if (!m_shaderIfs.is_open()) {
-    throw std::invalid_argument("shader as not been set");
-  }
+  HEPH_CHECK_RESULT(HephResult(m_shaderIfs.is_open()).errorFormat("shader as not been set {{}}"));
 
   glslang::TShader  shader = glslang::TShader(m_stage);
 
