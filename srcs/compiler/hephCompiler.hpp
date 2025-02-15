@@ -14,6 +14,8 @@ class HephCompiler {
 
     HephResult	shaderValidate();
 
+		std::vector<uint32_t>	outSPV;
+
   private:
     std::ifstream     m_shaderIfs;
     EShLanguage       m_stage = EShLanguage::EShLangVertex;

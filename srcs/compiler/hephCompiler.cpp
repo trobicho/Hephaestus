@@ -105,8 +105,6 @@ HephResult	HephCompiler::shaderValidate() {
 			return HephResult("Failed to compile shader!");
 		}
 
-		std::vector<uint32_t> outSPV;
-
 		glslang::SpvOptions spvOptions;
 
 		spvOptions.generateDebugInfo = true;

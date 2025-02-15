@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../core/hephaestus_core.hpp"
+#include "../command/hephCommandPool.hpp"
 #include <vulkan/vulkan_core.h>
 
 struct	HephImageWrapper {
@@ -30,6 +31,20 @@ struct	HephBufferCreateInfo {
 	//deviceMask and pQueue in context (HephMemoryAllocatorCreateInfo )
 };
 
+struct	HephImageCreateInfo {
+	VkImageCreateFlags			flags = 0;
+	VkImageType							imageType = VK_IMAGE_TYPE_2D;
+	VkExtent3D& 						extent;
+	VkImageUsageFlagBits 		usage;
+	VkImageLayout						layout;
+	VkImageAspectFlagBits		aspect;
+	VkComponentMapping 			components;
+	VkSharingMode						sharingMode = VK_SHARING_MODE_CONCURRENT;
+  VkSampleCountFlagBits		samples = VK_SAMPLE_COUNT_1_BIT;
+  uint32_t								queueFamilyIndexCount = 1;
+  const uint32_t*					pQueueFamilyIndices = nullptr;
+};
+
 class		HephMemoryAllocator {
 	public:
 		HephMemoryAllocator() {};
@@ -38,8 +53,10 @@ class		HephMemoryAllocator {
 		
 		static HephResult		findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags, uint32_t* memoryType);
 
-		HephResult					createBuffer(const HephBufferCreateInfo &createInfo, HephBufferWrapper &buffer);
+		HephResult					createBuffer(const HephBufferCreateInfo &createInfo, HephBufferWrapper& buffer);
 		void								destroyBuffer(HephBufferWrapper &buffer);
+		HephResult					createImage(const HephImageCreateInfo& createInfo, HephImageWrapper& image, HephCommandPool& cmdPool);
+		void								destroyImage(HephImageWrapper &image);
 
 	private:
 		HephDevice	m_device;
