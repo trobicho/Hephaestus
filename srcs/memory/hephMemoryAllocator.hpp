@@ -34,14 +34,14 @@ struct	HephBufferCreateInfo {
 struct	HephImageCreateInfo {
 	VkImageCreateFlags			flags = 0;
 	VkImageType							imageType = VK_IMAGE_TYPE_2D;
-	VkExtent3D& 						extent;
+	VkExtent3D 							extent;
 	VkImageUsageFlagBits 		usage;
 	VkImageLayout						layout;
 	VkImageAspectFlagBits		aspect;
 	VkComponentMapping 			components;
 	VkSharingMode						sharingMode = VK_SHARING_MODE_CONCURRENT;
   VkSampleCountFlagBits		samples = VK_SAMPLE_COUNT_1_BIT;
-  uint32_t								queueFamilyIndexCount = 1;
+  uint32_t								queueFamilyIndexCount = 0;
   const uint32_t*					pQueueFamilyIndices = nullptr;
 };
 

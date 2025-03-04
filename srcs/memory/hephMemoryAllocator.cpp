@@ -87,6 +87,8 @@ HephResult	HephMemoryAllocator::createImage(const HephImageCreateInfo& createInf
     .pQueueFamilyIndices = createInfo.pQueueFamilyIndices,
     .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
   };
+	image.usage = createInfo.usage;
+	image.extent = createInfo.extent;
 	HEPH_CHECK_RESULT(HephResult(vkCreateImage(m_device.device, &imageInfo, nullptr, &image.image)).errorFormat("Failed to begin Create image !"));
 
   VkMemoryRequirements  memoryReqs;
@@ -96,6 +98,7 @@ HephResult	HephMemoryAllocator::createImage(const HephImageCreateInfo& createInf
     .allocationSize = memoryReqs.size,
     .memoryTypeIndex = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
   };
+	image.size = memoryReqs.size;
   vkAllocateMemory(m_device.device, &allocImageInfo, nullptr, &image.memory);
   vkBindImageMemory(m_device.device, image.image, image.memory, 0);
 

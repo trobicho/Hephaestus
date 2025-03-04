@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../core/hephaestus_core.hpp"
+#include "hephPipeline.hpp"
 
-struct	HephComputePipeline {
+struct	HephComputePipeline : HephPipeline {
 		HephComputePipeline() {};
 		~HephComputePipeline() {};
 
-		void	destroy(HephDevice& device) {
+		void				destroy(HephDevice& device) {
 			vkDestroyPipelineLayout(device.device, pipelineLayout, device.pAllocationCallbacks);
 			vkDestroyPipeline(device.device, pipeline, device.pAllocationCallbacks);
 			pipeline = VK_NULL_HANDLE;
@@ -14,6 +14,8 @@ struct	HephComputePipeline {
 		};
 
 		HephResult	create(HephDevice& device, HephDescriptorSetWrapper& descSet, HephShaderModuleWrapper& shaderModule);
+
+		int					type(){return (HEPH_PIPELINE_TYPE_COMPUTE);}
 
 		VkPipeline								pipeline = VK_NULL_HANDLE;
 		VkPipelineLayout					pipelineLayout = VK_NULL_HANDLE;

@@ -9,4 +9,6 @@
 #include "extensions/hephExtensionInterface.hpp"
 #include "extensions/hephExtensionDebug.hpp"
 
+#include "pipelines/hephComputePipeline.hpp"
+
 #include "rendering/hephSwapchain.hpp"

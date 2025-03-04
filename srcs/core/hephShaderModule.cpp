@@ -60,17 +60,9 @@ bool	createShaderModuleFromCode(HephDevice& device, VkShaderModule& shaderModule
 	return (true);
 }
 
-bool	HephShaderModuleWrapper::loadFromSource(HephDevice& device) {
+bool	HephShaderModuleWrapper::load(HephDevice& device) {
 	std::vector<char>	code;
-	if (!sourceFilename.empty() && readFile(sourceFilename.c_str(), code)) {
-		return (createShaderModuleFromCode(device, shaderModule, code));
-	}
-	return (false);
-}
-
-bool	HephShaderModuleWrapper::loadFromBinary(HephDevice& device) {
-	std::vector<char>	code;
-	if (!binaryFilename.empty() && readFile(binaryFilename.c_str(), code)) {
+	if (!filename.empty() && readFile(filename.c_str(), code)) {
 		return (createShaderModuleFromCode(device, shaderModule, code));
 	}
 	return (false);

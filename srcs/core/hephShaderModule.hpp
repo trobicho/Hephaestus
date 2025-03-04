@@ -7,11 +7,9 @@
 int hephGetShaderStageFromFileExtension(std::string stage);
 
 struct	HephShaderModuleWrapper {
-	bool	loadFromSource(HephDevice& device);
-	bool	loadFromBinary(HephDevice& device);
+	bool	load(HephDevice& device);
 
-	std::string					sourceFilename = "";
-	std::string					binaryFilename = "";
+	std::string					filename = "";
 	std::string					pName = "main";
 	VkShaderStageFlags	stageFlags = 0;
 	VkShaderModule			shaderModule;
