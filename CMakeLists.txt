@@ -32,6 +32,7 @@ add_library (hephaestus
 
 	srcs/physicalDevices/hephPhysicalDevicesSelector.hpp
 
+	srcs/pipelines/hephPipeline.hpp
 	srcs/pipelines/hephComputePipeline.cpp
 	srcs/pipelines/hephComputePipeline.hpp
 	
@@ -76,6 +77,7 @@ install(FILES "srcs/physicalDevices/hephPhysicalDevicesSelector.hpp" DESTINATION
 
 install(FILES "srcs/rendering/hephSwapchain.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/rendering/")
 
+install(FILES "srcs/pipelines/hephPipeline.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/pipelines/")
 install(FILES "srcs/pipelines/hephComputePipeline.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/pipelines/")
 
 install(FILES "srcs/compiler/hephCompiler.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/compiler/")

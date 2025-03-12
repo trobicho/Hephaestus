@@ -6,3 +6,4 @@
 #include "hephQueueReserveBasic.hpp"
 #include "hephShaderModule.hpp"
 #include "hephDescriptorSet.hpp"
+#include "../pipelines/hephPipeline.hpp"
