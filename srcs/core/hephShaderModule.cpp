@@ -3,7 +3,7 @@
 #include <glslang/Public/ShaderLang.h>
 #include <vulkan/vulkan_core.h>
 
-int getShaderStageFromFileExtension(std::string stage) {
+int hephGetShaderStageFromFileExtension(std::string stage) {
   if (stage == "vert") //for a vertex shader
     return (EShLanguage::EShLangVertex);
   else if (stage == "frag") //for a fragment shader

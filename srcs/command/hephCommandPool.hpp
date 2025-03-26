@@ -15,6 +15,8 @@ class		HephCommandPool : private HephCommandPoolCreateInfo {
 		HephResult	create(HephDevice& device, HephCommandPoolCreateInfo createInfo);
 		HephResult	destroy();
 		HephResult	allocate(uint32_t size, VkCommandBuffer* commandBufferPtr, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+    void				submit(VkCommandBuffer& cmdBuffer);
+    HephResult	submitAndWait(VkCommandBuffer& cmdBuffer);
 
 	private:
 		HephDevice										m_device;

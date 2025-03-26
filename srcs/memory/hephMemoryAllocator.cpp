@@ -133,6 +133,7 @@ HephResult	HephMemoryAllocator::createImage(const HephImageCreateInfo& createInf
 		vkBeginCommandBuffer(cmdBuffer, &beginInfo);
     vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask, VK_FALSE, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
     vkEndCommandBuffer(cmdBuffer);
+		cmdPool.submitAndWait(cmdBuffer);
   }
 
   VkImageViewCreateInfo viewInfo = {
