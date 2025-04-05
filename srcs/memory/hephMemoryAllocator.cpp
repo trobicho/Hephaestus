@@ -1,5 +1,6 @@
 #include "hephMemoryAllocator.hpp"
 #include <cstdint>
+#include <cstring>
 #include <vulkan/vulkan_core.h>
 
 HephResult	HephMemoryAllocator::findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter
@@ -28,7 +29,7 @@ HephResult	HephMemoryAllocator::createBuffer(const HephBufferCreateInfo &createI
 	VkBufferCreateInfo	bufferInfo = {
 		.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
 		.pNext = nullptr,
-		.flags = createInfo.propertyFlags,
+		.flags = createInfo.flags,
 		.size = createInfo.size,
 		.usage = createInfo.usage,
 		.sharingMode = createInfo.sharingMode,
@@ -44,7 +45,7 @@ HephResult	HephMemoryAllocator::createBuffer(const HephBufferCreateInfo &createI
   VkMemoryAllocateFlagsInfo allocateFlags = {
     .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO,
 		.pNext = nullptr,
-    .flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT,
+    .flags = createInfo.allocateFlags,
 		.deviceMask = 0,
   };
 
@@ -62,6 +63,8 @@ HephResult	HephMemoryAllocator::createBuffer(const HephBufferCreateInfo &createI
 				, "Unable to allocate buffer memory!"));
 
   vkBindBufferMemory(m_device.device, buffer.buffer, buffer.memory, 0);
+	buffer.usage = createInfo.usage;
+	buffer.size = createInfo.size;
 	return (HephResult());
 }
 
@@ -147,9 +150,43 @@ HephResult	HephMemoryAllocator::createImage(const HephImageCreateInfo& createInf
 	return (HephResult(vkCreateImageView(m_device.device, &viewInfo, nullptr, &image.imageView)).errorFormat("Failed to create ImageView {}!"));
 }
 
-void  HephMemoryAllocator::destroyImage(HephImageWrapper &image) {
+void  			HephMemoryAllocator::destroyImage(HephImageWrapper &image) {
   vkDestroyImage(m_device.device, image.image, nullptr);
   vkFreeMemory(m_device.device, image.memory, nullptr);
   vkDestroyImageView(m_device.device, image.imageView, nullptr);
 }
 
+
+HephResult	HephMemoryAllocator::stagingMakeAndCopy(HephBufferWrapper& buffer, void* data, size_t size, HephCommandPool& cmdPool) {
+  HephBufferWrapper 		staging;
+	HephBufferCreateInfo	stagingInfo = {
+		.size = size,
+		.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		.propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+	};
+  createBuffer(stagingInfo, staging);
+
+  void* stagingData;
+  vkMapMemory(m_device.device, staging.memory, 0, size, 0, &stagingData);
+  memcpy(stagingData, data, size);
+  vkUnmapMemory(m_device.device, staging.memory);
+
+  VkCommandBuffer	cmdBuffer;
+	HEPH_CHECK_RESULT(cmdPool.allocate(1, &cmdBuffer).errorFormat("Unable to allocate command Buffer! {{}}"));
+  VkCommandBufferBeginInfo beginInfo = {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+    .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+  };
+
+  vkBeginCommandBuffer(cmdBuffer, &beginInfo);
+  VkBufferCopy copyRegion = {
+    .srcOffset = 0,
+    .dstOffset = 0,
+    .size = size,
+  };
+  vkCmdCopyBuffer(cmdBuffer, staging.buffer, buffer.buffer, 1, &copyRegion);
+  vkEndCommandBuffer(cmdBuffer);
+  HEPH_CHECK_RESULT(cmdPool.submitAndWait(cmdBuffer));
+  destroyBuffer(staging);
+	return (HephResult());
+}

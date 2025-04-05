@@ -25,6 +25,7 @@ struct	HephBufferWrapper {
 struct	HephBufferCreateInfo {
 	VkDeviceSize						size = 0;
 	VkBufferUsageFlags			usage = 0;
+	VkBufferCreateFlags			flags = 0;
 	VkSharingMode						sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	VkMemoryAllocateFlags		allocateFlags = 0;
 	VkMemoryPropertyFlags		propertyFlags = 0;
@@ -57,6 +58,7 @@ class		HephMemoryAllocator {
 		void								destroyBuffer(HephBufferWrapper &buffer);
 		HephResult					createImage(const HephImageCreateInfo& createInfo, HephImageWrapper& image, HephCommandPool& cmdPool);
 		void								destroyImage(HephImageWrapper &image);
+		HephResult					stagingMakeAndCopy(HephBufferWrapper& buffer, void* data, size_t size, HephCommandPool& cmdPool);
 
 	private:
 		HephDevice	m_device;

@@ -13,11 +13,11 @@ struct	HephComputePipeline : HephPipeline {
 			pipelineLayout = VK_NULL_HANDLE;
 		};
 
-		HephResult	create(HephDevice& device, HephDescriptorSetWrapper& descSet, HephShaderModuleWrapper& shaderModule);
+		HephResult	create(HephDevice& device, HephDescriptorWrapper& descSet, HephShaderModuleWrapper& shaderModule);
 
 		int					type(){return (HEPH_PIPELINE_TYPE_COMPUTE);}
 
 		VkPipeline								pipeline = VK_NULL_HANDLE;
 		VkPipelineLayout					pipelineLayout = VK_NULL_HANDLE;
-		HephDescriptorSetWrapper	descriptorSet;
+		HephDescriptorWrapper			descriptorSet;
 };

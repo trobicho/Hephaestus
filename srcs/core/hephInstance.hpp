@@ -56,7 +56,7 @@ struct	HephDevice {
 		}
 	};
 
-	VkDevice								device;
+	VkDevice								device = VK_NULL_HANDLE;
 	std::vector<HephQueue>	queues;
 	VkPhysicalDevice				physicalDevice;
 	VkAllocationCallbacks*	pAllocationCallbacks = nullptr;

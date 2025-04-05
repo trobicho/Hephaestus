@@ -1,7 +1,7 @@
 #include "hephComputePipeline.hpp"
 #include <vulkan/vulkan_core.h>
 
-HephResult	HephComputePipeline::create(HephDevice& device, HephDescriptorSetWrapper& descSet, HephShaderModuleWrapper& shaderModule) {
+HephResult	HephComputePipeline::create(HephDevice& device, HephDescriptorWrapper& descSet, HephShaderModuleWrapper& shaderModule) {
 	descriptorSet = descSet;
 	vkDestroyPipelineLayout(device.device, pipelineLayout, device.pAllocationCallbacks);
 	vkDestroyPipeline(device.device, pipeline, device.pAllocationCallbacks);

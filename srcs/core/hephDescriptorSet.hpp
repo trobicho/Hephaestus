@@ -7,19 +7,46 @@ struct	HephPushConstant {
 	void*								pValues = nullptr;
 };
 
-struct	HephDescriptorSetUpdateInfo {
-	VkDescriptorType	type;
-	uint32_t					binding;
-	void*							pInfo;
+struct  HephDescriptorUpdateInfo {
+  VkDescriptorType  type;
+  uint32_t          binding;
+  void*             pInfo = nullptr;
 };
 
-struct	HephDescriptorSetWrapper {
+
+struct	HephDescriptorWrapper {
 	void	destroy(HephDevice& device) {
 		vkDestroyDescriptorSetLayout(device.device, layout, device.pAllocationCallbacks);
 		layout = VK_NULL_HANDLE;
 	}
 
-	VkDescriptorSet															descriptorSet = VK_NULL_HANDLE;
+	VkDescriptorSet															set = VK_NULL_HANDLE;
 	VkDescriptorSetLayout												layout = VK_NULL_HANDLE;
 	std::vector<VkDescriptorSetLayoutBinding>		layoutBinds;
+};
+
+struct	HephPipelineDescriptor {
+	HephResult	build(HephDevice& device);
+	void				update(HephDevice& device, uint32_t id, const HephDescriptorUpdateInfo* info, uint32_t count);
+	void				destroy(HephDevice& device) {
+		vkDestroyDescriptorPool(device.device, descriptorPool, device.pAllocationCallbacks);
+		for (auto& descriptor: descriptors)
+			descriptor.destroy(device);
+	}
+	std::vector<VkDescriptorSetLayout>	getLayoutBuffer() {
+		std::vector<VkDescriptorSetLayout>	layouts;
+		for (auto& descriptor: descriptors)
+			layouts.push_back(descriptor.layout);
+		return (layouts);
+	};
+	std::vector<VkDescriptorSet>	getSetBuffer() {
+		std::vector<VkDescriptorSet>	sets;
+		for (auto& descriptor: descriptors)
+			sets.push_back(descriptor.set);
+		return (sets);
+	};
+
+
+	std::vector<HephDescriptorWrapper>	descriptors;
+	VkDescriptorPool										descriptorPool;
 };
