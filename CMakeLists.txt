@@ -1,8 +1,10 @@
-cmake_minimum_required (VERSION 3.9)
+cmake_minimum_required (VERSION 4.0)
 
 project ("hephaestus" VERSION 0.1 DESCRIPTION "a little vulkan wrapper")
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_compile_options("-g")
 
@@ -47,7 +49,13 @@ add_library (hephaestus
 	srcs/extensions/hephExtensionVideo.hpp
 	srcs/extensions/hephExtensionScreenRendering.cpp
 	srcs/extensions/hephExtensionScreenRendering.hpp
+
+  srcs/plugins/font/hephPluginFont.hpp
+  srcs/plugins/font/hephPluginFont.cpp
+  srcs/plugins/font/hephFont.hpp
+  srcs/plugins/font/hephFont.cpp
 )
+
 set_target_properties(hephaestus PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
@@ -56,6 +64,8 @@ set_target_properties(hephaestus PROPERTIES
 
 include(FindVulkan)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan) 
+find_package(Freetype)
+target_link_libraries(${PROJECT_NAME} PRIVATE Freetype::Freetype)
 
 install(TARGETS hephaestus 
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -87,3 +97,6 @@ install(FILES "srcs/extensions/hephExtensionDebug.hpp" DESTINATION "${CMAKE_INST
 install(FILES "srcs/extensions/hephExtensionRayTracing.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionVideo.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionScreenRendering.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
+
+install(FILES "srcs/plugins/font/hephPluginFont.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/plugins/font/")
+install(FILES "srcs/plugins/font/hephFont.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/plugins/font/")
