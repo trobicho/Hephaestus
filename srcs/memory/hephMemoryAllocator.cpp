@@ -190,3 +190,33 @@ HephResult	HephMemoryAllocator::stagingMakeAndCopy(HephBufferWrapper& buffer, vo
   destroyBuffer(staging);
 	return (HephResult());
 }
+
+HephResult	HephMemoryAllocator::stagingMakeAndCopyImage(HephImageWrapper& image, VkBufferImageCopy imgRegion
+    , void* data, size_t size, HephCommandPool& cmdPool) {
+  HephBufferWrapper 		staging;
+	HephBufferCreateInfo	stagingInfo = {
+		.size = size,
+		.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		.propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+	};
+  createBuffer(stagingInfo, staging);
+
+  void* stagingData;
+  vkMapMemory(m_device.device, staging.memory, 0, size, 0, &stagingData);
+  memcpy(stagingData, data, size);
+  vkUnmapMemory(m_device.device, staging.memory);
+
+  VkCommandBuffer	cmdBuffer;
+	HEPH_CHECK_RESULT(cmdPool.allocate(1, &cmdBuffer).errorFormat("Unable to allocate command Buffer! {{}}"));
+  VkCommandBufferBeginInfo beginInfo = {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+    .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+  };
+
+  vkBeginCommandBuffer(cmdBuffer, &beginInfo);
+  vkCmdCopyBufferToImage(cmdBuffer, staging.buffer, image.image, VK_IMAGE_LAYOUT_GENERAL, 1, &imgRegion);
+  vkEndCommandBuffer(cmdBuffer);
+  HEPH_CHECK_RESULT(cmdPool.submitAndWait(cmdBuffer));
+  destroyBuffer(staging);
+	return (HephResult());
+}

@@ -6,15 +6,9 @@
 
 #include <memory>
 
-#include "hephFont.hpp"
-
 namespace HephPluginFont {
-
 HephResult  init();
 HephResult  checkInit();
 HephResult  ftError(FT_Error);
-
-static FT_Library   ftLibrary;
-static bool         isInit = false;
-
+FT_Library  getLib();
 }

@@ -59,6 +59,8 @@ class		HephMemoryAllocator {
 		HephResult					createImage(const HephImageCreateInfo& createInfo, HephImageWrapper& image, HephCommandPool& cmdPool);
 		void								destroyImage(HephImageWrapper &image);
 		HephResult					stagingMakeAndCopy(HephBufferWrapper& buffer, void* data, size_t size, HephCommandPool& cmdPool);
+    HephResult	        stagingMakeAndCopyImage(HephImageWrapper& image, VkBufferImageCopy imgRegion
+                          , void* data, size_t size, HephCommandPool& cmdPool);
 
 	private:
 		HephDevice	m_device;
