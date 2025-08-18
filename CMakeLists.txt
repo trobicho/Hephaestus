@@ -29,6 +29,8 @@ add_library (hephaestus
 	srcs/memory/hephMemoryAllocator.cpp
 	srcs/memory/hephMemoryAllocator.hpp
 
+	srcs/texture/hephTexture.hpp
+
 	srcs/rendering/hephSwapchain.cpp
 	srcs/rendering/hephSwapchain.hpp
 
@@ -82,6 +84,8 @@ install(FILES "srcs/core/hephDescriptorSet.hpp" DESTINATION "${CMAKE_INSTALL_INC
 
 install(FILES "srcs/command/hephCommandPool.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/command/")
 install(FILES "srcs/memory/hephMemoryAllocator.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/memory/")
+
+install(FILES "srcs/texture/hephTexture.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/texture/")
 
 install(FILES "srcs/physicalDevices/hephPhysicalDevicesSelector.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/physicalDevices/")
 

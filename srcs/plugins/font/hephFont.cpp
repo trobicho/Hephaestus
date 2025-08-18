@@ -3,8 +3,9 @@
 #include <cstdint>
 #include <sys/types.h>
 #include <vulkan/vulkan_core.h>
+#include "../../texture/hephTexture.hpp"
 
-HephResult  HephFont::load(HephDevice& device, HephImageWrapper& texture, HephFontCreateInfo& createInfo) {
+HephResult  HephFont::load(HephDevice& device, HephTextureAtlas& texture, HephFontCreateInfo& createInfo) {
   HEPH_CHECK_RESULT(HephPluginFont::checkInit());
   m_fontFilePath = createInfo.fontFilePath;
   m_faceIndex = createInfo.faceIndex;
@@ -26,7 +27,7 @@ HephResult  HephFont::destroy() {
   return (HephResult());
 }
 
-HephResult  HephFont::loadGlyphs(HephDevice& device, HephImageWrapper& texture) {
+HephResult  HephFont::loadGlyphs(HephDevice& device, HephTextureAtlas& texture) {
   uint32_t  width = 0;
   uint32_t  height = 0;
   uint32_t  maxWidth = 4096;
@@ -58,7 +59,8 @@ HephResult  HephFont::loadGlyphs(HephDevice& device, HephImageWrapper& texture) 
   
   int dst = 0;
   int dstLine = 0;
-  w = 0;
+  int texX = 0;
+  int texY = 0;
   rowHeight = 0;
 
   for (int i = 0; i < m_face->num_glyphs; i++) {
@@ -70,10 +72,11 @@ HephResult  HephFont::loadGlyphs(HephDevice& device, HephImageWrapper& texture) 
     int glyphWidth = m_face->glyph->bitmap.width;
     int glyphHeight = m_face->glyph->bitmap.rows;
 
-    if (w + glyphWidth > widthTex) {
+    if (texX + glyphWidth > widthTex) {
       dstLine += rowHeight * widthTex;
       dst = dstLine;
-      w = 0;
+      texX = 0;
+      texY += rowHeight;
       rowHeight = 0;
     }
 
@@ -88,11 +91,15 @@ HephResult  HephFont::loadGlyphs(HephDevice& device, HephImageWrapper& texture) 
       }
       src += m_face->glyph->bitmap.pitch;
     }
+    texture.addArea((HephTextureArea){
+      .min = glm::vec2((float)texX / widthTex, (float)texY / height),
+      .max = glm::vec2((float)(texX + glyphWidth) / widthTex, (float)(texY + glyphHeight) / height),
+    });
     dst += glyphWidth;
-    w += glyphWidth;
+    texX += glyphWidth;
   }
 
-  texture.format = VK_FORMAT_R8_UINT;
+  texture.image.format = VK_FORMAT_R8_UINT;
 
   VkExtent3D extent = {
     .width = widthTex,
@@ -125,7 +132,7 @@ HephResult  HephFont::loadGlyphs(HephDevice& device, HephImageWrapper& texture) 
   HEPH_CHECK_RESULT(cmdPool.create(device, cmdPoolCreateInfo));
   HEPH_CHECK_RESULT(memoryAllocator.create(device));
   
-  HEPH_CHECK_RESULT(memoryAllocator.createImage(imageCreateInfo, texture, cmdPool).errorFormat("Failed to create emulator image {{}} !"));
+  HEPH_CHECK_RESULT(memoryAllocator.createImage(imageCreateInfo, texture.image, cmdPool).errorFormat("Failed to create emulator image {{}} !"));
   VkBufferImageCopy	imgRegion = {
     .bufferOffset = 0,
     .bufferRowLength = 0,
@@ -137,7 +144,7 @@ HephResult  HephFont::loadGlyphs(HephDevice& device, HephImageWrapper& texture) 
       .layerCount = 1,
     },
     .imageOffset = {.x = 0, .y = 0, .z = 0},
-    .imageExtent = texture.extent,
+    .imageExtent = texture.image.extent,
   };
-  return (memoryAllocator.stagingMakeAndCopyImage(texture, imgRegion, buffer.data(), bufferSize, cmdPool));
+  return (memoryAllocator.stagingMakeAndCopyImage(texture.image, imgRegion, buffer.data(), bufferSize, cmdPool));
 }

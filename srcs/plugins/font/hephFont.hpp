@@ -3,6 +3,7 @@
 #include "../../core/hephaestus_core.hpp"
 #include "../../memory/hephMemoryAllocator.hpp"
 #include "hephPluginFont.hpp"
+#include "../../texture/hephTexture.hpp"
 #include <vector>
 
 struct  HephFontCreateInfo {
@@ -31,11 +32,11 @@ class   HephFont {
     HephFont() {};
     ~HephFont() {destroy();}
 
-    HephResult  load(HephDevice& device, HephImageWrapper& texture, HephFontCreateInfo& createInfo);
+    HephResult  load(HephDevice& device, HephTextureAtlas& texture, HephFontCreateInfo& createInfo);
     HephResult  destroy();
 
   protected:
-    HephResult  loadGlyphs(HephDevice& device, HephImageWrapper& texture);
+    HephResult  loadGlyphs(HephDevice& device, HephTextureAtlas& texture);
 
     HephDevice                  m_device;
     const char*                 m_fontFilePath;
