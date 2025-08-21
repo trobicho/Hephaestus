@@ -7,9 +7,12 @@
 #include <vector>
 
 struct  HephFontCreateInfo {
-	const char*       fontFilePath;	
-  int               faceIndex = -1;
-  int               pixelSize;
+	const char*           fontFilePath;	
+  int                   faceIndex = -1;
+  int                   pixelSize;
+  HephMemoryAllocator   *mAllocator = nullptr;
+  HephCommandPool       *cmdPool = nullptr;
+  HephTextureAtlas      *textureAtlas = nullptr;
 };
 
 struct  HephFontGlyph {
@@ -32,13 +35,13 @@ class   HephFont {
     HephFont() {};
     ~HephFont() {destroy();}
 
-    HephResult  load(HephDevice& device, HephTextureAtlas& texture, HephFontCreateInfo& createInfo);
-    HephResult  destroy();
+    HephResult            load(HephFontCreateInfo& createInfo);
+    HephResult            destroy();
+    const HephFontGlyph&  getGlyph(uint32_t glyphIndex) {return (m_glyphs[glyphIndex]);}
 
   protected:
-    HephResult  loadGlyphs(HephDevice& device, HephTextureAtlas& texture);
+    HephResult  loadGlyphs(HephFontCreateInfo& createInfo);
 
-    HephDevice                  m_device;
     const char*                 m_fontFilePath;
     int                         m_faceIndex;
     int                         m_pixelSize;

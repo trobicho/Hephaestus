@@ -46,6 +46,8 @@ HephResult	HephSwapchain::acquireNextImage(HephSwapchainPresentData& presentData
 		m_imageCurrent = (m_imageCurrent + 1) % m_imageCount;
 		vkResetFences(m_device.device, 1, &syncObject.fence);
 	}
+  else
+		vkResetFences(m_device.device, 1, &syncObject.fence);
 	presentData.image = m_images[presentData.imageIndex];
 	return (result);
 }

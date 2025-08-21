@@ -1,12 +1,15 @@
 #include "hephFont.hpp"
-#include "../../command/hephCommandPool.hpp"
 #include <cstdint>
 #include <sys/types.h>
 #include <vulkan/vulkan_core.h>
 #include "../../texture/hephTexture.hpp"
 
-HephResult  HephFont::load(HephDevice& device, HephTextureAtlas& texture, HephFontCreateInfo& createInfo) {
+HephResult  HephFont::load(HephFontCreateInfo& createInfo) {
   HEPH_CHECK_RESULT(HephPluginFont::checkInit());
+  HEPH_CHECK_RESULT(HephResult(createInfo.mAllocator != nullptr).errorFormat("mAllocator field of HephFontCreateInfo cannot be NULL"));
+  HEPH_CHECK_RESULT(HephResult(createInfo.cmdPool != nullptr).errorFormat("cmdPool field of HephFontCreateInfo cannot be NULL"));
+  HEPH_CHECK_RESULT(HephResult(createInfo.textureAtlas != nullptr).errorFormat("textureAtlas field of HephFontCreateInfo cannot be NULL"));
+
   m_fontFilePath = createInfo.fontFilePath;
   m_faceIndex = createInfo.faceIndex;
   m_pixelSize = createInfo.pixelSize;
@@ -16,7 +19,7 @@ HephResult  HephFont::load(HephDevice& device, HephTextureAtlas& texture, HephFo
   error = FT_Set_Pixel_Sizes(m_face, 0, m_pixelSize);
   HEPH_CHECK_RESULT(HephPluginFont::ftError(error).errorFormat("failed to set pixel size {{}} !"));
 
-  HEPH_CHECK_RESULT(loadGlyphs(device, texture));
+  HEPH_CHECK_RESULT(loadGlyphs(createInfo));
   m_hasKerning = FT_HAS_KERNING(m_face);
 
   return (HephResult());
@@ -27,7 +30,7 @@ HephResult  HephFont::destroy() {
   return (HephResult());
 }
 
-HephResult  HephFont::loadGlyphs(HephDevice& device, HephTextureAtlas& texture) {
+HephResult  HephFont::loadGlyphs(HephFontCreateInfo& createInfo) {
   uint32_t  width = 0;
   uint32_t  height = 0;
   uint32_t  maxWidth = 4096;
@@ -91,7 +94,7 @@ HephResult  HephFont::loadGlyphs(HephDevice& device, HephTextureAtlas& texture) 
       }
       src += m_face->glyph->bitmap.pitch;
     }
-    texture.addArea((HephTextureArea){
+    createInfo.textureAtlas->addArea((HephTextureArea){
       .min = glm::vec2((float)texX / widthTex, (float)texY / height),
       .max = glm::vec2((float)(texX + glyphWidth) / widthTex, (float)(texY + glyphHeight) / height),
     });
@@ -99,7 +102,7 @@ HephResult  HephFont::loadGlyphs(HephDevice& device, HephTextureAtlas& texture) 
     texX += glyphWidth;
   }
 
-  texture.image.format = VK_FORMAT_R8_UINT;
+  createInfo.textureAtlas->image.format = VK_FORMAT_R8_UINT;
 
   VkExtent3D extent = {
     .width = widthTex,
@@ -123,16 +126,8 @@ HephResult  HephFont::loadGlyphs(HephDevice& device, HephTextureAtlas& texture) 
 		.samples = VK_SAMPLE_COUNT_1_BIT,
 	};
 
-  HephMemoryAllocator   memoryAllocator;
-  HephCommandPool       cmdPool;
-  HephCommandPoolCreateInfo cmdPoolCreateInfo = {
-	  .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
-	  .queueFamilyIndex = device.queues[0].familyIndex,
-  };
-  HEPH_CHECK_RESULT(cmdPool.create(device, cmdPoolCreateInfo));
-  HEPH_CHECK_RESULT(memoryAllocator.create(device));
-  
-  HEPH_CHECK_RESULT(memoryAllocator.createImage(imageCreateInfo, texture.image, cmdPool).errorFormat("Failed to create emulator image {{}} !"));
+  HEPH_CHECK_RESULT(createInfo.mAllocator->createImage(imageCreateInfo, createInfo.textureAtlas->image, *createInfo.cmdPool)
+      .errorFormat("Failed to create emulator image {{}} !"));
   VkBufferImageCopy	imgRegion = {
     .bufferOffset = 0,
     .bufferRowLength = 0,
@@ -144,7 +139,7 @@ HephResult  HephFont::loadGlyphs(HephDevice& device, HephTextureAtlas& texture) 
       .layerCount = 1,
     },
     .imageOffset = {.x = 0, .y = 0, .z = 0},
-    .imageExtent = texture.image.extent,
+    .imageExtent = createInfo.textureAtlas->image.extent,
   };
-  return (memoryAllocator.stagingMakeAndCopyImage(texture.image, imgRegion, buffer.data(), bufferSize, cmdPool));
+  return (createInfo.mAllocator->stagingMakeAndCopyImage(createInfo.textureAtlas->image, imgRegion, buffer.data(), bufferSize, *createInfo.cmdPool));
 }
