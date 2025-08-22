@@ -13,7 +13,6 @@ struct  HephDescriptorUpdateInfo {
   void*             pInfo = nullptr;
 };
 
-
 struct	HephDescriptorWrapper {
 	void	destroy(HephDevice& device) {
 		vkDestroyDescriptorSetLayout(device.device, layout, device.pAllocationCallbacks);
