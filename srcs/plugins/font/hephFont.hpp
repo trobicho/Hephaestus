@@ -12,7 +12,6 @@ struct  HephFontCreateInfo {
   int                   pixelSize;
   HephMemoryAllocator   *mAllocator = nullptr;
   HephCommandPool       *cmdPool = nullptr;
-  HephTextureAtlas      *textureAtlas = nullptr;
 };
 
 struct  HephFontGlyph {
@@ -35,9 +34,11 @@ class   HephFont {
     HephFont() {};
     ~HephFont() {destroy();}
 
-    HephResult            load(HephFontCreateInfo& createInfo);
-    HephResult            destroy();
-    const HephFontGlyph&  getGlyph(uint32_t glyphIndex) {return (m_glyphs[glyphIndex]);}
+    HephResult                load(HephFontCreateInfo& createInfo);
+    HephResult                destroy();
+    const HephFontGlyph&      getGlyph(uint32_t glyphIndex) {return (m_glyphs[glyphIndex]);}
+    int                       getPixelSize() {return (m_pixelSize);}
+    const HephTextureAtlas&   getTextureAtlas() {return (m_textureAtlas);}
 
   protected:
     HephResult  loadGlyphs(HephFontCreateInfo& createInfo);
@@ -48,4 +49,5 @@ class   HephFont {
     FT_Face                     m_face;
     std::vector<HephFontGlyph>  m_glyphs;
     bool                        m_hasKerning;
+    HephTextureAtlas            m_textureAtlas;
 };

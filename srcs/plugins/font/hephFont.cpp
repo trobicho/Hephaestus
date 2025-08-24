@@ -8,7 +8,6 @@ HephResult  HephFont::load(HephFontCreateInfo& createInfo) {
   HEPH_CHECK_RESULT(HephPluginFont::checkInit());
   HEPH_CHECK_RESULT(HephResult(createInfo.mAllocator != nullptr).errorFormat("mAllocator field of HephFontCreateInfo cannot be NULL"));
   HEPH_CHECK_RESULT(HephResult(createInfo.cmdPool != nullptr).errorFormat("cmdPool field of HephFontCreateInfo cannot be NULL"));
-  HEPH_CHECK_RESULT(HephResult(createInfo.textureAtlas != nullptr).errorFormat("textureAtlas field of HephFontCreateInfo cannot be NULL"));
 
   m_fontFilePath = createInfo.fontFilePath;
   m_faceIndex = createInfo.faceIndex;
@@ -94,7 +93,7 @@ HephResult  HephFont::loadGlyphs(HephFontCreateInfo& createInfo) {
       }
       src += m_face->glyph->bitmap.pitch;
     }
-    createInfo.textureAtlas->addArea((HephTextureArea){
+    m_textureAtlas.addArea((HephTextureArea){
       .min = glm::vec2((float)texX / widthTex, (float)texY / height),
       .max = glm::vec2((float)(texX + glyphWidth) / widthTex, (float)(texY + glyphHeight) / height),
     });
@@ -102,7 +101,7 @@ HephResult  HephFont::loadGlyphs(HephFontCreateInfo& createInfo) {
     texX += glyphWidth;
   }
 
-  createInfo.textureAtlas->image.format = VK_FORMAT_R8_UINT;
+  m_textureAtlas.image.format = VK_FORMAT_R8_UINT;
 
   VkExtent3D extent = {
     .width = widthTex,
@@ -126,7 +125,7 @@ HephResult  HephFont::loadGlyphs(HephFontCreateInfo& createInfo) {
 		.samples = VK_SAMPLE_COUNT_1_BIT,
 	};
 
-  HEPH_CHECK_RESULT(createInfo.mAllocator->createImage(imageCreateInfo, createInfo.textureAtlas->image, *createInfo.cmdPool)
+  HEPH_CHECK_RESULT(createInfo.mAllocator->createImage(imageCreateInfo, m_textureAtlas.image, *createInfo.cmdPool)
       .errorFormat("Failed to create emulator image {{}} !"));
   VkBufferImageCopy	imgRegion = {
     .bufferOffset = 0,
@@ -139,7 +138,7 @@ HephResult  HephFont::loadGlyphs(HephFontCreateInfo& createInfo) {
       .layerCount = 1,
     },
     .imageOffset = {.x = 0, .y = 0, .z = 0},
-    .imageExtent = createInfo.textureAtlas->image.extent,
+    .imageExtent = m_textureAtlas.image.extent,
   };
-  return (createInfo.mAllocator->stagingMakeAndCopyImage(createInfo.textureAtlas->image, imgRegion, buffer.data(), bufferSize, *createInfo.cmdPool));
+  return (createInfo.mAllocator->stagingMakeAndCopyImage(m_textureAtlas.image, imgRegion, buffer.data(), bufferSize, *createInfo.cmdPool));
 }

@@ -12,7 +12,7 @@ struct  HephTextureArea {
 
 struct  HephTextureAtlas {
   void              addArea(HephTextureArea area) {areas.push_back(area);}
-  HephTextureArea   getArea(int n) {
+  HephTextureArea   getArea(int n) const {
     if (n < areas.size())
       return (areas[n]);
     return (HephTextureArea());
