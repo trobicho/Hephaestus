@@ -187,6 +187,7 @@ HephResult	HephMemoryAllocator::stagingMakeAndCopy(HephBufferWrapper& buffer, vo
   vkCmdCopyBuffer(cmdBuffer, staging.buffer, buffer.buffer, 1, &copyRegion);
   vkEndCommandBuffer(cmdBuffer);
   HEPH_CHECK_RESULT(cmdPool.submitAndWait(cmdBuffer));
+  cmdPool.free(cmdBuffer);
   destroyBuffer(staging);
 	return (HephResult());
 }
@@ -217,6 +218,7 @@ HephResult	HephMemoryAllocator::stagingMakeAndCopyImage(HephImageWrapper& image,
   vkCmdCopyBufferToImage(cmdBuffer, staging.buffer, image.image, VK_IMAGE_LAYOUT_GENERAL, 1, &imgRegion);
   vkEndCommandBuffer(cmdBuffer);
   HEPH_CHECK_RESULT(cmdPool.submitAndWait(cmdBuffer));
+  cmdPool.free(cmdBuffer);
   destroyBuffer(staging);
 	return (HephResult());
 }
