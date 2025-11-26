@@ -5,6 +5,7 @@ project ("hephaestus" VERSION 0.1 DESCRIPTION "a little vulkan wrapper")
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(APP_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 add_compile_options("-g")
 
@@ -56,18 +57,31 @@ add_library (hephaestus
   srcs/plugins/font/hephPluginFont.cpp
   srcs/plugins/font/hephFont.hpp
   srcs/plugins/font/hephFont.cpp
+
+  srcs/gui/hephGui.hpp
+  srcs/gui/hephGui.cpp
+  srcs/gui/hephGuiPipeline.cpp
 )
 
-set_target_properties(hephaestus PROPERTIES
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/config_app.h.cmake ${CMAKE_BINARY_DIR}/config_app.h)
+
+include(FindVulkan)
+target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan) 
+find_package(Freetype REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC Freetype::Freetype)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	PUBLIC_HEADER srcs/hephaestus.hpp
 )
 
-include(FindVulkan)
-target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan) 
-find_package(Freetype)
-target_link_libraries(${PROJECT_NAME} PRIVATE Freetype::Freetype)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+	${CMAKE_CURRENT_LIST_DIR}
+  ${CMAKE_CURRENT_LIST_DIR}/srcs
+	${CMAKE_BINARY_DIR}
+)
 
 install(TARGETS hephaestus 
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -104,3 +118,5 @@ install(FILES "srcs/extensions/hephExtensionScreenRendering.hpp" DESTINATION "${
 
 install(FILES "srcs/plugins/font/hephPluginFont.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/plugins/font/")
 install(FILES "srcs/plugins/font/hephFont.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/plugins/font/")
+
+install(FILES "srcs/gui/hephGui.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")

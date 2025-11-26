@@ -45,7 +45,6 @@ struct	HephPipelineDescriptor {
 		return (sets);
 	};
 
-
 	std::vector<HephDescriptorWrapper>	descriptors;
 	VkDescriptorPool										descriptorPool;
 };

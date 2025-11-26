@@ -24,6 +24,8 @@ HephResult  ftError(FT_Error error) {
 }
 
 HephResult  init() {
+  if (isInit)
+    return (HephResult());
   FT_Error  error = FT_Init_FreeType(&ftLibrary);
   if (error) {
     return (ftError(error).errorFormat("failed to initialize FreeType library {{}} !"));

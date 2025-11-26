@@ -3,8 +3,12 @@
 #include "hephResult.hpp"
 #include "../extensions/hephExtensionInterface.hpp"
 #include "hephQueueReserveInterface.hpp"
-#include <vulkan/vulkan_core.h>
 #include <vector>
+
+#include <vulkan/vulkan_core.h>
+#if defined(VK_VERSION_1_3) || defined(VK_KHR_dynamic_rendering)
+#define HEPH_VULKAN_HAS_DYNAMIC_RENDERING
+#endif
 
 struct	HephInstanceDebugInfo	{
 	bool	debug						= false;
