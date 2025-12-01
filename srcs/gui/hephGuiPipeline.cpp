@@ -178,23 +178,20 @@ HephResult	HephGuiContext::createPipeline() {
 	return (HephResult());
 }
 
-/*
-void 				GraphWindow::updateDescriptorSets() {
-  memoryAllocator.stagingMakeAndCopy(cameraUbo, &camera, sizeof(Camera), commandPool);
-  VkDescriptorBufferInfo		bufferInfo = {
-		.buffer = cameraUbo.buffer,
-		.offset = 0,
-		.range = VK_WHOLE_SIZE,
+void        HephGuiContext::updateDescriptorSets() {
+  VkDescriptorImageInfo imageInfo = {
+    .sampler = sampler,
+    .imageView = font.getTextureAtlas().image.imageView,
+    .imageLayout = font.getTextureAtlas().image.layout,
   };
 	HephDescriptorUpdateInfo	updateInfo[] = {
 		{
-			.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 			.binding = 0,
-			.pInfo = &bufferInfo,
+			.pInfo = &imageInfo,
 		},
 	};
 	pipelineDescriptor.update(device, 0, updateInfo, 1);
 }
-*/
 
 }

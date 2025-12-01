@@ -32,10 +32,12 @@ void  HephDrawList::addRectFill(const glm::vec2& min, const glm::vec2& max, cons
   idxBuffer.push_back(vtxBuffer.size() + 2);
   idxBuffer.push_back(vtxBuffer.size() + 3);
 
-  vtxBuffer.push_back((HephVertex){.pos = min, .color = color});
-  vtxBuffer.push_back((HephVertex){.pos = glm::vec2(max.x, min.y), .color = color});
-  vtxBuffer.push_back((HephVertex){.pos = max, .color = color});
-  vtxBuffer.push_back((HephVertex){.pos = glm::vec2(min.x, max.y), .color = color});
+  const HephTextureArea& area = _Data->whitePixelArea;
+
+  vtxBuffer.push_back((HephVertex){.pos = min, .uv = area.min, .color = color});
+  vtxBuffer.push_back((HephVertex){.pos = glm::vec2(max.x, min.y), .uv = {area.max.x, area.min.y}, .color = color});
+  vtxBuffer.push_back((HephVertex){.pos = max, .uv = area.max, .color = color});
+  vtxBuffer.push_back((HephVertex){.pos = glm::vec2(min.x, max.y), .uv = {area.min.x, area.max.y}, .color = color});
 
   drawCmdBuffer.back().elemCount += 6;
 }
@@ -52,8 +54,8 @@ float HephDrawList::addGlyphRect(const HephFont* font, const glm::vec2& pos, int
   idxBuffer.push_back(vtxBuffer.size() + 2);
   idxBuffer.push_back(vtxBuffer.size() + 3);
 
-  glm::vec2 max(pos.x + glyph.width * scale, pos.y + glyph.height * scale);
-  glm::vec2 min(max.x - glyph.left * scale, max.y - glyph.top * scale);
+  glm::vec2 max(pos.x + (glyph.width + glyph.left) * scale, pos.y + (font->getPixelSize() / 2.0 + glyph.height - glyph.top) * scale);
+  glm::vec2 min(pos.x + glyph.left * scale, pos.y + (font->getPixelSize() / 2.0 - glyph.top) * scale);
 
   vtxBuffer.push_back((HephVertex){.pos = min, .uv = area.min, .color = color});
   vtxBuffer.push_back((HephVertex){.pos = glm::vec2(max.x, min.y), .uv = {area.max.x, area.min.y}, .color = color});
@@ -62,7 +64,7 @@ float HephDrawList::addGlyphRect(const HephFont* font, const glm::vec2& pos, int
   
   drawCmdBuffer.back().elemCount += 6;
 
-  return (max.x - pos.x);
+  return (glyph.advance * scale);
 }
 
 void  HephDrawList::addText(const std::string& text, float size,  const glm::vec4& clipRect, const glm::vec4& color) {
@@ -71,7 +73,7 @@ void  HephDrawList::addText(const std::string& text, float size,  const glm::vec
   float           lineSize = size;
   glm::vec2       rect = pos;
 
-  for (int i = 0; i < size; i++) {
+  for (int i = 0; i < text.size(); i++) {
     if (text[i] == '\n') {
       pos.y += lineSize;
       rect.y = pos.y;
@@ -96,20 +98,20 @@ void  HephDrawList::addPolyline(const glm::vec2* points, uint32_t size, const gl
 
     glm::vec2 p1 = points[i] + n1;
     glm::vec2 p2 = points[i + 1] + n1;
-    glm::vec2 p3 = points[i] + n2;
-    glm::vec2 p4 = points[i + 1] + n2;
+    glm::vec2 p3 = points[i + 1] + n2;
+    glm::vec2 p4 = points[i] + n2;
 
     idxBuffer.push_back(vtxBuffer.size());
     idxBuffer.push_back(vtxBuffer.size() + 1);
-    idxBuffer.push_back(vtxBuffer.size() + 2);
-    idxBuffer.push_back(vtxBuffer.size() + 1);
     idxBuffer.push_back(vtxBuffer.size() + 3);
+    idxBuffer.push_back(vtxBuffer.size() + 1);
     idxBuffer.push_back(vtxBuffer.size() + 2);
+    idxBuffer.push_back(vtxBuffer.size() + 3);
 
-    vtxBuffer.push_back((HephVertex){.pos = p1, .color = color});
-    vtxBuffer.push_back((HephVertex){.pos = p2, .color = color});
-    vtxBuffer.push_back((HephVertex){.pos = p3, .color = color});
-    vtxBuffer.push_back((HephVertex){.pos = p4, .color = color});
+    vtxBuffer.push_back((HephVertex){.pos = p1, .uv = _Data->whitePixelArea.min, .color = color});
+    vtxBuffer.push_back((HephVertex){.pos = p2, .uv = glm::vec2(_Data->whitePixelArea.max.x, _Data->whitePixelArea.min.y), .color = color});
+    vtxBuffer.push_back((HephVertex){.pos = p3, .uv = _Data->whitePixelArea.max, .color = color});
+    vtxBuffer.push_back((HephVertex){.pos = p4, .uv = glm::vec2(_Data->whitePixelArea.min.x, _Data->whitePixelArea.max.y), .color = color});
 
     drawCmdBuffer.back().elemCount += 6;
   }

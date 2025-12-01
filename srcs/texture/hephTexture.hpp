@@ -18,4 +18,5 @@ struct  HephTextureAtlas {
 
   HephImageWrapper              image;
   std::vector<HephTextureArea>  areas;
+  HephTextureArea               whitePixelArea;
 };

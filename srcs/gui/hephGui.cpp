@@ -26,34 +26,7 @@ HephGuiContext& getContext() {
 }
 
 HephResult  create(HephDevice& device, VkRenderPass renderPass) {
-  guiContext.device = device;
-  guiContext.renderPass = renderPass;
-	guiContext.memoryAllocator.create(guiContext.device);
-  guiContext.displayPos.x = 0;
-  guiContext.displayPos.y = 0;
-	HephCommandPoolCreateInfo	cmdPoolCreateInfo = {
-		.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-		.queueFamilyIndex = guiContext.device.queues[0].familyIndex,
-	};
-	HEPH_CHECK_RESULT(guiContext.commandPool.create(guiContext.device, cmdPoolCreateInfo));
-
-  HephFontCreateInfo  fontCreateInfo = {
-    .fontFilePath = "/usr/share/fonts/TTF/AgaveNerdFont-Regular.ttf",
-    .faceIndex = 0,
-    .pixelSize = 18,
-    .mAllocator = &guiContext.memoryAllocator,
-    .cmdPool = &guiContext.commandPool,
-  };
-  HEPH_CHECK_RESULT(guiContext.font.load(fontCreateInfo));
-  guiContext.sharedData.font = &guiContext.font;
-
-	HephDescriptorWrapper	descriptor;
-
-	guiContext.pipelineDescriptor.descriptors.push_back(descriptor);
-  HEPH_CHECK_RESULT(guiContext.pipelineDescriptor.build(guiContext.device).errorFormat("Unable To Build Pipeline Descriptor {}"));
-	HEPH_CHECK_RESULT(guiContext.createPipeline());
-
-  return (HephResult());
+  return (guiContext.create(device, renderPass));
 }
 
 void        setDisplaySize(int width, int height) {
@@ -120,6 +93,7 @@ void        End() {
   HephWindow* winPtr = winStack.top();
   winPtr->drawList->addRectFill(winPtr->pos, winPtr->pos + winPtr->size, glm::vec4(0.05, 0.05, 0.05, 0.7));
   winPtr->drawList->addRect(winPtr->pos, winPtr->pos + winPtr->size, glm::vec4(0.5, 0.5, 0.5, 1.0), 2.0f);
+  winPtr->drawList->addText("Salut -------- XJKXJKFUDJI)OUJFIDSI)F", 18, winPtr->drawList->_ClipRectStack.top() + glm::vec4(2, 10, 0, 0), glm::vec4(0.8, 0.5, 0.5, 1.0));
   winStack.pop();
 }
 

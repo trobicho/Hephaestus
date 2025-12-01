@@ -3,6 +3,7 @@
 #include "../command/hephCommandPool.hpp"
 #include "../memory/hephMemoryAllocator.hpp"
 #include "../plugins/font/hephFont.hpp"
+#include "../texture/hephTexture.hpp"
 #include <glm/glm.hpp>
 #include <stack>
 
@@ -22,8 +23,9 @@ struct  HephDrawCmd {
 };
 
 struct  HephSharedData {
-  glm::ivec4  clipRectFullScreen;
-  HephFont*   font;
+  glm::ivec4      clipRectFullScreen;
+  HephTextureArea whitePixelArea;
+  HephFont*       font;
 };
 
 struct  HephDrawList {
@@ -65,7 +67,9 @@ class   HephGuiContext {
   public:
     HephGuiContext() {};
 
+    HephResult          create(HephDevice& device, VkRenderPass renderPass = VK_NULL_HANDLE);
     HephResult          createPipeline();
+    void                updateDescriptorSets();
     void                destroy();
     void                render(VkCommandBuffer cmdBuffer);
     void                newFrame() {drawListBuffer.clear();}
@@ -93,6 +97,7 @@ class   HephGuiContext {
 		HephMemoryAllocator	      memoryAllocator; 
 
     HephFont                  font;
+    VkSampler                 sampler;
 
     HephBufferWrapper         vertexBuffer;
     HephBufferWrapper         indexBuffer;

@@ -55,7 +55,7 @@ HephResult  HephFont::loadGlyphs(HephFontCreateInfo& createInfo) {
   height += rowHeight;
 
   uint32_t  widthTex = std::min(width, maxWidth);
-  uint32_t  heightTex = height;
+  uint32_t  heightTex = height + 2;
   uint32_t  bufferSize = widthTex * heightTex;
   std::vector<uint8_t>  buffer(bufferSize, 0);
   
@@ -94,12 +94,21 @@ HephResult  HephFont::loadGlyphs(HephFontCreateInfo& createInfo) {
       src += m_face->glyph->bitmap.pitch;
     }
     m_textureAtlas.addArea((HephTextureArea){
-      .min = glm::vec2((float)texX / widthTex, (float)texY / height),
-      .max = glm::vec2((float)(texX + glyphWidth) / widthTex, (float)(texY + glyphHeight) / height),
+      .min = glm::vec2((float)texX / widthTex, (float)texY / heightTex),
+      .max = glm::vec2((float)(texX + glyphWidth) / widthTex, (float)(texY + glyphHeight) / heightTex),
     });
     dst += glyphWidth;
     texX += glyphWidth;
   }
+
+  buffer[0 + widthTex * height] = 255;
+  buffer[1 + widthTex * height] = 255;
+  buffer[0 + widthTex * (height + 1)] = 255;
+  buffer[1 + widthTex * (height + 1)] = 255;
+  m_textureAtlas.whitePixelArea = (HephTextureArea){
+    .min = glm::vec2(0.0, (float)height / heightTex),
+    .max = glm::vec2(2.0 / (float)widthTex, 1.0),
+  };
 
   m_textureAtlas.image.format = VK_FORMAT_R8_UINT;
 

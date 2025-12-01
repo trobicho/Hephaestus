@@ -34,11 +34,11 @@ class   HephFont {
     HephFont() {};
     ~HephFont() {destroy();}
 
-    HephResult                load(HephFontCreateInfo& createInfo);
-    HephResult                destroy();
-    const HephFontGlyph&      getGlyph(uint32_t glyphIndex) const {return (m_glyphs[glyphIndex]);}
-    int                       getPixelSize() const {return (m_pixelSize);}
-    const HephTextureAtlas&   getTextureAtlas() const {return (m_textureAtlas);}
+    HephResult                      load(HephFontCreateInfo& createInfo);
+    HephResult                      destroy();
+    inline const HephFontGlyph&     getGlyph(uint32_t glyphIndex) const {return (m_glyphs[glyphIndex]);}
+    inline const int&               getPixelSize() const {return (m_pixelSize);}
+    inline const HephTextureAtlas&  getTextureAtlas() const {return (m_textureAtlas);}
 
   protected:
     HephResult  loadGlyphs(HephFontCreateInfo& createInfo);
