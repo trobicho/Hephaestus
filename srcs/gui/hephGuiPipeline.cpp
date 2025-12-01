@@ -1,20 +1,30 @@
 #include "hephGui.hpp"
 #include "config_app.h"
 #include <cstddef>
+#include <vulkan/vulkan_core.h>
 
-HephResult	HephGui::createPipelines() {
+namespace HephGui {
 
-	auto	layouts = m_pipelineDescriptor.getLayoutBuffer();
+HephResult	HephGuiContext::createPipeline() {
+
+	auto	layouts = pipelineDescriptor.getLayoutBuffer();
+
+  VkPushConstantRange               pushConstantRange = {
+    .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+    .offset = 0,
+    .size = 2 * sizeof(glm::vec2),
+  };
+
   VkPipelineLayoutCreateInfo 				pipelineLayoutInfo = {
     .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
     .setLayoutCount = static_cast<uint32_t>(layouts.size()),
     .pSetLayouts = layouts.data(),
-    .pushConstantRangeCount = 0, // Optional
-    .pPushConstantRanges = nullptr, // Optional
+    .pushConstantRangeCount = 1, // Optional
+    .pPushConstantRanges = &pushConstantRange,
   };
 
-  HEPH_CHECK_RESULT(HephResult(vkCreatePipelineLayout(m_device.device, &pipelineLayoutInfo
-        , nullptr, &m_pipelineLayout), "failed to create pipeline layout!"));
+  HEPH_CHECK_RESULT(HephResult(vkCreatePipelineLayout(device.device, &pipelineLayoutInfo
+        , nullptr, &pipelineLayout), "failed to create pipeline layout!"));
 
   VkVertexInputBindingDescription       vertexBindingDesc = {
     .binding = 0,
@@ -22,15 +32,21 @@ HephResult	HephGui::createPipelines() {
     .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
   };
 
-  VkVertexInputAttributeDescription     vertexAttrDesc[2] = {
+  VkVertexInputAttributeDescription     vertexAttrDesc[] = {
     {
       .location = 0,
       .binding = 0,
-      .format = VK_FORMAT_R32G32B32_SFLOAT,
+      .format = VK_FORMAT_R32G32_SFLOAT,
       .offset = 0,
     },
     {
       .location = 1,
+      .binding = 0,
+      .format = VK_FORMAT_R32G32_SFLOAT,
+      .offset = offsetof(HephVertex, uv),
+    },
+    {
+      .location = 2,
       .binding = 0,
       .format = VK_FORMAT_R32G32B32A32_SFLOAT,
       .offset = offsetof(HephVertex, color),
@@ -41,16 +57,11 @@ HephResult	HephGui::createPipelines() {
     .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
     .vertexBindingDescriptionCount = 1,
     .pVertexBindingDescriptions = &vertexBindingDesc,
-    .vertexAttributeDescriptionCount = 2,
+    .vertexAttributeDescriptionCount = 3,
     .pVertexAttributeDescriptions = vertexAttrDesc,
   };
 
-  VkPipelineInputAssemblyStateCreateInfo  inputAssemblyInfoLine = {
-    .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-    .topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-    .primitiveRestartEnable = VK_FALSE,
-  };
-  VkPipelineInputAssemblyStateCreateInfo  inputAssemblyInfoTri = {
+  VkPipelineInputAssemblyStateCreateInfo  inputAssemblyInfo = {
     .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
     .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
     .primitiveRestartEnable = VK_FALSE,
@@ -110,18 +121,17 @@ HephResult	HephGui::createPipelines() {
   HephShaderModuleWrapper	fragShaderModule = {
 		.filename = std::string(APP_ROOT) + "/spv/tri.frag.spv",
 	};
-	vertShaderModule.load(m_device);
-	fragShaderModule.load(m_device);
+	vertShaderModule.load(device);
+	fragShaderModule.load(device);
 
   VkDynamicState dynamicStates[] = {
     VK_DYNAMIC_STATE_VIEWPORT,
     VK_DYNAMIC_STATE_SCISSOR,
-    VK_DYNAMIC_STATE_LINE_WIDTH,
   };
 
   VkPipelineDynamicStateCreateInfo  dynamicStateInfo = {
     .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-    .dynamicStateCount = 3,
+    .dynamicStateCount = 2,
     .pDynamicStates = dynamicStates,
   };
 
@@ -149,34 +159,30 @@ HephResult	HephGui::createPipelines() {
     .stageCount = 2,
     .pStages = shaderStages,
     .pVertexInputState = &vertexInputInfo,
-    .pInputAssemblyState = &inputAssemblyInfoLine,
+    .pInputAssemblyState = &inputAssemblyInfo,
     .pViewportState = &viewportInfo,
     .pRasterizationState = &rasterizationInfo,
     .pMultisampleState = &multisampleStateInfo,
     .pDepthStencilState = nullptr, // Optional
     .pColorBlendState = &colorBlendInfo,
     .pDynamicState = &dynamicStateInfo,
-    .layout = m_pipelineLayout,
-    .renderPass = m_renderPass,
+    .layout = pipelineLayout,
+    .renderPass = renderPass,
   };
 
-  HEPH_CHECK_RESULT(HephResult(vkCreateGraphicsPipelines(m_device.device, VK_NULL_HANDLE, 1,
-        &pipelineInfo, nullptr, &m_pipelineLine), "failed to create graphics pipeline!"));
+  HEPH_CHECK_RESULT(HephResult(vkCreateGraphicsPipelines(device.device, VK_NULL_HANDLE, 1,
+        &pipelineInfo, nullptr, &pipeline), "failed to create graphics pipeline!"));
 
-  pipelineInfo.pInputAssemblyState = &inputAssemblyInfoTri;
-  HEPH_CHECK_RESULT(HephResult(vkCreateGraphicsPipelines(m_device.device, VK_NULL_HANDLE, 1,
-        &pipelineInfo, nullptr, &m_pipelineTri), "failed to create graphics pipeline!"));
-
-	vertShaderModule.destroy(m_device);
-	fragShaderModule.destroy(m_device);
+	vertShaderModule.destroy(device);
+	fragShaderModule.destroy(device);
 	return (HephResult());
 }
 
 /*
 void 				GraphWindow::updateDescriptorSets() {
-  m_memoryAllocator.stagingMakeAndCopy(m_cameraUbo, &m_camera, sizeof(Camera), m_commandPool);
+  memoryAllocator.stagingMakeAndCopy(cameraUbo, &camera, sizeof(Camera), commandPool);
   VkDescriptorBufferInfo		bufferInfo = {
-		.buffer = m_cameraUbo.buffer,
+		.buffer = cameraUbo.buffer,
 		.offset = 0,
 		.range = VK_WHOLE_SIZE,
   };
@@ -187,6 +193,8 @@ void 				GraphWindow::updateDescriptorSets() {
 			.pInfo = &bufferInfo,
 		},
 	};
-	m_pipelineDescriptor.update(m_device, 0, updateInfo, 1);
+	pipelineDescriptor.update(device, 0, updateInfo, 1);
 }
 */
+
+}

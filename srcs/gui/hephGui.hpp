@@ -1,52 +1,41 @@
 #pragma once
+
 #include "../core/hephaestus_core.hpp"
 #include "../command/hephCommandPool.hpp"
 #include "../memory/hephMemoryAllocator.hpp"
 #include "../plugins/font/hephFont.hpp"
-#include <glm/glm.hpp>
+#include "hephGuiInternal.hpp"
 
 namespace HephGui {
 
-struct  HephGuiVertex {
-  glm::vec2 pos;
-  glm::vec2 uv;
-  glm::vec4 color;
+struct  HephWindow {
+  HephWindow(std::string name): name(name) {};
+
+  HephDrawList* drawList = nullptr;
+
+  std::string   name;
+  glm::ivec2    pos = {0, 0};
+  glm::ivec2    size = {-1, -1};
+  bool          firstFrame = true;
 };
 
-struct  HephDrawList {
-  std::vector<uint32_t>       idxBuffer;
-  std::vector<HephGuiVertex>  vtxBuffer;
+HephResult      init();
+void            setDisplaySize(int width, int height);
+HephResult      create(HephDevice& device, VkRenderPass renderPass = VK_NULL_HANDLE);
+void            destroy();
+HephGuiContext& getContext();
 
-  //Internal
-  std::vector<glm::vec2>      _Path;
+void        render(VkCommandBuffer cmdBuffer);
 
-  void  addLine(const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& col, float thickness = 1.0);
-  void  addRect(const glm::vec2& min, const glm::vec2& max, const glm::vec4& col, float thickness = 1.0);
-  void  addRectFill(const glm::vec2& min, const glm::vec2& max, const glm::vec4& col);
-  void  addPolyLine(const glm::vec2* points, uint32_t size, const glm::vec4& color, float thickness = 1.0);
+void        NewFrame();
+void        SetPosCurrentWindow(glm::ivec2 pos);
+void        SetSizeCurrentWindow(glm::ivec2 size);
+void        SetDimensionCurrentWindow(glm::ivec2 pos, glm::ivec2 size);
 
-  inline void  pathLineTo(const glm::vec2& p) {_Path.push_back(p);}
-  inline void  pathStroke(glm::vec4 color, float thickness = 1.0f) {addPolyline(_Path.data(), _Path.size(), col, thickness); _Path.resize(0);}
-};
+//bool        Begin(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0);
+bool        Begin(std::string name, bool* p_open = nullptr);
+void        End();
 
-class   HephGuiContext {
-  public:
-    HephGuiContext() {};
 
-    static HephResult   init();
-    HephResult          create(HephDevice& device, VkRenderPass renderPass = VK_NULL_HANDLE);
-
-  private:
-    HephResult          createPipelines();
-
-    HephDevice              m_device;
-    VkRenderPass            m_renderPass = VK_NULL_HANDLE;
-		HephPipelineDescriptor	m_pipelineDescriptor;
-		VkPipelineLayout        m_pipelineLayout = VK_NULL_HANDLE;
-		VkPipeline          		m_pipelineLine = VK_NULL_HANDLE;
-		VkPipeline          		m_pipelineTri = VK_NULL_HANDLE;
-		HephCommandPool			    m_commandPool;
-		HephMemoryAllocator	    m_memoryAllocator; 
-};
 
 }

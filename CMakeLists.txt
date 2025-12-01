@@ -60,6 +60,9 @@ add_library (hephaestus
 
   srcs/gui/hephGui.hpp
   srcs/gui/hephGui.cpp
+  srcs/gui/hephGuiDraw.cpp
+  srcs/gui/hephGuiInternal.cpp
+  srcs/gui/hephGuiInternal.hpp
   srcs/gui/hephGuiPipeline.cpp
 )
 
@@ -120,3 +123,4 @@ install(FILES "srcs/plugins/font/hephPluginFont.hpp" DESTINATION "${CMAKE_INSTAL
 install(FILES "srcs/plugins/font/hephFont.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/plugins/font/")
 
 install(FILES "srcs/gui/hephGui.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")
+install(FILES "srcs/gui/hephGuiInternal.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")

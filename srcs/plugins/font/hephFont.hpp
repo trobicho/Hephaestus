@@ -36,9 +36,9 @@ class   HephFont {
 
     HephResult                load(HephFontCreateInfo& createInfo);
     HephResult                destroy();
-    const HephFontGlyph&      getGlyph(uint32_t glyphIndex) {return (m_glyphs[glyphIndex]);}
-    int                       getPixelSize() {return (m_pixelSize);}
-    const HephTextureAtlas&   getTextureAtlas() {return (m_textureAtlas);}
+    const HephFontGlyph&      getGlyph(uint32_t glyphIndex) const {return (m_glyphs[glyphIndex]);}
+    int                       getPixelSize() const {return (m_pixelSize);}
+    const HephTextureAtlas&   getTextureAtlas() const {return (m_textureAtlas);}
 
   protected:
     HephResult  loadGlyphs(HephFontCreateInfo& createInfo);

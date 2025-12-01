@@ -71,6 +71,8 @@ HephResult	HephMemoryAllocator::createBuffer(const HephBufferCreateInfo &createI
 void				HephMemoryAllocator::destroyBuffer(HephBufferWrapper &buffer) {
 	vkDestroyBuffer(m_device.device, buffer.buffer, m_device.pAllocationCallbacks);
 	vkFreeMemory(m_device.device, buffer.memory, m_device.pAllocationCallbacks);
+  buffer.buffer = VK_NULL_HANDLE;
+  buffer.memory = VK_NULL_HANDLE;
 }
 
 HephResult	HephMemoryAllocator::createImage(const HephImageCreateInfo& createInfo, HephImageWrapper &image, HephCommandPool& cmdPool) {
