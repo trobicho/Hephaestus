@@ -35,6 +35,12 @@ struct  HephDrawList {
   std::vector<HephVertex>   vtxBuffer;
   std::vector<HephDrawCmd>  drawCmdBuffer;
 
+  void  addDrawCmd() {
+    drawCmdBuffer.push_back(HephDrawCmd());
+    assert(!_ClipRectStack.empty() && "clipRectStack cannot be empty when adding drawCmd");
+    drawCmdBuffer.back().clipRect = _ClipRectStack.top();
+  }
+
   void  addLine(const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color, float thickness = 1.0);
   void  addRect(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color, float thickness = 1.0);
   void  addRectFill(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color);

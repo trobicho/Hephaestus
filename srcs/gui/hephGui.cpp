@@ -37,7 +37,7 @@ void        destroy() {
   guiContext.destroy();
 }
 
-void        render(VkCommandBuffer commandBuffer) {
+void        Render(VkCommandBuffer commandBuffer) {
   assert(winStack.empty() && "End missing for window");
   guiContext.render(commandBuffer);
 }
@@ -62,6 +62,11 @@ void        SetSizeCurrentWindow(glm::ivec2 size) {
   winStack.top()->size = size;
 }
 
+HephWindow* GetCurrentWindowPtr() {
+  assert(!winStack.empty() && "No Current Window");
+  return (winStack.top());
+}
+
 bool        Begin(std::string name, bool* p_open) {
   HephWindow* winPtr = nullptr;
   for (auto& win: winList) {
@@ -79,11 +84,9 @@ bool        Begin(std::string name, bool* p_open) {
   else {
     winPtr->firstFrame = false;
     winPtr->drawList = &guiContext.drawListBuffer.back();
-    winPtr->drawList->pushClipRect(winPtr->pos, winPtr->size);
+    winPtr->drawList->pushClipRect(winPtr->pos, winPtr->pos + winPtr->size);
   }
-  winPtr->drawList->drawCmdBuffer.push_back(HephDrawCmd());
-  winPtr->drawList->drawCmdBuffer.back().clipRect = glm::vec4(winPtr->pos.x, winPtr->pos.y
-      , winPtr->pos.x + winPtr->size.x, winPtr->pos.y + winPtr->size.y);
+  winPtr->drawList->addDrawCmd();
   winStack.push(winPtr);
   return (true);
 }
@@ -91,9 +94,9 @@ bool        Begin(std::string name, bool* p_open) {
 void        End() {
   assert(winStack.size() > 0 && "End doesn't correspond to a Begin");
   HephWindow* winPtr = winStack.top();
-  winPtr->drawList->addRectFill(winPtr->pos, winPtr->pos + winPtr->size, glm::vec4(0.05, 0.05, 0.05, 0.7));
   winPtr->drawList->addRect(winPtr->pos, winPtr->pos + winPtr->size, glm::vec4(0.5, 0.5, 0.5, 1.0), 2.0f);
-  winPtr->drawList->addText("Salut -------- XJKXJKFUDJI)OUJFIDSI)F", 18, winPtr->drawList->_ClipRectStack.top() + glm::vec4(2, 10, 0, 0), glm::vec4(0.8, 0.5, 0.5, 1.0));
+  winPtr->drawList->addDrawCmd();
+  winPtr->drawList->addRectFill(winPtr->pos, winPtr->pos + winPtr->size, glm::vec4(0.05, 0.05, 0.05, 0.7));
   winStack.pop();
 }
 

@@ -76,6 +76,7 @@ void        HephGuiContext::render(VkCommandBuffer commandBuffer) {
       .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
       .propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
     };
+    memoryAllocator.destroyBuffer(vertexBuffer);
     memoryAllocator.createBuffer(bufInfo, vertexBuffer);
   }
   if (indexBuffer.size < totalIdx * sizeof(uint32_t)) {
@@ -85,6 +86,7 @@ void        HephGuiContext::render(VkCommandBuffer commandBuffer) {
       .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
       .propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
     };
+    memoryAllocator.destroyBuffer(indexBuffer);
     memoryAllocator.createBuffer(bufInfo, indexBuffer);
   }
   HephVertex* vtxData = nullptr;
@@ -133,8 +135,9 @@ void        HephGuiContext::render(VkCommandBuffer commandBuffer) {
   uint32_t                globalVtxOffset = 0;
   uint32_t                globalIdxOffset = 0;
   for (auto& drawList: drawListBuffer) {
-    for (auto& drawCmd: drawList.drawCmdBuffer) {
-      VkRect2D scissor;
+    for (int i = drawList.drawCmdBuffer.size() - 1; i >= 0; i--) {
+      auto&     drawCmd = drawList.drawCmdBuffer[i];
+      VkRect2D  scissor;
       scissor.offset.x = (int32_t)((drawCmd.clipRect.x) < 0 ? 0 : (drawCmd.clipRect.x));
       scissor.offset.y = (int32_t)((drawCmd.clipRect.y) < 0 ? 0 : (drawCmd.clipRect.y));
       scissor.extent.width = (uint32_t)(drawCmd.clipRect.z - drawCmd.clipRect.x);

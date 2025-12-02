@@ -25,8 +25,9 @@ HephResult      create(HephDevice& device, VkRenderPass renderPass = VK_NULL_HAN
 void            destroy();
 HephGuiContext& getContext();
 
-void        render(VkCommandBuffer cmdBuffer);
+void        Render(VkCommandBuffer cmdBuffer);
 
+HephWindow* GetCurrentWindowPtr();
 void        NewFrame();
 void        SetPosCurrentWindow(glm::ivec2 pos);
 void        SetSizeCurrentWindow(glm::ivec2 size);
