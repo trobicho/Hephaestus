@@ -3,6 +3,7 @@
 #include "plugins/font/hephFont.hpp"
 #include "texture/hephTexture.hpp"
 #include <cstdint>
+#include <glm/detail/qualifier.hpp>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 
@@ -67,7 +68,7 @@ float HephDrawList::addGlyphRect(const HephFont* font, const glm::vec2& pos, int
   return (glyph.advance * scale);
 }
 
-void  HephDrawList::addText(const std::string& text, float size,  const glm::vec4& clipRect, const glm::vec4& color) {
+void  HephDrawList::addText(const std::string& text, float size, const glm::vec4& clipRect, const glm::vec4& color) {
   glm::vec2       pos = glm::vec2((int)clipRect.x, (int)clipRect.y);
   const HephFont* font = _Data->font;
   float           lineSize = size;
@@ -79,15 +80,41 @@ void  HephDrawList::addText(const std::string& text, float size,  const glm::vec
       rect.y = pos.y;
       pos.x = clipRect.x;
     }
-    if (pos.x >= clipRect.x + clipRect.z)
-      continue;
-    if (pos.y >= clipRect.y + clipRect.w)
-      break;
+    else if (text[i] > 0) {
+      if (pos.x >= clipRect.x + clipRect.z)
+        continue;
+      if (pos.y >= clipRect.y + clipRect.w)
+        break;
 
-    pos.x += addGlyphRect(font, pos, text[i], size, color);
-    if (rect.x < pos.x)
-      rect.x = pos.x;
+      pos.x += addGlyphRect(font, pos, text[i], size, color);
+      if (rect.x < pos.x)
+        rect.x = pos.x;
+    }
   }
+}
+
+glm::vec2 HephDrawList::getTextSize(const std::string& text, float size) {
+  float           currentLine = 0.0;
+  const HephFont* font = _Data->font;
+  float           lineSize = size;
+  glm::vec2       clipRect = glm::vec2(0.0, lineSize);
+  float           scale = size / font->getPixelSize();
+
+  for (int i = 0; i < text.size(); i++) {
+    if (text[i] == '\n') {
+      clipRect.y += lineSize;
+      if (clipRect.x < currentLine)
+        clipRect.x = currentLine;
+      currentLine = 0;
+    }
+    else if (text[i] > 0) {
+      const HephFontGlyph&    glyph = font->getGlyph(text[i]);
+      currentLine += glyph.advance * scale;
+    }
+  }
+  if (clipRect.x < currentLine)
+    clipRect.x = currentLine;
+  return (clipRect);
 }
 
 void  HephDrawList::addPolyline(const glm::vec2* points, uint32_t size, const glm::vec4& color, float thickness) {

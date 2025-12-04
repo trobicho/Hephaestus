@@ -41,12 +41,13 @@ struct  HephDrawList {
     drawCmdBuffer.back().clipRect = _ClipRectStack.top();
   }
 
-  void  addLine(const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color, float thickness = 1.0);
-  void  addRect(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color, float thickness = 1.0);
-  void  addRectFill(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color);
-  void  addPolyline(const glm::vec2* points, uint32_t size, const glm::vec4& color, float thickness = 1.0);
+  void          addLine(const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color, float thickness = 1.0);
+  void          addRect(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color, float thickness = 1.0);
+  void          addRectFill(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color);
+  void          addPolyline(const glm::vec2* points, uint32_t size, const glm::vec4& color, float thickness = 1.0);
 
-  void  addText(const std::string& text, float size, const glm::vec4& clipRect, const glm::vec4& color);
+  void          addText(const std::string& text, float size, const glm::vec4& clipRect, const glm::vec4& color);
+  glm::vec2     getTextSize(const std::string& text, float size);
 
   inline float  addGlyphRect(const HephFont* font, const glm::vec2& pos, int c, float scale, const glm::vec4& color);
 
