@@ -4,19 +4,41 @@
 #include "../command/hephCommandPool.hpp"
 #include "../memory/hephMemoryAllocator.hpp"
 #include "../plugins/font/hephFont.hpp"
-#include "hephGuiInternal.hpp"
 
 namespace HephGui {
 
-struct  HephWindow {
-  HephWindow(std::string name): name(name) {};
+//forward declaration of HephGuiInternal.hpp type
+struct  HephGuiContext;
+struct  HephDrawList;
+struct  HephWindow;
 
-  HephDrawList* drawList = nullptr;
-
-  std::string   name;
-  glm::ivec2    pos = {0, 0};
-  glm::ivec2    size = {-1, -1};
-  bool          firstFrame = true;
+enum    HephGuiCol_
+{
+  HephGuiCol_Text,
+  HephGuiCol_TextDisabled,
+  HephGuiCol_WindowBg,              // Background of normal windows
+  HephGuiCol_ChildBg,               // Background of child windows
+  HephGuiCol_PopupBg,               // Background of popups, menus, tooltips windows
+  HephGuiCol_Border,
+  HephGuiCol_BorderShadow,
+  HephGuiCol_FrameBg,               // Background of checkbox, radio button, plot, slider, text input
+  HephGuiCol_FrameBgHovered,
+  HephGuiCol_FrameBgActive,
+  HephGuiCol_TitleBg,               // Title bar
+  HephGuiCol_TitleBgActive,         // Title bar when focused
+  HephGuiCol_TitleBgCollapsed,      // Title bar when collapsed
+  HephGuiCol_MenuBarBg,
+  HephGuiCol_ScrollbarBg,
+  HephGuiCol_ScrollbarGrab,
+  HephGuiCol_ScrollbarGrabHovered,
+  HephGuiCol_ScrollbarGrabActive,
+  HephGuiCol_CheckMark,             // Checkbox tick and RadioButton circle
+  HephGuiCol_SliderGrab,
+  HephGuiCol_SliderGrabActive,
+  HephGuiCol_Button,
+  HephGuiCol_ButtonHovered,
+  HephGuiCol_ButtonActive,
+  HephGuiCol_COUNT,
 };
 
 HephResult      init();
@@ -25,18 +47,25 @@ HephResult      create(HephDevice& device, VkRenderPass renderPass = VK_NULL_HAN
 void            destroy();
 HephGuiContext& getContext();
 
-void        Render(VkCommandBuffer cmdBuffer);
+void            Render(VkCommandBuffer cmdBuffer);
 
-HephWindow* GetCurrentWindowPtr();
-void        NewFrame();
-void        SetPosCurrentWindow(glm::ivec2 pos);
-void        SetSizeCurrentWindow(glm::ivec2 size);
-void        SetDimensionCurrentWindow(glm::ivec2 pos, glm::ivec2 size);
+HephWindow*     GetCurrentWindowPtr();
+void            NewFrame();
+
+void            SetPosCurrentWindow(glm::ivec2 pos, bool condFirstFrame = false);
+void            SetSizeCurrentWindow(glm::ivec2 size, bool condFirstFrame = false);
+void            SetDimensionCurrentWindow(glm::ivec2 pos, glm::ivec2 size, bool condFirstFrame = false);
+
+void            SetWindowUserPointer(void* userPtr);
+//  SetWindowSizeCallback(s_callbackWindowSize);
+void            SetWindowKeyCallback(void (*callbackKey)(HephWindow*, int key, int scancode, int action, int mods));
+void            SetWindowCharModsCallback(void (*callbackCharMods)(HephWindow*, uint32_t codepoint, int mods));
+void            SetWindowCursorPosCallback(void (*callbackCursor)(HephWindow*, double x_pos, double y_pos));
+void            SetWindowMouseButtonCallback(void (*callbackMouseButton)(HephWindow*, double xpos, double ypos, int button, int action, int mod));
+void            SetWindowScrollCallback(void (*callbackScroll)(HephWindow*, double xpos, double ypos, double xoffset, double yoffset));
 
 //bool        Begin(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0);
-bool        Begin(std::string name, bool* p_open = nullptr);
-void        End();
-
-
+bool            Begin(std::string name, bool* p_open = nullptr);
+void            End();
 
 }

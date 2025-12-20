@@ -16,7 +16,6 @@ static PFN_vkGetPhysicalDevicePresentRectanglesKHR	pfn_vkGetPhysicalDevicePresen
 
 #include <iostream>
 void  HephExtensionScreenRendering::deviceFunctionLoader(VkDevice device) {
-	std::cout << "testLoading" << std::endl;
 	pfn_vkCreateSwapchainKHR =
     reinterpret_cast<PFN_vkCreateSwapchainKHR>(vkGetDeviceProcAddr(device, "vkCreateSwapchainKHR"));
 	pfn_vkAcquireNextImageKHR =
@@ -42,7 +41,6 @@ VKAPI_ATTR VkResult VKAPI_CALL	vkCreateSwapchainKHR(VkDevice device
 																	, const VkAllocationCallbacks *pAllocator
 																	, VkSwapchainKHR *pSwapchain)
 {
-	std::cout << "test" << std::endl;
 	return (pfn_vkCreateSwapchainKHR(device, pCreateInfo, pAllocator, pSwapchain));
 }
 

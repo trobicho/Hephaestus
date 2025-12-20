@@ -1,6 +1,5 @@
-#include "hephGui.hpp"
+#include "hephGuiInternal.hpp"
 #include "config_app.h"
-#include <cstddef>
 #include <vulkan/vulkan_core.h>
 
 namespace HephGui {
@@ -192,6 +191,61 @@ void        HephGuiContext::updateDescriptorSets() {
 		},
 	};
 	pipelineDescriptor.update(device, 0, updateInfo, 1);
+}
+
+HephResult  HephGuiContext::create(HephDevice& device_a, VkRenderPass renderPass_a) {
+  device = device_a;
+  renderPass = renderPass_a;
+	memoryAllocator.create(device);
+  displayPos.x = 0;
+  displayPos.y = 0;
+	HephCommandPoolCreateInfo	cmdPoolCreateInfo = {
+		.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+		.queueFamilyIndex = device.queues[0].familyIndex,
+	};
+	HEPH_CHECK_RESULT(commandPool.create(device, cmdPoolCreateInfo));
+
+  HephFontCreateInfo  fontCreateInfo = {
+    .fontFilePath = "/usr/share/fonts/TTF/AgaveNerdFont-Regular.ttf",
+    .faceIndex = 0,
+    .pixelSize = 18,
+    .mAllocator = &memoryAllocator,
+    .cmdPool = &commandPool,
+  };
+  HEPH_CHECK_RESULT(font.load(fontCreateInfo));
+  sharedData.font = &font;
+  sharedData.whitePixelArea = font.getTextureAtlas().whitePixelArea;
+
+  HephDescriptorWrapper	descriptor = {
+    .layoutBinds = {
+      (VkDescriptorSetLayoutBinding) {
+        .binding = 0,
+        .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+        .descriptorCount = 1,
+        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+      },
+    }
+  };
+	pipelineDescriptor.descriptors.push_back(descriptor);
+  HEPH_CHECK_RESULT(pipelineDescriptor.build(device).errorFormat("Unable To Build Pipeline Descriptor {}"));
+	HEPH_CHECK_RESULT(createPipeline());
+
+  VkSamplerCreateInfo samplerInfo{VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
+  HEPH_CHECK_RESULT(HephResult(vkCreateSampler(device.device, &samplerInfo, nullptr, &sampler), "Failed to create Sampler !"));
+  updateDescriptorSets();
+
+  return (HephResult());
+}
+
+void        HephGuiContext::destroy() {
+  memoryAllocator.destroyBuffer(vertexBuffer);
+  memoryAllocator.destroyBuffer(indexBuffer);
+  commandPool.destroy();
+  vkDestroyPipeline(device.device, pipeline, device.pAllocationCallbacks);
+  vkDestroyPipelineLayout(device.device, pipelineLayout, device.pAllocationCallbacks);
+  pipeline = VK_NULL_HANDLE;
+  pipelineLayout = VK_NULL_HANDLE;
+  pipelineDescriptor.destroy(device);
 }
 
 }

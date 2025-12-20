@@ -4,6 +4,7 @@
 #include "../../memory/hephMemoryAllocator.hpp"
 #include "hephPluginFont.hpp"
 #include "../../texture/hephTexture.hpp"
+#include <cstdint>
 #include <vector>
 
 struct  HephFontCreateInfo {
@@ -36,9 +37,11 @@ class   HephFont {
 
     HephResult                      load(HephFontCreateInfo& createInfo);
     HephResult                      destroy();
+    inline const uint32_t           getGlyphIndex(uint32_t unicode) const {return (FT_Get_Char_Index(m_face, unicode));}
     inline const HephFontGlyph&     getGlyph(uint32_t glyphIndex) const {return (m_glyphs[glyphIndex]);}
     inline const int&               getPixelSize() const {return (m_pixelSize);}
     inline const HephTextureAtlas&  getTextureAtlas() const {return (m_textureAtlas);}
+    inline float                    getBaseline() const {return (m_baseline);}
 
   protected:
     HephResult  loadGlyphs(HephFontCreateInfo& createInfo);
@@ -50,4 +53,5 @@ class   HephFont {
     std::vector<HephFontGlyph>  m_glyphs;
     bool                        m_hasKerning;
     HephTextureAtlas            m_textureAtlas;
+    float                       m_baseline;
 };

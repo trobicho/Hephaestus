@@ -1,4 +1,3 @@
-#include "hephGui.hpp"
 #include "core/hephDescriptorSet.hpp"
 #include "core/hephResult.hpp"
 #include "memory/hephMemoryAllocator.hpp"
@@ -8,14 +7,13 @@
 #include <stack>
 #include <vulkan/vulkan_core.h>
 #include "hephGuiInternal.hpp"
+#include "hephGui.hpp"
 
 namespace HephGui {
 
 static  HephGuiContext          guiContext;
 
 static  std::stack<HephWindow*> winStack;
-
-static  std::vector<HephWindow> winList;
 
 HephResult  init() {
   return (HephPluginFont::init());
@@ -46,19 +44,25 @@ void        NewFrame() {
   guiContext.newFrame();
 }
 
-void        SetDimensionCurrentWindow(glm::ivec2 pos, glm::ivec2 size) {
+void        SetDimensionCurrentWindow(glm::ivec2 pos, glm::ivec2 size, bool condFirstFrame) {
   assert(!winStack.empty() && "Cannot Set pos currentWin WinStack is empty");
+  if (condFirstFrame && !winStack.top()->firstFrame)
+    return ;
   winStack.top()->pos = pos;
   winStack.top()->size = size;
 }
 
-void        SetPosCurrentWindow(glm::ivec2 pos) {
+void        SetPosCurrentWindow(glm::ivec2 pos, bool condFirstFrame) {
   assert(!winStack.empty() && "Cannot Set pos currentWin WinStack is empty");
+  if (condFirstFrame && !winStack.top()->firstFrame)
+    return ;
   winStack.top()->pos = pos;
 }
 
-void        SetSizeCurrentWindow(glm::ivec2 size) {
+void        SetSizeCurrentWindow(glm::ivec2 size, bool condFirstFrame) {
   assert(!winStack.empty() && "Cannot Set size currentWin WinStack is empty");
+  if (condFirstFrame && !winStack.top()->firstFrame)
+    return ;
   winStack.top()->size = size;
 }
 
@@ -67,19 +71,40 @@ HephWindow* GetCurrentWindowPtr() {
   return (winStack.top());
 }
 
+void        SetWindowUserPointer(void* userPtr) {
+  GetCurrentWindowPtr()->userPtr = userPtr;
+}
+//  SetWindowSizeCallback(s_callbackWindowSize);
+void        SetWindowKeyCallback(void (*callbackKey)(HephWindow* window, int key, int scancode, int action, int mods)) {
+  GetCurrentWindowPtr()->callbackKey = callbackKey;
+}
+void        SetWindowCharModsCallback(void (*callbackCharMods)(HephWindow* window, uint32_t codepoint, int mods)) {
+  GetCurrentWindowPtr()->callbackCharMods = callbackCharMods;
+}
+void        SetWindowCursorPosCallback(void (*callbackCursor)(HephWindow* window, double x_pos, double y_pos)) {
+  GetCurrentWindowPtr()->callbackCursor = callbackCursor;
+}
+void        SetWindowMouseButtonCallback(void (*callbackMouseButton)(HephWindow* window, double xpos, double ypos, int button, int action, int mod)) {
+  GetCurrentWindowPtr()->callbackMouseButton = callbackMouseButton;
+}
+void        SetWindowScrollCallback(void (*callbackScroll)(HephWindow* window, double xpos, double ypos, double xoffset, double yoffset)) {
+  GetCurrentWindowPtr()->callbackScroll = callbackScroll;
+}
+
 bool        Begin(std::string name, bool* p_open) {
   HephWindow* winPtr = nullptr;
-  for (auto& win: winList) {
+  for (auto& win: getContext().winList) {
     if (win.name == name) {
       winPtr = &win;
     }
   }
   guiContext.drawListBuffer.push_back(HephDrawList(guiContext.getSharedData()));
   if (winPtr == nullptr) {
-    winList.push_back(HephWindow(name));
-    winPtr = &winList.back();
+    getContext().winList.push_back(HephWindow(name));
+    winPtr = &getContext().winList.back();
     winPtr->drawList = &guiContext.drawListBuffer.back();
     winPtr->drawList->pushClipRectFullScreen();
+    winPtr->firstFrame = true;
   }
   else {
     winPtr->firstFrame = false;

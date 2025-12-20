@@ -63,7 +63,9 @@ add_library (hephaestus
   srcs/gui/hephGuiDraw.cpp
   srcs/gui/hephGuiInternal.cpp
   srcs/gui/hephGuiInternal.hpp
-  srcs/gui/hephGuiPipeline.cpp
+  srcs/gui/hephGuiInternalSetup.cpp
+  srcs/gui/hephGuiIoGLFW.cpp
+  srcs/gui/hephGuiIoGLFW.hpp
 )
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/config_app.h.cmake ${CMAKE_BINARY_DIR}/config_app.h)
@@ -72,6 +74,8 @@ include(FindVulkan)
 target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan) 
 find_package(Freetype REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Freetype::Freetype)
+find_package(glfw3 CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
 	VERSION ${PROJECT_VERSION}
@@ -124,3 +128,4 @@ install(FILES "srcs/plugins/font/hephFont.hpp" DESTINATION "${CMAKE_INSTALL_INCL
 
 install(FILES "srcs/gui/hephGui.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")
 install(FILES "srcs/gui/hephGuiInternal.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")
+install(FILES "srcs/gui/hephGuiIoGLFW.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")

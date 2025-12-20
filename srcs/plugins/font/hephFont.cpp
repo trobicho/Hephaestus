@@ -19,6 +19,8 @@ HephResult  HephFont::load(HephFontCreateInfo& createInfo) {
   HEPH_CHECK_RESULT(HephPluginFont::ftError(error).errorFormat("failed to set pixel size {{}} !"));
 
   HEPH_CHECK_RESULT(loadGlyphs(createInfo));
+  //m_baseline = ((float)m_face->ascender / (float)m_face->units_per_EM) * (float)m_pixelSize;
+  m_baseline = m_pixelSize - (getGlyph(getGlyphIndex('|')).height - getGlyph(getGlyphIndex('|')).top);
   m_hasKerning = FT_HAS_KERNING(m_face);
 
   return (HephResult());
@@ -38,8 +40,8 @@ HephResult  HephFont::loadGlyphs(HephFontCreateInfo& createInfo) {
   uint32_t  rowHeight = 0;
   m_glyphs.reserve(m_face->num_glyphs);
   for (int i = 0; i < m_face->num_glyphs; i++) {
-    FT_UInt   glyphIndex = FT_Get_Char_Index(m_face, i);
-    FT_Error  error = FT_Load_Glyph(m_face, glyphIndex, FT_LOAD_DEFAULT);
+    //FT_UInt   glyphIndex = FT_Get_Char_Index(m_face, i);
+    FT_Error  error = FT_Load_Glyph(m_face, i, FT_LOAD_DEFAULT);
     HEPH_CHECK_RESULT(HephPluginFont::ftError(error).errorFormat("failed to load glyph {{}} !"));
     m_glyphs.push_back(HephFontGlyph(m_face->glyph));
     rowHeight = std::max(rowHeight, m_face->glyph->bitmap.rows);
@@ -66,8 +68,8 @@ HephResult  HephFont::loadGlyphs(HephFontCreateInfo& createInfo) {
   rowHeight = 0;
 
   for (int i = 0; i < m_face->num_glyphs; i++) {
-    FT_UInt   glyphIndex = FT_Get_Char_Index(m_face, i);
-    FT_Load_Glyph(m_face, glyphIndex, FT_LOAD_DEFAULT);
+    //FT_UInt   glyphIndex = FT_Get_Char_Index(m_face, i);
+    FT_Load_Glyph(m_face, i, FT_LOAD_DEFAULT);
     FT_Error  error = FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_NORMAL);
     HEPH_CHECK_RESULT(HephPluginFont::ftError(error).errorFormat("failed to render glyph {{}} !"));
 

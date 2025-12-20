@@ -4,8 +4,15 @@
 #include "../memory/hephMemoryAllocator.hpp"
 #include "../plugins/font/hephFont.hpp"
 #include "../texture/hephTexture.hpp"
+#include "hephGui.hpp"
+#include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <stack>
+
+#define   WINDOW_BORDER_NORTH   1
+#define   WINDOW_BORDER_SOUTH   2
+#define   WINDOW_BORDER_WEST    4
+#define   WINDOW_BORDER_EAST    8
 
 namespace HephGui {
 
@@ -67,7 +74,59 @@ struct  HephDrawList {
   inline void   pathClear() {_Path.resize(0);}
   inline void   pathLineTo(const glm::vec2& p) {_Path.push_back(p);}
   inline void   pathStroke(glm::vec4 color, float thickness = 1.0f) {addPolyline(_Path.data(), _Path.size(), color, thickness); _Path.resize(0);}
+};
 
+struct  HephGuiStyle {
+  glm::vec4 colors[HephGuiCol_::HephGuiCol_COUNT] = {glm::vec4(1.0)};
+};
+
+struct  HephGuiStyleMod {
+  int       idx;
+  glm::vec4 color;
+};
+
+struct  HephWindow {
+  HephWindow(std::string name): name(name) {};
+
+  HephDrawList* drawList = nullptr;
+
+  void  (*callbackKey)(HephWindow* window, int key, int scancode, int action, int mods) = nullptr;
+  void  (*callbackCharMods)(HephWindow* window, uint32_t codepoint, int mods)           = nullptr;
+  void  (*callbackCursor)(HephWindow* window, double x_pos, double y_pos)               = nullptr;
+  void  (*callbackMouseButton)(HephWindow* window, double, double, int, int, int)       = nullptr;
+  void  (*callbackScroll)(HephWindow* window, double, double, double, double)           = nullptr;
+
+  void          resizeFromCursor(int side, glm::ivec2 vec);
+
+  void*         userPtr = nullptr;
+
+  std::string   name;
+  glm::ivec2    pos = {0, 0};
+  glm::ivec2    size = {-1, -1};
+  bool          firstFrame = true;
+};
+
+enum    HephGuiCursorType {
+  HephGuiCursor_Arrow,
+  HephGuiCursor_TextInput,
+  HephGuiCursor_ResizeNS,
+  HephGuiCursor_ResizeEW,
+  HephGuiCursor_ResizeNESW,
+  HephGuiCursor_ResizeNWSE,
+  HephGuiCursor_ResizeAll,
+  HephGuiCursor_Hand,
+  HephGuiCursor_NotAllowed,
+
+  HephGuiCursor_COUNT,
+};
+
+struct  HephGuiCursor {
+  HephGuiCursorType type = HephGuiCursor_Arrow;
+  glm::vec2         pos = glm::vec2(0, 0);
+  HephWindow*       resizeWin = nullptr;
+  bool              drag = false;
+  glm::vec2         dragLast;
+  int               side = 0;
 };
 
 class   HephGuiContext {
@@ -81,6 +140,8 @@ class   HephGuiContext {
     void                render(VkCommandBuffer cmdBuffer);
     void                newFrame() {drawListBuffer.clear();}
     HephSharedData*     getSharedData() {return (&sharedData);};
+    inline HephWindow*  getFocusedWindowPtr() {if (focusedWindowUUID >= 0) {return (&winList[focusedWindowUUID]);} return (nullptr);}
+    void                updateCursor();
 
     void                setDisplaySize(int width, int height) {
       displaySize.x = width;
@@ -88,12 +149,24 @@ class   HephGuiContext {
       sharedData.clipRectFullScreen = glm::ivec4(displayPos.x, displayPos.y, displayPos.x + width, displayPos.y + height);
     }
 
+    //EVENT CALLBACKS
+    void  callbackKey(int key, int scancode, int action, int mods);
+    void  callbackCharMods(uint32_t codepoint, int mods);
+    void  callbackCursor(double x_pos, double y_pos);
+    void  callbackMouseButton(double x_pos, double y_pos, int button, int action, int mod);
+    void  callbackScroll(double x_pos, double y_pos, double xoffset, double yoffset);
+    //===============
+
     glm::ivec2                displayPos = glm::ivec2(0, 0);
     glm::ivec2                displaySize;
 
     HephSharedData            sharedData;
 
+    HephGuiCursor             cursor;
+
     std::vector<HephDrawList> drawListBuffer;
+    std::vector<HephWindow>   winList;
+    int                       focusedWindowUUID = -1;
 
     HephDevice                device;
     VkRenderPass              renderPass = VK_NULL_HANDLE;

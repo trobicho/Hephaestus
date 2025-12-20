@@ -46,6 +46,9 @@ void  HephDrawList::addRectFill(const glm::vec2& min, const glm::vec2& max, cons
 float HephDrawList::addGlyphRect(const HephFont* font, const glm::vec2& pos, int c, float size, const glm::vec4& color) {
   const HephFontGlyph&    glyph = font->getGlyph(c);
   const HephTextureArea&  area = font->getTextureAtlas().getArea(c);
+  if (size < 1.0f) {
+    size = font->getPixelSize();
+  }
   float                   scale = size / font->getPixelSize();
 
   idxBuffer.push_back(vtxBuffer.size());
@@ -55,8 +58,8 @@ float HephDrawList::addGlyphRect(const HephFont* font, const glm::vec2& pos, int
   idxBuffer.push_back(vtxBuffer.size() + 2);
   idxBuffer.push_back(vtxBuffer.size() + 3);
 
-  glm::vec2 max(pos.x + (glyph.width + glyph.left) * scale, pos.y + (font->getPixelSize() / 2.0 + glyph.height - glyph.top) * scale);
-  glm::vec2 min(pos.x + glyph.left * scale, pos.y + (font->getPixelSize() / 2.0 - glyph.top) * scale);
+  glm::vec2 max(pos.x + (glyph.width + glyph.left) * scale, pos.y + (font->getBaseline() - glyph.top + glyph.height) * scale);
+  glm::vec2 min(pos.x + glyph.left * scale, max.y - glyph.height * scale);
 
   vtxBuffer.push_back((HephVertex){.pos = min, .uv = area.min, .color = color});
   vtxBuffer.push_back((HephVertex){.pos = glm::vec2(max.x, min.y), .uv = {area.max.x, area.min.y}, .color = color});
@@ -71,6 +74,9 @@ float HephDrawList::addGlyphRect(const HephFont* font, const glm::vec2& pos, int
 void  HephDrawList::addText(const std::string& text, float size, const glm::vec4& clipRect, const glm::vec4& color) {
   glm::vec2       pos = glm::vec2((int)clipRect.x, (int)clipRect.y);
   const HephFont* font = _Data->font;
+  if (size < 1.0f) {
+    size = font->getPixelSize();
+  }
   float           lineSize = size;
   glm::vec2       rect = pos;
 
@@ -86,7 +92,7 @@ void  HephDrawList::addText(const std::string& text, float size, const glm::vec4
       if (pos.y >= clipRect.y + clipRect.w)
         break;
 
-      pos.x += addGlyphRect(font, pos, text[i], size, color);
+      pos.x += addGlyphRect(font, pos, font->getGlyphIndex(text[i]), size, color);
       if (rect.x < pos.x)
         rect.x = pos.x;
     }
@@ -96,6 +102,9 @@ void  HephDrawList::addText(const std::string& text, float size, const glm::vec4
 glm::vec2 HephDrawList::getTextSize(const std::string& text, float size) {
   float           currentLine = 0.0;
   const HephFont* font = _Data->font;
+  if (size < 1.0f) {
+    size = font->getPixelSize();
+  }
   float           lineSize = size;
   glm::vec2       clipRect = glm::vec2(0.0, lineSize);
   float           scale = size / font->getPixelSize();
