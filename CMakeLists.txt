@@ -66,6 +66,9 @@ add_library (hephaestus
   srcs/gui/hephGuiInternalSetup.cpp
   srcs/gui/hephGuiIoGLFW.cpp
   srcs/gui/hephGuiIoGLFW.hpp
+
+  srcs/gui/hephGuiLayout_tilling.cpp
+  srcs/gui/hephGuiLayout_tilling.hpp
 )
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/config_app.h.cmake ${CMAKE_BINARY_DIR}/config_app.h)
@@ -129,3 +132,4 @@ install(FILES "srcs/plugins/font/hephFont.hpp" DESTINATION "${CMAKE_INSTALL_INCL
 install(FILES "srcs/gui/hephGui.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")
 install(FILES "srcs/gui/hephGuiInternal.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")
 install(FILES "srcs/gui/hephGuiIoGLFW.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")
+install(FILES "srcs/gui/hephGuiLayout_tilling.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")

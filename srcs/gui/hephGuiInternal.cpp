@@ -11,7 +11,8 @@ void        HephGuiContext::updateCursor() {
 
   cursor.type = HephGuiCursor_Arrow;
   cursor.resizeWin = nullptr;
-  for (auto& win: winList) {
+  for (auto& winPtr: winList) {
+    auto& win = *winPtr;
     if (cursor.pos.x < win.pos.x - 3.0f || cursor.pos.y < win.pos.y - 3.0f
         || cursor.pos.x > win.pos.x + win.size.x + 3.0f || cursor.pos.y > win.pos.y + win.size.y + 3.0f) {
       continue ;
@@ -83,6 +84,7 @@ void        HephGuiContext::updateCursor() {
 
 void        HephWindow::resizeFromCursor(int side, glm::ivec2 vec) {
   glm::vec2 newPos = pos;
+  glm::vec2 newSize = size;
   glm::vec2 displaySize = getContext().displaySize;
 
   if (vec.x < 0.0)
@@ -98,32 +100,33 @@ void        HephWindow::resizeFromCursor(int side, glm::ivec2 vec) {
     newPos.y = vec.y;
     if (newPos.y < 0.0f)
       newPos.y = 0.0f;
-    size.y -= newPos.y - pos.y;
+    newSize.y -= newPos.y - pos.y;
   }
   else if (side & WINDOW_BORDER_SOUTH) {
-    size.y = vec.y - newPos.y;
+    newSize.y = vec.y - newPos.y;
   }
   if (side & WINDOW_BORDER_WEST) {
     newPos.x = vec.x;
     if (newPos.x < 0.0f)
       newPos.x = 0.0f;
-    size.x -= newPos.x - pos.x;
+    newSize.x -= newPos.x - pos.x;
   }
   else if (side & WINDOW_BORDER_EAST) {
-    size.x = vec.x - newPos.x;
+    newSize.x = vec.x - newPos.x;
   }
 
-  pos = newPos;
-  if (size.x < 5.0f)
-    size.x = 5.0f;
-  if (size.y < 5.0f)
-    size.y = 5.0f;
-  if (pos.x + size.x > displaySize.x) {
-    size.x = displaySize.x - pos.x;
+  if (newSize.x < 10.0f)
+    newSize.x = 10.0f;
+  if (newSize.y < 10.0f)
+    newSize.y = 10.0f;
+  if (newPos.x + newSize.x > displaySize.x) {
+    newSize.x = displaySize.x - newPos.x;
   }
-  if (pos.y + size.y > displaySize.y) {
-    size.y = displaySize.y - pos.y;
+  if (newPos.y + newSize.y > displaySize.y) {
+    newSize.y = displaySize.y - newPos.y;
   }
+
+  resize(this, newPos, newSize);
 }
 
 void        HephGuiContext::callbackKey(int key, int scancode, int action, int mods) {
@@ -136,11 +139,11 @@ void        HephGuiContext::callbackCharMods(uint32_t codepoint, int mods) {
     getFocusedWindowPtr()->callbackCharMods(getFocusedWindowPtr(), codepoint, mods);
 }
 
-void        HephGuiContext::callbackCursor(double x_pos, double y_pos) {
-  cursor.pos = glm::vec2(x_pos, y_pos);
+void        HephGuiContext::callbackCursorPos(glm::vec2 pos) {
+  cursor.pos = pos;
   for (int w = 0; w < winList.size(); w++) {
-    if (x_pos >= winList[w].pos.x && y_pos >= winList[w].pos.y
-        && x_pos < winList[w].pos.x + winList[w].size.x && y_pos < winList[w].pos.y + winList[w].size.y) {
+    if (pos.x >= winList[w]->pos.x && pos.y >= winList[w]->pos.y
+        && pos.x < winList[w]->pos.x + winList[w]->size.x && pos.y < winList[w]->pos.y + winList[w]->size.y) {
       focusedWindowUUID = w;
     }
   }
@@ -150,17 +153,16 @@ void        HephGuiContext::callbackCursor(double x_pos, double y_pos) {
     return ;
   }
   updateCursor();
-  cursor.dragLast = glm::vec2(x_pos, y_pos);
-  if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackCursor != nullptr)
-    getFocusedWindowPtr()->callbackCursor(getFocusedWindowPtr(), x_pos, y_pos);
+  cursor.dragLast = pos;
+  if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackCursorPos != nullptr)
+    getFocusedWindowPtr()->callbackCursorPos(getFocusedWindowPtr(), pos);
 }
 
-void        HephGuiContext::callbackMouseButton(double x_pos, double y_pos, int button, int action, int mod) {
-  cursor.pos = glm::ivec2(x_pos, y_pos);
+void        HephGuiContext::callbackMouseButton(int button, int action, int mod) {
   if (cursor.resizeWin != nullptr) {
     if (button == GLFW_MOUSE_BUTTON_1) {
       if (action == GLFW_PRESS) {
-        cursor.dragLast = glm::vec2(x_pos, y_pos);
+        cursor.dragLast = cursor.pos;
         cursor.drag = true;
         return ;
       }
@@ -168,12 +170,12 @@ void        HephGuiContext::callbackMouseButton(double x_pos, double y_pos, int 
   }
   cursor.drag = false;
   if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackMouseButton != nullptr)
-    getFocusedWindowPtr()->callbackMouseButton(getFocusedWindowPtr(), x_pos, y_pos, button, action, mod);
+    getFocusedWindowPtr()->callbackMouseButton(getFocusedWindowPtr(), button, action, mod);
 }
 
-void        HephGuiContext::callbackScroll(double x_pos, double y_pos, double xoffset, double yoffset) {
+void        HephGuiContext::callbackScroll(double xoffset, double yoffset) {
   if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackScroll != nullptr)
-    getFocusedWindowPtr()->callbackScroll(getFocusedWindowPtr(), x_pos, y_pos, xoffset, yoffset);
+    getFocusedWindowPtr()->callbackScroll(getFocusedWindowPtr(), xoffset, yoffset);
 }
 
 void        HephGuiContext::render(VkCommandBuffer commandBuffer) {

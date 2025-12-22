@@ -48,8 +48,7 @@ void        SetDimensionCurrentWindow(glm::ivec2 pos, glm::ivec2 size, bool cond
   assert(!winStack.empty() && "Cannot Set pos currentWin WinStack is empty");
   if (condFirstFrame && !winStack.top()->firstFrame)
     return ;
-  winStack.top()->pos = pos;
-  winStack.top()->size = size;
+  winStack.top()->resize(nullptr, pos, size);
 }
 
 void        SetPosCurrentWindow(glm::ivec2 pos, bool condFirstFrame) {
@@ -63,7 +62,7 @@ void        SetSizeCurrentWindow(glm::ivec2 size, bool condFirstFrame) {
   assert(!winStack.empty() && "Cannot Set size currentWin WinStack is empty");
   if (condFirstFrame && !winStack.top()->firstFrame)
     return ;
-  winStack.top()->size = size;
+  winStack.top()->resize(nullptr, winStack.top()->pos, size);
 }
 
 HephWindow* GetCurrentWindowPtr() {
@@ -74,34 +73,39 @@ HephWindow* GetCurrentWindowPtr() {
 void        SetWindowUserPointer(void* userPtr) {
   GetCurrentWindowPtr()->userPtr = userPtr;
 }
-//  SetWindowSizeCallback(s_callbackWindowSize);
 void        SetWindowKeyCallback(void (*callbackKey)(HephWindow* window, int key, int scancode, int action, int mods)) {
   GetCurrentWindowPtr()->callbackKey = callbackKey;
 }
 void        SetWindowCharModsCallback(void (*callbackCharMods)(HephWindow* window, uint32_t codepoint, int mods)) {
   GetCurrentWindowPtr()->callbackCharMods = callbackCharMods;
 }
-void        SetWindowCursorPosCallback(void (*callbackCursor)(HephWindow* window, double x_pos, double y_pos)) {
-  GetCurrentWindowPtr()->callbackCursor = callbackCursor;
+void        SetWindowCursorPosCallback(void (*callbackCursorPos)(HephWindow* window, glm::vec2 pos)) {
+  GetCurrentWindowPtr()->callbackCursorPos = callbackCursorPos;
 }
-void        SetWindowMouseButtonCallback(void (*callbackMouseButton)(HephWindow* window, double xpos, double ypos, int button, int action, int mod)) {
+void        SetWindowMouseButtonCallback(void (*callbackMouseButton)(HephWindow* window, int button, int action, int mod)) {
   GetCurrentWindowPtr()->callbackMouseButton = callbackMouseButton;
 }
-void        SetWindowScrollCallback(void (*callbackScroll)(HephWindow* window, double xpos, double ypos, double xoffset, double yoffset)) {
+void        SetWindowScrollCallback(void (*callbackScroll)(HephWindow* window, double xoffset, double yoffset)) {
   GetCurrentWindowPtr()->callbackScroll = callbackScroll;
+}
+void        SetWindowResizeCallback(void (*callbackResize)(HephWindow* window, glm::ivec2 pos, glm::ivec2 size)) {
+  GetCurrentWindowPtr()->callbackResize = callbackResize;
+}
+void        SetWindowCloseCallback(void (*callbackClose)(HephWindow* window)) {
+  GetCurrentWindowPtr()->callbackClose = callbackClose;
 }
 
 bool        Begin(std::string name, bool* p_open) {
   HephWindow* winPtr = nullptr;
   for (auto& win: getContext().winList) {
-    if (win.name == name) {
-      winPtr = &win;
+    if (win->name == name) {
+      winPtr = win;
     }
   }
   guiContext.drawListBuffer.push_back(HephDrawList(guiContext.getSharedData()));
   if (winPtr == nullptr) {
-    getContext().winList.push_back(HephWindow(name));
-    winPtr = &getContext().winList.back();
+    getContext().winList.push_back(new HephWindow(name));
+    winPtr = getContext().winList.back();
     winPtr->drawList = &guiContext.drawListBuffer.back();
     winPtr->drawList->pushClipRectFullScreen();
     winPtr->firstFrame = true;

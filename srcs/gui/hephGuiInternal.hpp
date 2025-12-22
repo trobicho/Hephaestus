@@ -85,25 +85,60 @@ struct  HephGuiStyleMod {
   glm::vec4 color;
 };
 
-struct  HephWindow {
-  HephWindow(std::string name): name(name) {};
+class   HephGuiLayout {
+  public:
+    virtual void    close(HephGuiLayout* ptr) = 0;
+    virtual void    resize(HephGuiLayout* ptr, glm::ivec2 a_pos, glm::ivec2 a_size) = 0;
+    virtual void    resizeInternal(glm::ivec2 a_pos, glm::ivec2 a_size) = 0;
+    virtual void    ptrChildChange(HephGuiLayout* ptr, HephGuiLayout* newPtr) {};
 
-  HephDrawList* drawList = nullptr;
+    glm::ivec2      pos = glm::ivec2(0, 0);
+    glm::ivec2      size = glm::ivec2(-1, -1);
+    HephGuiLayout*  parentLayout = nullptr;
+};
+
+struct  HephWindow: public HephGuiLayout {
+  HephWindow(std::string name): name(name) {};
 
   void  (*callbackKey)(HephWindow* window, int key, int scancode, int action, int mods) = nullptr;
   void  (*callbackCharMods)(HephWindow* window, uint32_t codepoint, int mods)           = nullptr;
-  void  (*callbackCursor)(HephWindow* window, double x_pos, double y_pos)               = nullptr;
-  void  (*callbackMouseButton)(HephWindow* window, double, double, int, int, int)       = nullptr;
-  void  (*callbackScroll)(HephWindow* window, double, double, double, double)           = nullptr;
+  void  (*callbackCursorPos)(HephWindow* window, glm::vec2 pos)                         = nullptr;
+  void  (*callbackMouseButton)(HephWindow* window, int button, int action, int mod)     = nullptr;
+  void  (*callbackScroll)(HephWindow* window, double xoffset, double yoffset)           = nullptr;
+  void  (*callbackResize)(HephWindow* window, glm::ivec2 pos, glm::ivec2 size)          = nullptr;
+  void  (*callbackClose)(HephWindow* window)                                            = nullptr;
 
-  void          resizeFromCursor(int side, glm::ivec2 vec);
+  void            resizeFromCursor(int side, glm::ivec2 vec);
 
-  void*         userPtr = nullptr;
+  virtual void    close(HephGuiLayout* ptr) override {
+    if (parentLayout != nullptr && ptr != parentLayout) {
+      parentLayout->close(this);
+    }
+    if (callbackClose) 
+      callbackClose(this);
+  }
+  virtual void    resize(HephGuiLayout* ptr, glm::ivec2 a_pos, glm::ivec2 a_size) override {
+    if (parentLayout != nullptr && ptr != parentLayout) {
+      parentLayout->resize(this, a_pos, a_size);
+    }
+    else
+      resizeInternal(a_pos, a_size);
+  }
+  virtual void    resizeInternal(glm::ivec2 a_pos, glm::ivec2 a_size) override {
+    if (a_pos == pos && a_size == size)
+      return ;
+    if (callbackResize) {
+      callbackResize(this, a_pos, a_size);
+    }
+    pos = a_pos;
+    size = a_size;
+  }
 
-  std::string   name;
-  glm::ivec2    pos = {0, 0};
-  glm::ivec2    size = {-1, -1};
-  bool          firstFrame = true;
+  std::string     name;
+  bool            firstFrame = true;
+
+  HephDrawList*   drawList = nullptr;
+  void*           userPtr = nullptr;
 };
 
 enum    HephGuiCursorType {
@@ -132,6 +167,11 @@ struct  HephGuiCursor {
 class   HephGuiContext {
   public:
     HephGuiContext() {};
+    ~HephGuiContext() {
+      for (auto& winPtr: winList) {
+        delete (winPtr);
+      }
+    };
 
     HephResult          create(HephDevice& device, VkRenderPass renderPass = VK_NULL_HANDLE);
     HephResult          createPipeline();
@@ -140,7 +180,7 @@ class   HephGuiContext {
     void                render(VkCommandBuffer cmdBuffer);
     void                newFrame() {drawListBuffer.clear();}
     HephSharedData*     getSharedData() {return (&sharedData);};
-    inline HephWindow*  getFocusedWindowPtr() {if (focusedWindowUUID >= 0) {return (&winList[focusedWindowUUID]);} return (nullptr);}
+    inline HephWindow*  getFocusedWindowPtr() {if (focusedWindowUUID >= 0) {return (winList[focusedWindowUUID]);} return (nullptr);}
     void                updateCursor();
 
     void                setDisplaySize(int width, int height) {
@@ -152,9 +192,9 @@ class   HephGuiContext {
     //EVENT CALLBACKS
     void  callbackKey(int key, int scancode, int action, int mods);
     void  callbackCharMods(uint32_t codepoint, int mods);
-    void  callbackCursor(double x_pos, double y_pos);
-    void  callbackMouseButton(double x_pos, double y_pos, int button, int action, int mod);
-    void  callbackScroll(double x_pos, double y_pos, double xoffset, double yoffset);
+    void  callbackCursorPos(glm::vec2 pos);
+    void  callbackMouseButton(int button, int action, int mod);
+    void  callbackScroll(double xoffset, double yoffset);
     //===============
 
     glm::ivec2                displayPos = glm::ivec2(0, 0);
@@ -165,7 +205,7 @@ class   HephGuiContext {
     HephGuiCursor             cursor;
 
     std::vector<HephDrawList> drawListBuffer;
-    std::vector<HephWindow>   winList;
+    std::vector<HephWindow*>  winList;
     int                       focusedWindowUUID = -1;
 
     HephDevice                device;

@@ -57,12 +57,13 @@ void            SetSizeCurrentWindow(glm::ivec2 size, bool condFirstFrame = fals
 void            SetDimensionCurrentWindow(glm::ivec2 pos, glm::ivec2 size, bool condFirstFrame = false);
 
 void            SetWindowUserPointer(void* userPtr);
-//  SetWindowSizeCallback(s_callbackWindowSize);
 void            SetWindowKeyCallback(void (*callbackKey)(HephWindow*, int key, int scancode, int action, int mods));
 void            SetWindowCharModsCallback(void (*callbackCharMods)(HephWindow*, uint32_t codepoint, int mods));
-void            SetWindowCursorPosCallback(void (*callbackCursor)(HephWindow*, double x_pos, double y_pos));
-void            SetWindowMouseButtonCallback(void (*callbackMouseButton)(HephWindow*, double xpos, double ypos, int button, int action, int mod));
-void            SetWindowScrollCallback(void (*callbackScroll)(HephWindow*, double xpos, double ypos, double xoffset, double yoffset));
+void            SetWindowCursorPosCallback(void (*callbackCursorPos)(HephWindow*, glm::vec2 pos));
+void            SetWindowMouseButtonCallback(void (*callbackMouseButton)(HephWindow*, int button, int action, int mod));
+void            SetWindowScrollCallback(void (*callbackScroll)(HephWindow*, double xoffset, double yoffset));
+void            SetWindowResizeCallback(void (*callbackResize)(HephWindow*, glm::ivec2 pos, glm::ivec2 size));
+void            SetWindowCloseCallback(void (*callbackClose)(HephWindow*));
 
 //bool        Begin(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0);
 bool            Begin(std::string name, bool* p_open = nullptr);

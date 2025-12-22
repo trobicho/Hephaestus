@@ -17,26 +17,22 @@ static void s_callbackCharMods(GLFWwindow* window, uint32_t codepoint, int mods)
   HephGui::getContext().callbackCharMods(codepoint, mods);
 }
 
-static void s_callbackCursor(GLFWwindow* window, double x_pos, double y_pos) {
+static void s_callbackCursorPos(GLFWwindow* window, double x_pos, double y_pos) {
   if (userCallbacks.callbackCursor != nullptr)
     userCallbacks.callbackCursor(window, x_pos, y_pos);
-  HephGui::getContext().callbackCursor(x_pos, y_pos);
+  HephGui::getContext().callbackCursorPos(glm::vec2(x_pos, y_pos));
 }
 
 static void s_callbackMouseButton(GLFWwindow* window, int button, int action, int mod) {
   if (userCallbacks.callbackMouseButton != nullptr)
     userCallbacks.callbackMouseButton(window, button, action, mod);
-  double xpos, ypos;
-  glfwGetCursorPos(window, &xpos, &ypos);
-  HephGui::getContext().callbackMouseButton(xpos, ypos, button, action, mod);
+  HephGui::getContext().callbackMouseButton(button, action, mod);
 }
 
 static void s_callbackScroll(GLFWwindow* window, double xoffset, double yoffset) {
   if (userCallbacks.callbackScroll != nullptr)
     userCallbacks.callbackScroll(window, xoffset, yoffset);
-  double xpos, ypos;
-  glfwGetCursorPos(window, &xpos, &ypos);
-  HephGui::getContext().callbackScroll(xpos, ypos, xoffset, yoffset);
+  HephGui::getContext().callbackScroll(xoffset, yoffset);
 }
 
 using namespace HephGui;
@@ -44,7 +40,7 @@ using namespace HephGui;
 void  HephGLFW_init(GLFWwindow *window) {
   userCallbacks.callbackKey = glfwSetKeyCallback(window, s_callbackKey);
   userCallbacks.callbackCharMods = glfwSetCharModsCallback(window, s_callbackCharMods);
-  userCallbacks.callbackCursor = glfwSetCursorPosCallback(window, s_callbackCursor);
+  userCallbacks.callbackCursor = glfwSetCursorPosCallback(window, s_callbackCursorPos);
   userCallbacks.callbackMouseButton = glfwSetMouseButtonCallback(window, s_callbackMouseButton);
   userCallbacks.callbackScroll = glfwSetScrollCallback(window, s_callbackScroll);
 
