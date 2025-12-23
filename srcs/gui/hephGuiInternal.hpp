@@ -8,6 +8,7 @@
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <stack>
+#include <vulkan/vulkan_core.h>
 
 #define   WINDOW_BORDER_NORTH   1
 #define   WINDOW_BORDER_SOUTH   2
@@ -50,7 +51,10 @@ struct  HephDrawList {
 
   void          addLine(const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color, float thickness = 1.0);
   void          addRect(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color, float thickness = 1.0);
-  void          addRectFill(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color);
+  inline void   addRectFill(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color) {
+    addRectFill(min, max, color, _Data->whitePixelArea);
+  }
+  void          addRectFill(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color, const HephTextureArea& area);
   void          addPolyline(const glm::vec2* points, uint32_t size, const glm::vec4& color, float thickness = 1.0);
 
   void          addText(const std::string& text, float size, const glm::vec4& clipRect, const glm::vec4& color);
@@ -63,17 +67,54 @@ struct  HephDrawList {
   std::stack<glm::vec4>     _ClipRectStack;
   HephSharedData*           _Data;
 
+  void                      (*userDrawListRender)(HephDrawList*, VkCommandBuffer) = nullptr;
+  void*                     userPtr = nullptr;
+
   void  pushClipRect(const glm::ivec2& clipRect_min, const glm::ivec2& clipRect_max, bool intersect_with_current_clip_rect = false);
   void  pushClipRectFullScreen();
   void  popClipRect();
   //void  pushTexture(ImTextureRef tex_ref);
   //void  popTexture();
-  inline glm::vec2  getClipRectMin() const {const glm::ivec4& cr = _ClipRectStack.top(); return glm::vec2(cr.x, cr.y);}
-  inline glm::vec2  getClipRectMax() const {const glm::ivec4& cr = _ClipRectStack.top(); return glm::vec2(cr.z, cr.w);}
+  inline glm::vec2   getClipRectMin() const {const glm::ivec4& cr = _ClipRectStack.top(); return glm::vec2(cr.x, cr.y);}
+  inline glm::vec2   getClipRectMax() const {const glm::ivec4& cr = _ClipRectStack.top(); return glm::vec2(cr.z, cr.w);}
+  inline glm::ivec4  getClipRect() const {return (_ClipRectStack.top());}
 
   inline void   pathClear() {_Path.resize(0);}
   inline void   pathLineTo(const glm::vec2& p) {_Path.push_back(p);}
   inline void   pathStroke(glm::vec4 color, float thickness = 1.0f) {addPolyline(_Path.data(), _Path.size(), color, thickness); _Path.resize(0);}
+
+  inline virtual void      idxBufferAdd(const uint32_t& idx) {idxBuffer.push_back(idx);}
+  inline virtual void      vtxBufferAdd(const HephVertex& vtx) {vtxBuffer.push_back(vtx);}
+  inline virtual uint32_t  idxBufferCount() const {return (idxBuffer.size());}
+  inline virtual uint32_t  vtxBufferCount() const {return (vtxBuffer.size());}
+};
+
+struct  HephDrawListDirectToGpu: public HephDrawList {
+  HephDrawListDirectToGpu(): HephDrawList(nullptr) {}
+  ~HephDrawListDirectToGpu() {}
+
+  HephVertex* vtxData = nullptr;
+  uint32_t*   idxData = nullptr;
+  uint32_t    vtxCount = 0;
+  uint32_t    idxCount = 0;
+
+  inline virtual  void      idxBufferAdd(const uint32_t& idx) override {idxData[idxCount++] = idx;}
+  inline virtual  void      vtxBufferAdd(const HephVertex& vtx) override {vtxData[vtxCount++] = vtx;}
+  inline virtual  uint32_t  idxBufferCount() const override {return (idxCount);}
+  inline virtual  uint32_t  vtxBufferCount() const override {return (vtxCount);}
+
+  void                      reset() {
+    vtxCount = 0;
+    idxCount = 0;
+    drawCmdBuffer.resize(0);
+    addDrawCmd();
+  }
+
+  void                      newFrame() {
+    pathClear();
+    while (!_ClipRectStack.empty())
+      _ClipRectStack.pop();
+  }
 };
 
 struct  HephGuiStyle {
@@ -178,7 +219,10 @@ class   HephGuiContext {
     void                updateDescriptorSets();
     void                destroy();
     void                render(VkCommandBuffer cmdBuffer);
-    void                newFrame() {drawListBuffer.clear();}
+    void                newFrame() {
+      userDrawListBuffer.clear();
+      drawListBuffer.clear();
+    }
     HephSharedData*     getSharedData() {return (&sharedData);};
     inline HephWindow*  getFocusedWindowPtr() {if (focusedWindowUUID >= 0) {return (winList[focusedWindowUUID]);} return (nullptr);}
     void                updateCursor();
@@ -197,30 +241,31 @@ class   HephGuiContext {
     void  callbackScroll(double xoffset, double yoffset);
     //===============
 
-    glm::ivec2                displayPos = glm::ivec2(0, 0);
-    glm::ivec2                displaySize;
+    glm::ivec2                  displayPos = glm::ivec2(0, 0);
+    glm::ivec2                  displaySize;
 
-    HephSharedData            sharedData;
+    HephSharedData              sharedData;
 
-    HephGuiCursor             cursor;
+    HephGuiCursor               cursor;
 
-    std::vector<HephDrawList> drawListBuffer;
-    std::vector<HephWindow*>  winList;
-    int                       focusedWindowUUID = -1;
+    std::vector<HephDrawList*>  userDrawListBuffer;
+    std::vector<HephDrawList>   drawListBuffer;
+    std::vector<HephWindow*>    winList;
+    int                         focusedWindowUUID = -1;
 
-    HephDevice                device;
-    VkRenderPass              renderPass = VK_NULL_HANDLE;
-		HephPipelineDescriptor	  pipelineDescriptor;
-		VkPipelineLayout          pipelineLayout = VK_NULL_HANDLE;
-		VkPipeline          		  pipeline = VK_NULL_HANDLE;
-		HephCommandPool			      commandPool;
-		HephMemoryAllocator	      memoryAllocator; 
+    HephDevice                  device;
+    VkRenderPass                renderPass = VK_NULL_HANDLE;
+		HephPipelineDescriptor	    pipelineDescriptor;
+		VkPipelineLayout            pipelineLayout = VK_NULL_HANDLE;
+		VkPipeline          		    pipeline = VK_NULL_HANDLE;
+		HephCommandPool			        commandPool;
+		HephMemoryAllocator	        memoryAllocator; 
 
-    HephFont                  font;
-    VkSampler                 sampler;
+    HephFont                    font;
+    VkSampler                   sampler;
 
-    HephBufferWrapper         vertexBuffer;
-    HephBufferWrapper         indexBuffer;
+    HephBufferWrapper           vertexBuffer;
+    HephBufferWrapper           indexBuffer;
 };
 
 }

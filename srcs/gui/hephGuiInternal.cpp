@@ -232,10 +232,6 @@ void        HephGuiContext::render(VkCommandBuffer commandBuffer) {
   vkUnmapMemory(device.device, vertexBuffer.memory);
   vkUnmapMemory(device.device, indexBuffer.memory);
 
-  VkDeviceSize offsets[1] = {0};
-  vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer.buffer, offsets);
-  vkCmdBindIndexBuffer(commandBuffer, indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-
   VkViewport viewport = {
     .x = 0,
     .y = 0,
@@ -252,6 +248,18 @@ void        HephGuiContext::render(VkCommandBuffer commandBuffer) {
   vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::vec2), sizeof(glm::vec2), &translate);
 
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+  for (auto& drawList: userDrawListBuffer) {
+    if (drawList->userDrawListRender != nullptr) {
+      drawList->userDrawListRender(drawList, commandBuffer);
+    }
+  }
+
+  vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::vec2), sizeof(glm::vec2), &translate);
+
+  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+  VkDeviceSize offsets[1] = {0};
+  vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer.buffer, offsets);
+  vkCmdBindIndexBuffer(commandBuffer, indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 
   HephPipelineDescriptor* lastDescSet = nullptr;
   uint32_t                globalVtxOffset = 0;

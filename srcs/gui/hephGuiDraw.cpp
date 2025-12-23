@@ -25,24 +25,6 @@ void  HephDrawList::addRect(const glm::vec2& min, const glm::vec2& max, const gl
   pathStroke(color, thickness);
 }
 
-void  HephDrawList::addRectFill(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color) {
-  idxBuffer.push_back(vtxBuffer.size());
-  idxBuffer.push_back(vtxBuffer.size() + 1);
-  idxBuffer.push_back(vtxBuffer.size() + 3);
-  idxBuffer.push_back(vtxBuffer.size() + 1);
-  idxBuffer.push_back(vtxBuffer.size() + 2);
-  idxBuffer.push_back(vtxBuffer.size() + 3);
-
-  const HephTextureArea& area = _Data->whitePixelArea;
-
-  vtxBuffer.push_back((HephVertex){.pos = min, .uv = area.min, .color = color});
-  vtxBuffer.push_back((HephVertex){.pos = glm::vec2(max.x, min.y), .uv = {area.max.x, area.min.y}, .color = color});
-  vtxBuffer.push_back((HephVertex){.pos = max, .uv = area.max, .color = color});
-  vtxBuffer.push_back((HephVertex){.pos = glm::vec2(min.x, max.y), .uv = {area.min.x, area.max.y}, .color = color});
-
-  drawCmdBuffer.back().elemCount += 6;
-}
-
 float HephDrawList::addGlyphRect(const HephFont* font, const glm::vec2& pos, int c, float size, const glm::vec4& color) {
   const HephFontGlyph&    glyph = font->getGlyph(c);
   const HephTextureArea&  area = font->getTextureAtlas().getArea(c);
@@ -51,22 +33,9 @@ float HephDrawList::addGlyphRect(const HephFont* font, const glm::vec2& pos, int
   }
   float                   scale = size / font->getPixelSize();
 
-  idxBuffer.push_back(vtxBuffer.size());
-  idxBuffer.push_back(vtxBuffer.size() + 1);
-  idxBuffer.push_back(vtxBuffer.size() + 3);
-  idxBuffer.push_back(vtxBuffer.size() + 1);
-  idxBuffer.push_back(vtxBuffer.size() + 2);
-  idxBuffer.push_back(vtxBuffer.size() + 3);
-
   glm::vec2 max(pos.x + (glyph.width + glyph.left) * scale, pos.y + (font->getBaseline() - glyph.top + glyph.height) * scale);
   glm::vec2 min(pos.x + glyph.left * scale, max.y - glyph.height * scale);
-
-  vtxBuffer.push_back((HephVertex){.pos = min, .uv = area.min, .color = color});
-  vtxBuffer.push_back((HephVertex){.pos = glm::vec2(max.x, min.y), .uv = {area.max.x, area.min.y}, .color = color});
-  vtxBuffer.push_back((HephVertex){.pos = max, .uv = area.max, .color = color});
-  vtxBuffer.push_back((HephVertex){.pos = glm::vec2(min.x, max.y), .uv = {area.min.x, area.max.y}, .color = color});
-  
-  drawCmdBuffer.back().elemCount += 6;
+  addRectFill(min, max, color, area);
 
   return (glyph.advance * scale);
 }
@@ -126,6 +95,22 @@ glm::vec2 HephDrawList::getTextSize(const std::string& text, float size) {
   return (clipRect);
 }
 
+void  HephDrawList::addRectFill(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color, const HephTextureArea& area) {
+  idxBufferAdd(vtxBufferCount());
+  idxBufferAdd(vtxBufferCount() + 1);
+  idxBufferAdd(vtxBufferCount() + 3);
+  idxBufferAdd(vtxBufferCount() + 1);
+  idxBufferAdd(vtxBufferCount() + 2);
+  idxBufferAdd(vtxBufferCount() + 3);
+
+  vtxBufferAdd((HephVertex){.pos = min, .uv = area.min, .color = color});
+  vtxBufferAdd((HephVertex){.pos = glm::vec2(max.x, min.y), .uv = {area.max.x, area.min.y}, .color = color});
+  vtxBufferAdd((HephVertex){.pos = max, .uv = area.max, .color = color});
+  vtxBufferAdd((HephVertex){.pos = glm::vec2(min.x, max.y), .uv = {area.min.x, area.max.y}, .color = color});
+
+  drawCmdBuffer.back().elemCount += 6;
+}
+
 void  HephDrawList::addPolyline(const glm::vec2* points, uint32_t size, const glm::vec4& color, float thickness) {
   for (int i = 0; i < size - 1; i++) {
     glm::vec2 nTmp = points[i] - points[i + 1];
@@ -137,17 +122,17 @@ void  HephDrawList::addPolyline(const glm::vec2* points, uint32_t size, const gl
     glm::vec2 p3 = points[i + 1] + n2;
     glm::vec2 p4 = points[i] + n2;
 
-    idxBuffer.push_back(vtxBuffer.size());
-    idxBuffer.push_back(vtxBuffer.size() + 1);
-    idxBuffer.push_back(vtxBuffer.size() + 3);
-    idxBuffer.push_back(vtxBuffer.size() + 1);
-    idxBuffer.push_back(vtxBuffer.size() + 2);
-    idxBuffer.push_back(vtxBuffer.size() + 3);
+    idxBufferAdd(vtxBufferCount());
+    idxBufferAdd(vtxBufferCount() + 1);
+    idxBufferAdd(vtxBufferCount() + 3);
+    idxBufferAdd(vtxBufferCount() + 1);
+    idxBufferAdd(vtxBufferCount() + 2);
+    idxBufferAdd(vtxBufferCount() + 3);
 
-    vtxBuffer.push_back((HephVertex){.pos = p1, .uv = _Data->whitePixelArea.min, .color = color});
-    vtxBuffer.push_back((HephVertex){.pos = p2, .uv = glm::vec2(_Data->whitePixelArea.max.x, _Data->whitePixelArea.min.y), .color = color});
-    vtxBuffer.push_back((HephVertex){.pos = p3, .uv = _Data->whitePixelArea.max, .color = color});
-    vtxBuffer.push_back((HephVertex){.pos = p4, .uv = glm::vec2(_Data->whitePixelArea.min.x, _Data->whitePixelArea.max.y), .color = color});
+    vtxBufferAdd((HephVertex){.pos = p1, .uv = _Data->whitePixelArea.min, .color = color});
+    vtxBufferAdd((HephVertex){.pos = p2, .uv = glm::vec2(_Data->whitePixelArea.max.x, _Data->whitePixelArea.min.y), .color = color});
+    vtxBufferAdd((HephVertex){.pos = p3, .uv = _Data->whitePixelArea.max, .color = color});
+    vtxBufferAdd((HephVertex){.pos = p4, .uv = glm::vec2(_Data->whitePixelArea.min.x, _Data->whitePixelArea.max.y), .color = color});
 
     drawCmdBuffer.back().elemCount += 6;
   }
