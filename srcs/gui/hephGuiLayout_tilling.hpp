@@ -104,10 +104,14 @@ struct  WinTreeBranch: public WinTreeLayout {
     size = a_size;
   }
   virtual void    ptrChildChange(HephGuiLayout* ptr, HephGuiLayout* newPtr) override {
-    if (ptr == childs[0])
+    if (ptr == childs[0]) {
       childs[0] = static_cast<WinTreeLayout*>(newPtr);
-    else if (ptr == childs[1])
+      childs[0]->parentLayout = this;
+    }
+    else if (ptr == childs[1]) {
       childs[1] = static_cast<WinTreeLayout*>(newPtr);
+      childs[1]->parentLayout = this;
+    }
   }
 
   float           splitRatio = 0.5f;
