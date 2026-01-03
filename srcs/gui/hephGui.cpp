@@ -88,6 +88,9 @@ void        SetWindowMouseButtonCallback(void (*callbackMouseButton)(HephWindow*
 void        SetWindowScrollCallback(void (*callbackScroll)(HephWindow* window, double xoffset, double yoffset)) {
   GetCurrentWindowPtr()->callbackScroll = callbackScroll;
 }
+void        SetWindowDropCallback(void (*callbackDrop)(HephWindow*, int count, const char** paths)) {
+  GetCurrentWindowPtr()->callbackDrop = callbackDrop;
+}
 void        SetWindowResizeCallback(void (*callbackResize)(HephWindow* window, glm::ivec2 pos, glm::ivec2 size)) {
   GetCurrentWindowPtr()->callbackResize = callbackResize;
 }

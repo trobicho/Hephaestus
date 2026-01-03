@@ -6,7 +6,7 @@
 
 class	HephExtensionRayTracing: public HephDeviceExtensionInterface {
 	public:
-		inline std::vector<const char*>						deviceExtensions() {
+		inline std::vector<const char*>						deviceExtensions() override {
 			return (std::vector<const char*> {
 				VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
 				VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
@@ -20,7 +20,7 @@ class	HephExtensionRayTracing: public HephDeviceExtensionInterface {
 				VK_EXT_SCALAR_BLOCK_LAYOUT_EXTENSION_NAME,
 			});
 		}
-		inline std::list<std::unique_ptr<void*>>	deviceFeatures() {
+		inline std::list<std::unique_ptr<void*>>	deviceFeatures() override {
 			std::list<std::unique_ptr<void*>>	featuresBuffer;
 			//RAYTRACING FEATURES
 
@@ -59,5 +59,5 @@ class	HephExtensionRayTracing: public HephDeviceExtensionInterface {
 
 			return (featuresBuffer);
 		}
-		void	deviceFunctionLoader(VkDevice device);
+		void	deviceFunctionLoader(VkDevice device) override;
 };

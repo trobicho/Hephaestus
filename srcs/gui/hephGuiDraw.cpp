@@ -25,9 +25,9 @@ void  HephDrawList::addRect(const glm::vec2& min, const glm::vec2& max, const gl
   pathStroke(color, thickness);
 }
 
-float HephDrawList::addGlyphRect(const HephFont* font, const glm::vec2& pos, int c, float size, const glm::vec4& color) {
-  const HephFontGlyph&    glyph = font->getGlyph(c);
-  const HephTextureArea&  area = font->getTextureAtlas().getArea(c);
+float HephDrawList::addGlyphRect(const HephFont* font, const HephFontFace& face, const glm::vec2& pos, int c, float size, const glm::vec4& color) {
+  const HephFontGlyph&    glyph = face.getGlyph(c);
+  const HephTextureArea&  area = font->getTextureAtlas().getArea(c + face.glyphOffsetInTex);
   if (size < 1.0f) {
     size = font->getPixelSize();
   }
@@ -61,7 +61,7 @@ void  HephDrawList::addText(const std::string& text, float size, const glm::vec4
       if (pos.y >= clipRect.y + clipRect.w)
         break;
 
-      pos.x += addGlyphRect(font, pos, font->getGlyphIndex(text[i]), size, color);
+      pos.x += addGlyphRect(font, font->faceRegular, pos, font->faceRegular.getGlyphIndex(text[i]), size, color);
       if (rect.x < pos.x)
         rect.x = pos.x;
     }
@@ -86,7 +86,7 @@ glm::vec2 HephDrawList::getTextSize(const std::string& text, float size) {
       currentLine = 0;
     }
     else if (text[i] > 0) {
-      const HephFontGlyph&    glyph = font->getGlyph(text[i]);
+      const HephFontGlyph&    glyph = font->faceRegular.getGlyph(text[i]);
       currentLine += glyph.advance * scale;
     }
   }

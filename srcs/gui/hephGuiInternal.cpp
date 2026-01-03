@@ -178,6 +178,11 @@ void        HephGuiContext::callbackScroll(double xoffset, double yoffset) {
     getFocusedWindowPtr()->callbackScroll(getFocusedWindowPtr(), xoffset, yoffset);
 }
 
+void        HephGuiContext::callbackDrop(int count, const char** paths) {
+  if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackDrop != nullptr)
+    getFocusedWindowPtr()->callbackDrop(getFocusedWindowPtr(), count, paths);
+}
+
 void        HephGuiContext::render(VkCommandBuffer commandBuffer) {
   uint32_t  totalVtx = 0;
   uint32_t  totalIdx = 0;

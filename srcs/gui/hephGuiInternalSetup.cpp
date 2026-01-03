@@ -206,8 +206,10 @@ HephResult  HephGuiContext::create(HephDevice& device_a, VkRenderPass renderPass
 	HEPH_CHECK_RESULT(commandPool.create(device, cmdPoolCreateInfo));
 
   HephFontCreateInfo  fontCreateInfo = {
-    .fontFilePath = "/usr/share/fonts/TTF/AgaveNerdFont-Regular.ttf",
+    .fontFilePathRegular = "/usr/share/fonts/TTF/AgaveNerdFontMono-Regular.ttf",
+    .fontFilePathBold = "/usr/share/fonts/TTF/AgaveNerdFontMono-Bold.ttf",
     .faceIndex = 0,
+    .faceIndexItalic = -1,
     .pixelSize = 18,
     .mAllocator = &memoryAllocator,
     .cmdPool = &commandPool,

@@ -35,6 +35,12 @@ static void s_callbackScroll(GLFWwindow* window, double xoffset, double yoffset)
   HephGui::getContext().callbackScroll(xoffset, yoffset);
 }
 
+static void s_callbackDrop(GLFWwindow* window, int count, const char** paths) {
+  if (userCallbacks.callbackDrop!= nullptr)
+    userCallbacks.callbackDrop(window, count, paths);
+  HephGui::getContext().callbackDrop(count, paths);
+}
+
 using namespace HephGui;
 
 void  HephGLFW_init(GLFWwindow *window) {

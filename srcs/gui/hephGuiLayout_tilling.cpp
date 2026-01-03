@@ -59,6 +59,8 @@ void  WinTreeBranch::resize(HephGuiLayout* ptr, glm::ivec2 a_pos, glm::ivec2 a_s
       splitRatio = (float)a_size.y / (float)newSize.y;
     }
     else if (nodeId == 1) {
+      if (a_pos.y < pos.y)
+        a_pos.y = pos.y;
       newSize.y = (a_pos.y - newPos.y) + a_size.y;
       splitRatio = 1.0 - ((float)a_size.y / (float)newSize.y);
     }
@@ -72,6 +74,8 @@ void  WinTreeBranch::resize(HephGuiLayout* ptr, glm::ivec2 a_pos, glm::ivec2 a_s
       splitRatio = (float)a_size.x / (float)newSize.x;
     }
     else if (nodeId == 1) {
+      if (a_pos.x < pos.x)
+        a_pos.x = pos.x;
       newSize.x = (a_pos.x - newPos.x) + a_size.x;
       splitRatio = 1.0 - ((float)a_size.x / (float)newSize.x);
     }

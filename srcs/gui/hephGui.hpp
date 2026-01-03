@@ -62,6 +62,7 @@ void            SetWindowCharModsCallback(void (*callbackCharMods)(HephWindow*, 
 void            SetWindowCursorPosCallback(void (*callbackCursorPos)(HephWindow*, glm::vec2 pos));
 void            SetWindowMouseButtonCallback(void (*callbackMouseButton)(HephWindow*, int button, int action, int mod));
 void            SetWindowScrollCallback(void (*callbackScroll)(HephWindow*, double xoffset, double yoffset));
+void            SetWindowDropCallback(void (*callbackDrop)(HephWindow*, int count, const char** paths));
 void            SetWindowResizeCallback(void (*callbackResize)(HephWindow*, glm::ivec2 pos, glm::ivec2 size));
 void            SetWindowCloseCallback(void (*callbackClose)(HephWindow*));
 

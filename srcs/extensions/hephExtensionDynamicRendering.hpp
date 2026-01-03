@@ -4,16 +4,11 @@
 #include <memory>
 #include <vulkan/vulkan_core.h>
 
-class	HephExtensionScreenRendering: public HephDeviceExtensionInterface, public HephInstanceExtensionInterface {
+class	HephExtensionDynamicRendering: public HephDeviceExtensionInterface {
 	public:
-		inline std::vector<const char*>						instanceExtensions() override {
-			return (std::vector<const char*> {
-				VK_KHR_SURFACE_EXTENSION_NAME,
-			});
-		}
 		inline std::vector<const char*>						deviceExtensions() override {
 			return (std::vector<const char*> {
-				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+				VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
 			});
 		}
 		inline std::list<std::unique_ptr<void*>>	deviceFeatures() override {

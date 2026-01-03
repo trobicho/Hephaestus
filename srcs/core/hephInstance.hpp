@@ -15,9 +15,9 @@ struct	HephInstanceDebugInfo	{
 };
 
 struct HephInstanceCreateInfo {
-	const char*												pApplicationName;	
+	const char*												pApplicationName;
 	uint32_t													applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-	const char*												pEngineName = "";	
+	const char*												pEngineName = "";
 	uint32_t													engineVersion = VK_MAKE_VERSION(1, 0, 0);
 	uint32_t													apiVersion = VK_API_VERSION_1_3;
 	HephInstanceDebugInfo							hephInstanceDebugInfo;

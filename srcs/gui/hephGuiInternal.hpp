@@ -60,7 +60,7 @@ struct  HephDrawList {
   void          addText(const std::string& text, float size, const glm::vec4& clipRect, const glm::vec4& color);
   glm::vec2     getTextSize(const std::string& text, float size);
 
-  inline float  addGlyphRect(const HephFont* font, const glm::vec2& pos, int c, float scale, const glm::vec4& color);
+  inline float  addGlyphRect(const HephFont* font, const HephFontFace& face, const glm::vec2& pos, int c, float size, const glm::vec4& color);
 
   //Internal
   std::vector<glm::vec2>    _Path;
@@ -146,6 +146,7 @@ struct  HephWindow: public HephGuiLayout {
   void  (*callbackCursorPos)(HephWindow* window, glm::vec2 pos)                         = nullptr;
   void  (*callbackMouseButton)(HephWindow* window, int button, int action, int mod)     = nullptr;
   void  (*callbackScroll)(HephWindow* window, double xoffset, double yoffset)           = nullptr;
+  void  (*callbackDrop)(HephWindow* window, int count, const char** paths)              = nullptr;
   void  (*callbackResize)(HephWindow* window, glm::ivec2 pos, glm::ivec2 size)          = nullptr;
   void  (*callbackClose)(HephWindow* window)                                            = nullptr;
 
@@ -239,6 +240,7 @@ class   HephGuiContext {
     void  callbackCursorPos(glm::vec2 pos);
     void  callbackMouseButton(int button, int action, int mod);
     void  callbackScroll(double xoffset, double yoffset);
+    void  callbackDrop(int count, const char** paths);
     //===============
 
     glm::ivec2                  displayPos = glm::ivec2(0, 0);

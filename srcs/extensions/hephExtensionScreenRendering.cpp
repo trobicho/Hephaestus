@@ -14,7 +14,6 @@ static PFN_vkGetDeviceGroupPresentCapabilitiesKHR		pfn_vkGetDeviceGroupPresentCa
 static PFN_vkGetDeviceGroupSurfacePresentModesKHR		pfn_vkGetDeviceGroupSurfacePresentModesKHR = 0;
 static PFN_vkGetPhysicalDevicePresentRectanglesKHR	pfn_vkGetPhysicalDevicePresentRectanglesKHR = 0;
 
-#include <iostream>
 void  HephExtensionScreenRendering::deviceFunctionLoader(VkDevice device) {
 	pfn_vkCreateSwapchainKHR =
     reinterpret_cast<PFN_vkCreateSwapchainKHR>(vkGetDeviceProcAddr(device, "vkCreateSwapchainKHR"));

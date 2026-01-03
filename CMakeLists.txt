@@ -52,6 +52,8 @@ add_library (hephaestus
 	srcs/extensions/hephExtensionVideo.hpp
 	srcs/extensions/hephExtensionScreenRendering.cpp
 	srcs/extensions/hephExtensionScreenRendering.hpp
+  srcs/extensions/hephExtensionDynamicRendering.cpp
+  srcs/extensions/hephExtensionDynamicRendering.hpp
 
   srcs/plugins/font/hephPluginFont.hpp
   srcs/plugins/font/hephPluginFont.cpp
@@ -125,6 +127,7 @@ install(FILES "srcs/extensions/hephExtensionDebug.hpp" DESTINATION "${CMAKE_INST
 install(FILES "srcs/extensions/hephExtensionRayTracing.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionVideo.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 install(FILES "srcs/extensions/hephExtensionScreenRendering.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
+install(FILES "srcs/extensions/hephExtensionDynamicRendering.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/extensions/")
 
 install(FILES "srcs/plugins/font/hephPluginFont.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/plugins/font/")
 install(FILES "srcs/plugins/font/hephFont.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/plugins/font/")
