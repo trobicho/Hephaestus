@@ -163,9 +163,9 @@ void  HephDrawList::pushClipRectFullScreen() {
   _ClipRectStack.push(_Data->clipRectFullScreen);
 }
 
-void  HephDrawList::popClipRect() {
+void  HephDrawList::popClipRect(bool letEmpty) {
   _ClipRectStack.pop();
-  if (_ClipRectStack.empty())
+  if (!letEmpty && _ClipRectStack.empty())
     pushClipRectFullScreen();
 }
 

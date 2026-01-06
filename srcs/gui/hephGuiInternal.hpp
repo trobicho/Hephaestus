@@ -72,7 +72,7 @@ struct  HephDrawList {
 
   void  pushClipRect(const glm::ivec2& clipRect_min, const glm::ivec2& clipRect_max, bool intersect_with_current_clip_rect = false);
   void  pushClipRectFullScreen();
-  void  popClipRect();
+  void  popClipRect(bool letEmpty = false);
   //void  pushTexture(ImTextureRef tex_ref);
   //void  popTexture();
   inline glm::vec2   getClipRectMin() const {const glm::ivec4& cr = _ClipRectStack.top(); return glm::vec2(cr.x, cr.y);}
@@ -165,6 +165,8 @@ struct  HephWindow: public HephGuiLayout {
     }
     else
       resizeInternal(a_pos, a_size);
+    drawList->popClipRect(true);
+    drawList->pushClipRect(pos, pos + size);
   }
   virtual void    resizeInternal(glm::ivec2 a_pos, glm::ivec2 a_size) override {
     if (a_pos == pos && a_size == size)
