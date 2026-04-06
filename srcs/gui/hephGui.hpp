@@ -41,6 +41,13 @@ enum    HephGuiCol_
   HephGuiCol_COUNT,
 };
 
+class HephApp {
+  public:
+    virtual void  destroy() {};
+    virtual void  initWindow() = 0;
+    virtual void  render() = 0;
+};
+
 HephResult      init();
 void            setDisplaySize(int width, int height);
 HephResult      create(HephDevice& device, VkRenderPass renderPass = VK_NULL_HANDLE);

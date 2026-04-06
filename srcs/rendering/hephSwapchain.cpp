@@ -9,6 +9,7 @@ HephResult	HephSwapchain::create(HephDevice& device, HephSwapchainCreateInfo cre
 }
 
 HephResult	HephSwapchain::recreate(VkExtent2D extent, VkSurfaceKHR surface) {
+  vkDeviceWaitIdle(m_device.device);
 	m_extent = extent;
 	m_createInfo.swapchainCreateInfo.surface = surface;
 	return (createSwapchain());
@@ -42,7 +43,7 @@ HephResult	HephSwapchain::acquireNextImage(HephSwapchainPresentData& presentData
       , m_swapchain, UINT64_MAX 
       , syncObject.semaphoreAvailable
       , VK_NULL_HANDLE, &presentData.imageIndex));
-	if (result.valid() && result.vkResult != VK_NOT_READY) {
+  if (result.valid() && result.vkResult != VK_NOT_READY) {
 		m_imageCurrent = (m_imageCurrent + 1) % m_imageCount;
 		vkResetFences(m_device.device, 1, &syncObject.fence);
 	}
