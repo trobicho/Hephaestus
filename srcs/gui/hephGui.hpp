@@ -4,6 +4,7 @@
 #include "../command/hephCommandPool.hpp"
 #include "../memory/hephMemoryAllocator.hpp"
 #include "../plugins/font/hephFont.hpp"
+#include "hash/hashFunction.hpp"
 
 namespace HephGui {
 
@@ -11,6 +12,7 @@ namespace HephGui {
 struct  HephGuiContext;
 struct  HephDrawList;
 struct  HephWindow;
+struct  HephGuiStyle;
 
 enum    HephGuiCol_
 {
@@ -41,6 +43,13 @@ enum    HephGuiCol_
   HephGuiCol_COUNT,
 };
 
+enum    HephGuiAction_
+{
+  HephGuiAction_None = 0,
+  HephGuiAction_ClickRight,
+  HephGuiAction_ClickLeft,
+};
+
 class HephApp {
   public:
     virtual void  destroy() {};
@@ -53,6 +62,7 @@ void            setDisplaySize(int width, int height);
 HephResult      create(HephDevice& device, VkRenderPass renderPass = VK_NULL_HANDLE);
 void            destroy();
 HephGuiContext& getContext();
+HephGuiStyle&   GetStyle();
 
 void            Render(VkCommandBuffer cmdBuffer);
 
@@ -76,5 +86,13 @@ void            SetWindowCloseCallback(void (*callbackClose)(HephWindow*));
 //bool        Begin(const char* name, bool* p_open = NULL, ImGuiWindowFlags flags = 0);
 bool            Begin(std::string name, bool* p_open = nullptr);
 void            End();
+
+void            StyleColorsClassic(HephGuiStyle* dst = nullptr);
+void            StyleColorsDark(HephGuiStyle* dst = nullptr);
+void            StyleColorsLight(HephGuiStyle* dst = nullptr);
+
+//Widgets
+bool            Button(const std::string& text);
+bool            MenuItem(const std::string& text);
 
 }

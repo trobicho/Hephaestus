@@ -8,5 +8,5 @@ layout(location = 0) out vec4 out_color;
 layout(set = 0, binding = 0) uniform usampler2D inText;
 
 void main() {
-  out_color = vec4(in_color.rgb, texture(inText, in_uv).a / 255.0);
+  out_color = vec4(in_color.rgb, in_color.a * (texture(inText, in_uv).a / 255.0));
 }

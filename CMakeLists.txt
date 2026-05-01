@@ -5,6 +5,7 @@ project ("hephaestus" VERSION 0.1 DESCRIPTION "a little vulkan wrapper")
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS YES CACHE BOOL "Export all symbols")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_CXX_STANDARD 17)
 set(APP_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 add_compile_options("-g")
@@ -63,14 +64,36 @@ add_library (hephaestus
   srcs/gui/hephGui.hpp
   srcs/gui/hephGui.cpp
   srcs/gui/hephGuiDraw.cpp
+  srcs/gui/hephGuiWidget.cpp
   srcs/gui/hephGuiInternal.cpp
   srcs/gui/hephGuiInternal.hpp
   srcs/gui/hephGuiInternalSetup.cpp
   srcs/gui/hephGuiIoGLFW.cpp
   srcs/gui/hephGuiIoGLFW.hpp
+  srcs/gui/hash/fnv1.cpp
+  srcs/gui/hash/hashFunction.hpp
 
   srcs/gui/hephGuiLayout_tilling.cpp
   srcs/gui/hephGuiLayout_tilling.hpp
+)
+
+set(cpps_test
+  srcs/tests/hephTestApp.cpp
+  srcs/tests/guiTest.cpp
+)
+
+set(hpps_test
+  srcs/tests/hephTestApp.hpp
+  srcs/tests/guiTest.hpp
+)
+
+add_executable(hephTest ${cpps_test} ${hpps_test})
+target_link_libraries(hephTest PRIVATE ${PROJECT_NAME})
+target_include_directories(hephTest
+	PRIVATE
+	${CMAKE_CURRENT_LIST_DIR}
+	${CMAKE_BINARY_DIR}
+	srcs
 )
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/config_app.h.cmake ${CMAKE_BINARY_DIR}/config_app.h)
@@ -136,3 +159,4 @@ install(FILES "srcs/gui/hephGui.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}inc
 install(FILES "srcs/gui/hephGuiInternal.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")
 install(FILES "srcs/gui/hephGuiIoGLFW.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")
 install(FILES "srcs/gui/hephGuiLayout_tilling.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/")
+install(FILES "srcs/gui/hash/hashFunction.hpp" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}include/${PROJECT_NAME}/gui/hash/")

@@ -5,6 +5,7 @@
 #include "../plugins/font/hephFont.hpp"
 #include "../texture/hephTexture.hpp"
 #include "hephGui.hpp"
+#include <cstdint>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <stack>
@@ -45,6 +46,7 @@ struct  HephDrawList {
 
   void  addDrawCmd() {
     drawCmdBuffer.push_back(HephDrawCmd());
+    drawCmdBuffer.back().idxOffset = idxBuffer.size();
     assert(!_ClipRectStack.empty() && "clipRectStack cannot be empty when adding drawCmd");
     drawCmdBuffer.back().clipRect = _ClipRectStack.top();
   }
@@ -64,7 +66,7 @@ struct  HephDrawList {
 
   //Internal
   std::vector<glm::vec2>    _Path;
-  std::stack<glm::vec4>     _ClipRectStack;
+  std::stack<glm::ivec4>    _ClipRectStack;
   HephSharedData*           _Data;
 
   void                      (*userDrawListRender)(HephDrawList*, VkCommandBuffer) = nullptr;
@@ -75,9 +77,9 @@ struct  HephDrawList {
   void  popClipRect(bool letEmpty = false);
   //void  pushTexture(ImTextureRef tex_ref);
   //void  popTexture();
-  inline glm::vec2   getClipRectMin() const {const glm::ivec4& cr = _ClipRectStack.top(); return glm::vec2(cr.x, cr.y);}
-  inline glm::vec2   getClipRectMax() const {const glm::ivec4& cr = _ClipRectStack.top(); return glm::vec2(cr.z, cr.w);}
-  inline glm::ivec4  getClipRect() const {return (_ClipRectStack.top());}
+  inline glm::ivec2 getClipRectMin() const {const glm::ivec4& cr = _ClipRectStack.top(); return glm::ivec2(cr.x, cr.y);}
+  inline glm::ivec2 getClipRectMax() const {const glm::ivec4& cr = _ClipRectStack.top(); return glm::ivec2(cr.z, cr.w);}
+  inline glm::ivec4 getClipRect() const {return (_ClipRectStack.top());}
 
   inline void   pathClear() {_Path.resize(0);}
   inline void   pathLineTo(const glm::vec2& p) {_Path.push_back(p);}
@@ -138,8 +140,33 @@ class   HephGuiLayout {
     HephGuiLayout*  parentLayout = nullptr;
 };
 
+struct  HephWindowFrameData {
+  void        newFrame(glm::ivec2 winPos) {
+    cursorStartPos = winPos + 5;
+    cursorPos = cursorStartPos;
+    cursorMaxPos = cursorPos;
+    isSameLine = false;
+  }
+
+  glm::ivec2  cursorPos;
+  glm::ivec2  cursorStartPos;
+  glm::ivec2  cursorMaxPos;
+
+  bool        isSameLine;
+};
+
+struct  HephWindowItem {
+  HephWindowItem() = default;
+  HephWindowItem(HephGuiId id, const glm::vec4& bb): id(id), bb(bb) {}
+
+  HephGuiId   id;
+  glm::ivec4  bb;
+};
+
 struct  HephWindow: public HephGuiLayout {
   HephWindow(std::string name): name(name) {};
+
+  void        newFrame();
 
   void  (*callbackKey)(HephWindow* window, int key, int scancode, int action, int mods) = nullptr;
   void  (*callbackCharMods)(HephWindow* window, uint32_t codepoint, int mods)           = nullptr;
@@ -150,16 +177,18 @@ struct  HephWindow: public HephGuiLayout {
   void  (*callbackResize)(HephWindow* window, glm::ivec2 pos, glm::ivec2 size)          = nullptr;
   void  (*callbackClose)(HephWindow* window)                                            = nullptr;
 
-  void            resizeFromCursor(int side, glm::ivec2 vec);
+  void              resizeFromCursor(int side, glm::ivec2 vec);
 
-  virtual void    close(HephGuiLayout* ptr) override {
+  virtual HephGuiId itemAdd(const glm::ivec4& bb, HephGuiId id);
+
+  virtual void      close(HephGuiLayout* ptr) override {
     if (parentLayout != nullptr && ptr != parentLayout) {
       parentLayout->close(this);
     }
     if (callbackClose) 
       callbackClose(this);
   }
-  virtual void    resize(HephGuiLayout* ptr, glm::ivec2 a_pos, glm::ivec2 a_size) override {
+  virtual void      resize(HephGuiLayout* ptr, glm::ivec2 a_pos, glm::ivec2 a_size) override {
     if (parentLayout != nullptr && ptr != parentLayout) {
       parentLayout->resize(this, a_pos, a_size);
     }
@@ -168,7 +197,7 @@ struct  HephWindow: public HephGuiLayout {
     drawList->popClipRect(true);
     drawList->pushClipRect(pos, pos + size);
   }
-  virtual void    resizeInternal(glm::ivec2 a_pos, glm::ivec2 a_size) override {
+  virtual void      resizeInternal(glm::ivec2 a_pos, glm::ivec2 a_size) override {
     if (a_pos == pos && a_size == size)
       return ;
     if (callbackResize) {
@@ -178,11 +207,13 @@ struct  HephWindow: public HephGuiLayout {
     size = a_size;
   }
 
-  std::string     name;
-  bool            firstFrame = true;
+  std::string                 name;
+  bool                        firstFrame = true;
 
-  HephDrawList*   drawList = nullptr;
-  void*           userPtr = nullptr;
+  HephWindowFrameData         frameData;
+  HephDrawList*               drawList = nullptr;
+  void*                       userPtr = nullptr;
+  std::vector<HephWindowItem> itemList;
 };
 
 enum    HephGuiCursorType {
@@ -251,11 +282,17 @@ class   HephGuiContext {
     HephSharedData              sharedData;
 
     HephGuiCursor               cursor;
+    HephGuiStyle                style;
 
     std::vector<HephDrawList*>  userDrawListBuffer;
     std::vector<HephDrawList>   drawListBuffer;
     std::vector<HephWindow*>    winList;
+
     int                         focusedWindowUUID = -1;
+
+    HephGuiId                   activeId;
+    HephGuiId                   hoveredId;
+    bool                        activeIdIsJustActivated = false;
 
     HephDevice                  device;
     VkRenderPass                renderPass = VK_NULL_HANDLE;

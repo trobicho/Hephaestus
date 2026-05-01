@@ -9,6 +9,217 @@
 
 namespace HephGui {
 
+void StyleColorsDark(HephGuiStyle* dst)
+{
+    HephGuiStyle* style = dst ? dst : &HephGui::GetStyle();
+    glm::vec4*    colors = style->colors;
+
+    colors[HephGuiCol_Text]                   = glm::vec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[HephGuiCol_TextDisabled]           = glm::vec4(0.50f, 0.50f, 0.50f, 1.00f);
+    colors[HephGuiCol_WindowBg]               = glm::vec4(0.06f, 0.06f, 0.06f, 0.94f);
+    colors[HephGuiCol_ChildBg]                = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_PopupBg]                = glm::vec4(0.08f, 0.08f, 0.08f, 0.94f);
+    colors[HephGuiCol_Border]                 = glm::vec4(0.43f, 0.43f, 0.50f, 0.50f);
+    colors[HephGuiCol_BorderShadow]           = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_FrameBg]                = glm::vec4(0.16f, 0.29f, 0.48f, 0.54f);
+    colors[HephGuiCol_FrameBgHovered]         = glm::vec4(0.26f, 0.59f, 0.98f, 0.40f);
+    colors[HephGuiCol_FrameBgActive]          = glm::vec4(0.26f, 0.59f, 0.98f, 0.67f);
+    colors[HephGuiCol_TitleBg]                = glm::vec4(0.04f, 0.04f, 0.04f, 1.00f);
+    colors[HephGuiCol_TitleBgActive]          = glm::vec4(0.16f, 0.29f, 0.48f, 1.00f);
+    colors[HephGuiCol_TitleBgCollapsed]       = glm::vec4(0.00f, 0.00f, 0.00f, 0.51f);
+    colors[HephGuiCol_MenuBarBg]              = glm::vec4(0.14f, 0.14f, 0.14f, 1.00f);
+    colors[HephGuiCol_ScrollbarBg]            = glm::vec4(0.02f, 0.02f, 0.02f, 0.53f);
+    colors[HephGuiCol_ScrollbarGrab]          = glm::vec4(0.31f, 0.31f, 0.31f, 1.00f);
+    colors[HephGuiCol_ScrollbarGrabHovered]   = glm::vec4(0.41f, 0.41f, 0.41f, 1.00f);
+    colors[HephGuiCol_ScrollbarGrabActive]    = glm::vec4(0.51f, 0.51f, 0.51f, 1.00f);
+    colors[HephGuiCol_CheckMark]              = glm::vec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[HephGuiCol_SliderGrab]             = glm::vec4(0.24f, 0.52f, 0.88f, 1.00f);
+    colors[HephGuiCol_SliderGrabActive]       = glm::vec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[HephGuiCol_Button]                 = glm::vec4(0.26f, 0.59f, 0.98f, 0.40f);
+    colors[HephGuiCol_ButtonHovered]          = glm::vec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[HephGuiCol_ButtonActive]           = glm::vec4(0.06f, 0.53f, 0.98f, 1.00f);
+
+    /*
+    colors[HephGuiCol_Header]                 = glm::vec4(0.26f, 0.59f, 0.98f, 0.31f);
+    colors[HephGuiCol_HeaderHovered]          = glm::vec4(0.26f, 0.59f, 0.98f, 0.80f);
+    colors[HephGuiCol_HeaderActive]           = glm::vec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[HephGuiCol_Separator]              = colors[HephGuiCol_Border];
+    colors[HephGuiCol_SeparatorHovered]       = glm::vec4(0.10f, 0.40f, 0.75f, 0.78f);
+    colors[HephGuiCol_SeparatorActive]        = glm::vec4(0.10f, 0.40f, 0.75f, 1.00f);
+    colors[HephGuiCol_ResizeGrip]             = glm::vec4(0.26f, 0.59f, 0.98f, 0.20f);
+    colors[HephGuiCol_ResizeGripHovered]      = glm::vec4(0.26f, 0.59f, 0.98f, 0.67f);
+    colors[HephGuiCol_ResizeGripActive]       = glm::vec4(0.26f, 0.59f, 0.98f, 0.95f);
+    colors[HephGuiCol_InputTextCursor]        = colors[HephGuiCol_Text];
+    colors[HephGuiCol_TabHovered]             = colors[HephGuiCol_HeaderHovered];
+    colors[HephGuiCol_Tab]                    = ImLerp(colors[HephGuiCol_Header],       colors[HephGuiCol_TitleBgActive], 0.80f);
+    colors[HephGuiCol_TabSelected]            = ImLerp(colors[HephGuiCol_HeaderActive], colors[HephGuiCol_TitleBgActive], 0.60f);
+    colors[HephGuiCol_TabSelectedOverline]    = colors[HephGuiCol_HeaderActive];
+    colors[HephGuiCol_TabDimmed]              = ImLerp(colors[HephGuiCol_Tab],          colors[HephGuiCol_TitleBg], 0.80f);
+    colors[HephGuiCol_TabDimmedSelected]      = ImLerp(colors[HephGuiCol_TabSelected],  colors[HephGuiCol_TitleBg], 0.40f);
+    colors[HephGuiCol_TabDimmedSelectedOverline] = glm::vec4(0.50f, 0.50f, 0.50f, 0.00f);
+    colors[HephGuiCol_PlotLines]              = glm::vec4(0.61f, 0.61f, 0.61f, 1.00f);
+    colors[HephGuiCol_PlotLinesHovered]       = glm::vec4(1.00f, 0.43f, 0.35f, 1.00f);
+    colors[HephGuiCol_PlotHistogram]          = glm::vec4(0.90f, 0.70f, 0.00f, 1.00f);
+    colors[HephGuiCol_PlotHistogramHovered]   = glm::vec4(1.00f, 0.60f, 0.00f, 1.00f);
+    colors[HephGuiCol_TableHeaderBg]          = glm::vec4(0.19f, 0.19f, 0.20f, 1.00f);
+    colors[HephGuiCol_TableBorderStrong]      = glm::vec4(0.31f, 0.31f, 0.35f, 1.00f);   // Prefer using Alpha=1.0 here
+    colors[HephGuiCol_TableBorderLight]       = glm::vec4(0.23f, 0.23f, 0.25f, 1.00f);   // Prefer using Alpha=1.0 here
+    colors[HephGuiCol_TableRowBg]             = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_TableRowBgAlt]          = glm::vec4(1.00f, 1.00f, 1.00f, 0.06f);
+    colors[HephGuiCol_TextLink]               = colors[HephGuiCol_HeaderActive];
+    colors[HephGuiCol_TextSelectedBg]         = glm::vec4(0.26f, 0.59f, 0.98f, 0.35f);
+    colors[HephGuiCol_TreeLines]              = colors[HephGuiCol_Border];
+    colors[HephGuiCol_DragDropTarget]         = glm::vec4(1.00f, 1.00f, 0.00f, 0.90f);
+    colors[HephGuiCol_DragDropTargetBg]       = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_UnsavedMarker]          = glm::vec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[HephGuiCol_NavCursor]              = glm::vec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[HephGuiCol_NavWindowingHighlight]  = glm::vec4(1.00f, 1.00f, 1.00f, 0.70f);
+    colors[HephGuiCol_NavWindowingDimBg]      = glm::vec4(0.80f, 0.80f, 0.80f, 0.20f);
+    colors[HephGuiCol_ModalWindowDimBg]       = glm::vec4(0.80f, 0.80f, 0.80f, 0.35f);
+    */
+}
+
+void StyleColorsClassic(HephGuiStyle* dst)
+{
+    HephGuiStyle* style = dst ? dst : &HephGui::GetStyle();
+    glm::vec4*    colors = style->colors;
+
+    colors[HephGuiCol_Text]                   = glm::vec4(0.90f, 0.90f, 0.90f, 1.00f);
+    colors[HephGuiCol_TextDisabled]           = glm::vec4(0.60f, 0.60f, 0.60f, 1.00f);
+    colors[HephGuiCol_WindowBg]               = glm::vec4(0.04f, 0.04f, 0.04f, 0.80f);
+    colors[HephGuiCol_ChildBg]                = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_PopupBg]                = glm::vec4(0.11f, 0.11f, 0.14f, 0.92f);
+    colors[HephGuiCol_Border]                 = glm::vec4(0.50f, 0.50f, 0.50f, 0.50f);
+    colors[HephGuiCol_BorderShadow]           = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_FrameBg]                = glm::vec4(0.43f, 0.43f, 0.43f, 0.39f);
+    colors[HephGuiCol_FrameBgHovered]         = glm::vec4(0.47f, 0.47f, 0.69f, 0.40f);
+    colors[HephGuiCol_FrameBgActive]          = glm::vec4(0.42f, 0.41f, 0.64f, 0.69f);
+    colors[HephGuiCol_TitleBg]                = glm::vec4(0.27f, 0.27f, 0.54f, 0.83f);
+    colors[HephGuiCol_TitleBgActive]          = glm::vec4(0.32f, 0.32f, 0.63f, 0.87f);
+    colors[HephGuiCol_TitleBgCollapsed]       = glm::vec4(0.40f, 0.40f, 0.80f, 0.20f);
+    colors[HephGuiCol_MenuBarBg]              = glm::vec4(0.40f, 0.40f, 0.55f, 0.80f);
+    colors[HephGuiCol_ScrollbarBg]            = glm::vec4(0.20f, 0.25f, 0.30f, 0.60f);
+    colors[HephGuiCol_ScrollbarGrab]          = glm::vec4(0.40f, 0.40f, 0.80f, 0.30f);
+    colors[HephGuiCol_ScrollbarGrabHovered]   = glm::vec4(0.40f, 0.40f, 0.80f, 0.40f);
+    colors[HephGuiCol_ScrollbarGrabActive]    = glm::vec4(0.41f, 0.39f, 0.80f, 0.60f);
+    colors[HephGuiCol_CheckMark]              = glm::vec4(0.90f, 0.90f, 0.90f, 0.50f);
+    colors[HephGuiCol_SliderGrab]             = glm::vec4(1.00f, 1.00f, 1.00f, 0.30f);
+    colors[HephGuiCol_SliderGrabActive]       = glm::vec4(0.41f, 0.39f, 0.80f, 0.60f);
+    colors[HephGuiCol_Button]                 = glm::vec4(0.35f, 0.40f, 0.61f, 0.62f);
+    colors[HephGuiCol_ButtonHovered]          = glm::vec4(0.40f, 0.48f, 0.71f, 0.79f);
+    colors[HephGuiCol_ButtonActive]           = glm::vec4(0.46f, 0.54f, 0.80f, 1.00f);
+
+    /*
+    colors[HephGuiCol_Header]                 = glm::vec4(0.40f, 0.40f, 0.90f, 0.45f);
+    colors[HephGuiCol_HeaderHovered]          = glm::vec4(0.45f, 0.45f, 0.90f, 0.80f);
+    colors[HephGuiCol_HeaderActive]           = glm::vec4(0.53f, 0.53f, 0.87f, 0.80f);
+    colors[HephGuiCol_Separator]              = glm::vec4(0.50f, 0.50f, 0.50f, 0.60f);
+    colors[HephGuiCol_SeparatorHovered]       = glm::vec4(0.60f, 0.60f, 0.70f, 1.00f);
+    colors[HephGuiCol_SeparatorActive]        = glm::vec4(0.70f, 0.70f, 0.90f, 1.00f);
+    colors[HephGuiCol_ResizeGrip]             = glm::vec4(1.00f, 1.00f, 1.00f, 0.10f);
+    colors[HephGuiCol_ResizeGripHovered]      = glm::vec4(0.78f, 0.82f, 1.00f, 0.60f);
+    colors[HephGuiCol_ResizeGripActive]       = glm::vec4(0.78f, 0.82f, 1.00f, 0.90f);
+    colors[HephGuiCol_InputTextCursor]        = colors[HephGuiCol_Text];
+    colors[HephGuiCol_TabHovered]             = colors[HephGuiCol_HeaderHovered];
+    colors[HephGuiCol_Tab]                    = ImLerp(colors[HephGuiCol_Header],       colors[HephGuiCol_TitleBgActive], 0.80f);
+    colors[HephGuiCol_TabSelected]            = ImLerp(colors[HephGuiCol_HeaderActive], colors[HephGuiCol_TitleBgActive], 0.60f);
+    colors[HephGuiCol_TabSelectedOverline]    = colors[HephGuiCol_HeaderActive];
+    colors[HephGuiCol_TabDimmed]              = ImLerp(colors[HephGuiCol_Tab],          colors[HephGuiCol_TitleBg], 0.80f);
+    colors[HephGuiCol_TabDimmedSelected]      = ImLerp(colors[HephGuiCol_TabSelected],  colors[HephGuiCol_TitleBg], 0.40f);
+    colors[HephGuiCol_TabDimmedSelectedOverline] = glm::vec4(0.53f, 0.53f, 0.87f, 0.00f);
+    colors[HephGuiCol_PlotLines]              = glm::vec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[HephGuiCol_PlotLinesHovered]       = glm::vec4(0.90f, 0.70f, 0.00f, 1.00f);
+    colors[HephGuiCol_PlotHistogram]          = glm::vec4(0.90f, 0.70f, 0.00f, 1.00f);
+    colors[HephGuiCol_PlotHistogramHovered]   = glm::vec4(1.00f, 0.60f, 0.00f, 1.00f);
+    colors[HephGuiCol_TableHeaderBg]          = glm::vec4(0.27f, 0.27f, 0.38f, 1.00f);
+    colors[HephGuiCol_TableBorderStrong]      = glm::vec4(0.31f, 0.31f, 0.45f, 1.00f);   // Prefer using Alpha=1.0 here
+    colors[HephGuiCol_TableBorderLight]       = glm::vec4(0.26f, 0.26f, 0.28f, 1.00f);   // Prefer using Alpha=1.0 here
+    colors[HephGuiCol_TableRowBg]             = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_TableRowBgAlt]          = glm::vec4(1.00f, 1.00f, 1.00f, 0.07f);
+    colors[HephGuiCol_TextLink]               = colors[HephGuiCol_HeaderActive];
+    colors[HephGuiCol_TextSelectedBg]         = glm::vec4(0.00f, 0.00f, 1.00f, 0.35f);
+    colors[HephGuiCol_TreeLines]              = colors[HephGuiCol_Border];
+    colors[HephGuiCol_DragDropTarget]         = glm::vec4(1.00f, 1.00f, 0.00f, 0.90f);
+    colors[HephGuiCol_DragDropTargetBg]       = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_UnsavedMarker]          = glm::vec4(0.90f, 0.90f, 0.90f, 1.00f);
+    colors[HephGuiCol_NavCursor]              = colors[HephGuiCol_HeaderHovered];
+    colors[HephGuiCol_NavWindowingHighlight]  = glm::vec4(1.00f, 1.00f, 1.00f, 0.70f);
+    colors[HephGuiCol_NavWindowingDimBg]      = glm::vec4(0.80f, 0.80f, 0.80f, 0.20f);
+    colors[HephGuiCol_ModalWindowDimBg]       = glm::vec4(0.20f, 0.20f, 0.20f, 0.35f);
+    */
+}
+
+// Those light colors are better suited with a thicker font than the default one + FrameBorder
+void StyleColorsLight(HephGuiStyle* dst)
+{
+    HephGuiStyle* style = dst ? dst : &HephGui::GetStyle();
+    glm::vec4*    colors = style->colors;
+
+    colors[HephGuiCol_Text]                   = glm::vec4(0.00f, 0.00f, 0.00f, 1.00f);
+    colors[HephGuiCol_TextDisabled]           = glm::vec4(0.60f, 0.60f, 0.60f, 1.00f);
+    colors[HephGuiCol_WindowBg]               = glm::vec4(0.94f, 0.94f, 0.94f, 1.00f);
+    colors[HephGuiCol_ChildBg]                = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_PopupBg]                = glm::vec4(1.00f, 1.00f, 1.00f, 0.98f);
+    colors[HephGuiCol_Border]                 = glm::vec4(0.00f, 0.00f, 0.00f, 0.30f);
+    colors[HephGuiCol_BorderShadow]           = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_FrameBg]                = glm::vec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[HephGuiCol_FrameBgHovered]         = glm::vec4(0.26f, 0.59f, 0.98f, 0.40f);
+    colors[HephGuiCol_FrameBgActive]          = glm::vec4(0.26f, 0.59f, 0.98f, 0.67f);
+    colors[HephGuiCol_TitleBg]                = glm::vec4(0.96f, 0.96f, 0.96f, 1.00f);
+    colors[HephGuiCol_TitleBgActive]          = glm::vec4(0.82f, 0.82f, 0.82f, 1.00f);
+    colors[HephGuiCol_TitleBgCollapsed]       = glm::vec4(1.00f, 1.00f, 1.00f, 0.51f);
+    colors[HephGuiCol_MenuBarBg]              = glm::vec4(0.86f, 0.86f, 0.86f, 1.00f);
+    colors[HephGuiCol_ScrollbarBg]            = glm::vec4(0.98f, 0.98f, 0.98f, 0.53f);
+    colors[HephGuiCol_ScrollbarGrab]          = glm::vec4(0.69f, 0.69f, 0.69f, 0.80f);
+    colors[HephGuiCol_ScrollbarGrabHovered]   = glm::vec4(0.49f, 0.49f, 0.49f, 0.80f);
+    colors[HephGuiCol_ScrollbarGrabActive]    = glm::vec4(0.49f, 0.49f, 0.49f, 1.00f);
+    colors[HephGuiCol_CheckMark]              = glm::vec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[HephGuiCol_SliderGrab]             = glm::vec4(0.26f, 0.59f, 0.98f, 0.78f);
+    colors[HephGuiCol_SliderGrabActive]       = glm::vec4(0.46f, 0.54f, 0.80f, 0.60f);
+    colors[HephGuiCol_Button]                 = glm::vec4(0.26f, 0.59f, 0.98f, 0.40f);
+    colors[HephGuiCol_ButtonHovered]          = glm::vec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[HephGuiCol_ButtonActive]           = glm::vec4(0.06f, 0.53f, 0.98f, 1.00f);
+
+    /*
+    colors[HephGuiCol_Header]                 = glm::vec4(0.26f, 0.59f, 0.98f, 0.31f);
+    colors[HephGuiCol_HeaderHovered]          = glm::vec4(0.26f, 0.59f, 0.98f, 0.80f);
+    colors[HephGuiCol_HeaderActive]           = glm::vec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[HephGuiCol_Separator]              = glm::vec4(0.39f, 0.39f, 0.39f, 0.62f);
+    colors[HephGuiCol_SeparatorHovered]       = glm::vec4(0.14f, 0.44f, 0.80f, 0.78f);
+    colors[HephGuiCol_SeparatorActive]        = glm::vec4(0.14f, 0.44f, 0.80f, 1.00f);
+    colors[HephGuiCol_ResizeGrip]             = glm::vec4(0.35f, 0.35f, 0.35f, 0.17f);
+    colors[HephGuiCol_ResizeGripHovered]      = glm::vec4(0.26f, 0.59f, 0.98f, 0.67f);
+    colors[HephGuiCol_ResizeGripActive]       = glm::vec4(0.26f, 0.59f, 0.98f, 0.95f);
+    colors[HephGuiCol_InputTextCursor]        = colors[HephGuiCol_Text];
+    colors[HephGuiCol_TabHovered]             = colors[HephGuiCol_HeaderHovered];
+    colors[HephGuiCol_Tab]                    = ImLerp(colors[HephGuiCol_Header],       colors[HephGuiCol_TitleBgActive], 0.90f);
+    colors[HephGuiCol_TabSelected]            = ImLerp(colors[HephGuiCol_HeaderActive], colors[HephGuiCol_TitleBgActive], 0.60f);
+    colors[HephGuiCol_TabSelectedOverline]    = colors[HephGuiCol_HeaderActive];
+    colors[HephGuiCol_TabDimmed]              = ImLerp(colors[HephGuiCol_Tab],          colors[HephGuiCol_TitleBg], 0.80f);
+    colors[HephGuiCol_TabDimmedSelected]      = ImLerp(colors[HephGuiCol_TabSelected],  colors[HephGuiCol_TitleBg], 0.40f);
+    colors[HephGuiCol_TabDimmedSelectedOverline] = glm::vec4(0.26f, 0.59f, 1.00f, 0.00f);
+    colors[HephGuiCol_PlotLines]              = glm::vec4(0.39f, 0.39f, 0.39f, 1.00f);
+    colors[HephGuiCol_PlotLinesHovered]       = glm::vec4(1.00f, 0.43f, 0.35f, 1.00f);
+    colors[HephGuiCol_PlotHistogram]          = glm::vec4(0.90f, 0.70f, 0.00f, 1.00f);
+    colors[HephGuiCol_PlotHistogramHovered]   = glm::vec4(1.00f, 0.45f, 0.00f, 1.00f);
+    colors[HephGuiCol_TableHeaderBg]          = glm::vec4(0.78f, 0.87f, 0.98f, 1.00f);
+    colors[HephGuiCol_TableBorderStrong]      = glm::vec4(0.57f, 0.57f, 0.64f, 1.00f);   // Prefer using Alpha=1.0 here
+    colors[HephGuiCol_TableBorderLight]       = glm::vec4(0.68f, 0.68f, 0.74f, 1.00f);   // Prefer using Alpha=1.0 here
+    colors[HephGuiCol_TableRowBg]             = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_TableRowBgAlt]          = glm::vec4(0.30f, 0.30f, 0.30f, 0.09f);
+    colors[HephGuiCol_TextLink]               = colors[HephGuiCol_HeaderActive];
+    colors[HephGuiCol_TextSelectedBg]         = glm::vec4(0.26f, 0.59f, 0.98f, 0.35f);
+    colors[HephGuiCol_TreeLines]              = colors[HephGuiCol_Border];
+    colors[HephGuiCol_DragDropTarget]         = glm::vec4(0.26f, 0.59f, 0.98f, 0.95f);
+    colors[HephGuiCol_DragDropTargetBg]       = glm::vec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[HephGuiCol_UnsavedMarker]          = glm::vec4(0.00f, 0.00f, 0.00f, 1.00f);
+    colors[HephGuiCol_NavCursor]              = colors[HephGuiCol_HeaderHovered];
+    colors[HephGuiCol_NavWindowingHighlight]  = glm::vec4(0.70f, 0.70f, 0.70f, 0.70f);
+    colors[HephGuiCol_NavWindowingDimBg]      = glm::vec4(0.20f, 0.20f, 0.20f, 0.20f);
+    colors[HephGuiCol_ModalWindowDimBg]       = glm::vec4(0.20f, 0.20f, 0.20f, 0.35f);
+    */
+}
+
 void  HephDrawList::addLine(const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color, float thickness) {
   pathLineTo(p1);
   pathLineTo(p2);
@@ -25,7 +236,7 @@ void  HephDrawList::addRect(const glm::vec2& min, const glm::vec2& max, const gl
   pathStroke(color, thickness);
 }
 
-inline float HephDrawList::addGlyphRect(const HephFont* font, const HephFontFace& face, const glm::vec2& pos, int c, float size, const glm::vec4& color) {
+float HephDrawList::addGlyphRect(const HephFont* font, const HephFontFace& face, const glm::vec2& pos, int c, float size, const glm::vec4& color) {
   const HephFontGlyph&    glyph = face.getGlyph(c);
   const HephTextureArea&  area = font->getTextureAtlas().getArea(c + face.glyphOffsetInTex);
   if (size < 1.0f) {

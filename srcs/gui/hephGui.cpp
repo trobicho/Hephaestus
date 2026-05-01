@@ -23,8 +23,15 @@ HephGuiContext& getContext() {
   return (guiContext);
 }
 
+HephGuiStyle&   GetStyle() {
+  return (guiContext.style);
+}
+
 HephResult  create(HephDevice& device, VkRenderPass renderPass) {
-  return (guiContext.create(device, renderPass));
+  HEPH_CHECK_RESULT(guiContext.create(device, renderPass));
+  StyleColorsClassic();
+
+  return (HephResult());
 }
 
 void        setDisplaySize(int width, int height) {
@@ -38,6 +45,7 @@ void        destroy() {
 void        Render(VkCommandBuffer commandBuffer) {
   assert(winStack.empty() && "End missing for window");
   guiContext.render(commandBuffer);
+  guiContext.activeIdIsJustActivated = false;
 }
 
 void        NewFrame() {
@@ -118,6 +126,7 @@ bool        Begin(std::string name, bool* p_open) {
     winPtr->drawList = &guiContext.drawListBuffer.back();
     winPtr->drawList->pushClipRect(winPtr->pos, winPtr->pos + winPtr->size);
   }
+  winPtr->frameData.newFrame(winPtr->pos);
   winPtr->drawList->addDrawCmd();
   winStack.push(winPtr);
   return (true);
@@ -126,9 +135,8 @@ bool        Begin(std::string name, bool* p_open) {
 void        End() {
   assert(winStack.size() > 0 && "End doesn't correspond to a Begin");
   HephWindow* winPtr = winStack.top();
-  winPtr->drawList->addRect(winPtr->pos, winPtr->pos + winPtr->size, glm::vec4(0.5, 0.5, 0.5, 1.0), 2.0f);
   winPtr->drawList->addDrawCmd();
-  winPtr->drawList->addRectFill(winPtr->pos, winPtr->pos + winPtr->size, glm::vec4(0.05, 0.05, 0.05, 0.7));
+  winPtr->drawList->addRect(winPtr->pos, winPtr->pos + winPtr->size, GetStyle().colors[HephGuiCol_Border], 2.0f);
   winStack.pop();
 }
 

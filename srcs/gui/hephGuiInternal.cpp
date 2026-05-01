@@ -129,13 +129,32 @@ void        HephWindow::resizeFromCursor(int side, glm::ivec2 vec) {
   resize(this, newPos, newSize);
 }
 
+void        HephWindow::newFrame() {
+  frameData.newFrame(pos);
+  itemList.clear();
+}
+
+HephGuiId   HephWindow::itemAdd(const glm::ivec4& bb, HephGuiId id) {
+  frameData.cursorMaxPos.x = (bb.z > frameData.cursorMaxPos.x) ? bb.z : frameData.cursorMaxPos.x;
+  frameData.cursorMaxPos.y = (bb.w > frameData.cursorMaxPos.y) ? bb.w : frameData.cursorMaxPos.y;
+
+  if (frameData.isSameLine)
+    frameData.cursorPos.x = bb.z + 5;
+  else
+    frameData.cursorPos.y = bb.w + 5;
+
+  itemList.push_back(HephWindowItem(id, bb));
+
+  return (id);
+}
+
 void        HephGuiContext::callbackKey(int key, int scancode, int action, int mods) {
   if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackKey != nullptr)
     getFocusedWindowPtr()->callbackKey(getFocusedWindowPtr(), key, scancode, action, mods);
 }
 
 void        HephGuiContext::callbackCharMods(uint32_t codepoint, int mods) {
-  if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackKey != nullptr)
+  if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackCharMods!= nullptr)
     getFocusedWindowPtr()->callbackCharMods(getFocusedWindowPtr(), codepoint, mods);
 }
 
@@ -153,22 +172,35 @@ void        HephGuiContext::callbackCursorPos(glm::vec2 pos) {
     return ;
   }
   updateCursor();
+  hoveredId = 0;
   cursor.dragLast = pos;
-  if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackCursorPos != nullptr)
-    getFocusedWindowPtr()->callbackCursorPos(getFocusedWindowPtr(), pos);
+  if (getFocusedWindowPtr() != nullptr) {
+    for (auto& item: getFocusedWindowPtr()->itemList) {
+      if (pos.x >= item.bb.x && pos.y >= item.bb.y
+          && pos.x < item.bb.z && pos.y < item.bb.w) {
+        hoveredId = item.id;
+      }
+    }
+    if (getFocusedWindowPtr()->callbackCursorPos != nullptr)
+      getFocusedWindowPtr()->callbackCursorPos(getFocusedWindowPtr(), pos);
+  }
 }
 
 void        HephGuiContext::callbackMouseButton(int button, int action, int mod) {
   if (cursor.resizeWin != nullptr) {
-    if (button == GLFW_MOUSE_BUTTON_1) {
-      if (action == GLFW_PRESS) {
-        cursor.dragLast = cursor.pos;
-        cursor.drag = true;
-        return ;
-      }
+    if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
+      cursor.dragLast = cursor.pos;
+      cursor.drag = true;
+      return ;
     }
   }
   cursor.drag = false;
+  if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
+    if (activeId != hoveredId) {
+      activeId = hoveredId;
+      activeIdIsJustActivated = true;
+    }
+  }
   if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackMouseButton != nullptr)
     getFocusedWindowPtr()->callbackMouseButton(getFocusedWindowPtr(), button, action, mod);
 }
@@ -249,16 +281,17 @@ void        HephGuiContext::render(VkCommandBuffer commandBuffer) {
   glm::vec2 scale = 2.0f / glm::vec2(displaySize);
   glm::vec2 translate = glm::vec2(-1.0, -1.0);
 
-  vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::vec2), &scale);
-  vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::vec2), sizeof(glm::vec2), &translate);
 
-  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
   for (auto& drawList: userDrawListBuffer) {
+    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::vec2), &scale);
+    vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::vec2), sizeof(glm::vec2), &translate);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     if (drawList->userDrawListRender != nullptr) {
       drawList->userDrawListRender(drawList, commandBuffer);
     }
   }
 
+  vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::vec2), &scale);
   vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::vec2), sizeof(glm::vec2), &translate);
 
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);

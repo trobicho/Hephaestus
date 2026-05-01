@@ -13,8 +13,20 @@ struct	HephShaderModuleWrapper {
 		vkDestroyShaderModule(device.device, shaderModule, device.pAllocationCallbacks);
 	}
 
-	std::string					filename = "";
-	std::string					pName = "main";
-	VkShaderStageFlags	stageFlags = 0;
-	VkShaderModule			shaderModule;
+	std::string					  filename = "";
+	std::string					  pName = "main";
+	VkShaderStageFlagBits	stageFlagBits;
+	VkShaderModule			  shaderModule;
+};
+
+struct	HephShaderStageWrapper: public HephShaderModuleWrapper {
+  HephShaderStageWrapper() = default;
+  HephShaderStageWrapper(const HephShaderModuleWrapper& module) {
+    filename = module.filename;
+    pName = module.pName;
+    stageFlagBits = module.stageFlagBits;
+    shaderModule = module.shaderModule;
+  }
+
+  VkPipelineShaderStageCreateInfo stageCreateInfo;
 };

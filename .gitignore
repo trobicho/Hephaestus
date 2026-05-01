@@ -57,6 +57,7 @@ tags
 *.app
 *.spv
 hephaestus
+hephTest
 
 #CMAKE
 build/

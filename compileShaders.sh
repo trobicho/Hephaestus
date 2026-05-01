@@ -1,2 +1,2 @@
-glslangValidator --target-env vulkan1.3 -V ./shaders/tri.vert -o ./spv/tri.vert.spv
-glslangValidator --target-env vulkan1.3 -V ./shaders/tri.frag -o ./spv/tri.frag.spv
+glslc --target-env=vulkan1.4 ./shaders/tri.vert -o ./spv/tri.vert.spv
+glslc --target-env=vulkan1.4 ./shaders/tri.frag -o ./spv/tri.frag.spv
