@@ -27,8 +27,8 @@ HephGuiStyle&   GetStyle() {
   return (guiContext.style);
 }
 
-HephResult  create(HephDevice& device, VkRenderPass renderPass) {
-  HEPH_CHECK_RESULT(guiContext.create(device, renderPass));
+HephResult  create(HephGuiCreateInfo& createInfo) {
+  HEPH_CHECK_RESULT(guiContext.create(createInfo));
   StyleColorsClassic();
 
   return (HephResult());
@@ -48,8 +48,9 @@ void        Render(VkCommandBuffer commandBuffer) {
   guiContext.activeIdIsJustActivated = false;
 }
 
-void        NewFrame() {
+void        NewFrame(VkCommandBuffer commandBuffer) {
   guiContext.newFrame();
+  guiContext.currentCommandBuffer = commandBuffer;
 }
 
 void        SetDimensionCurrentWindow(glm::ivec2 pos, glm::ivec2 size, bool condFirstFrame) {

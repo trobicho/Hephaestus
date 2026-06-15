@@ -53,6 +53,10 @@ struct  HephDrawList {
 
   void          addLine(const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color, float thickness = 1.0);
   void          addRect(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color, float thickness = 1.0);
+  void          addCircle(const glm::vec2& center, float radius, int steps, const glm::vec4& color, float thickness = 1.0);
+  void          addEllipsis(const glm::vec2& center, float r1, float r2, float angle, int steps, const glm::vec4& color, float thickness = 1.0f);
+  void          addEllipsis(const glm::vec2& center, float r1, float r2, float angle
+                  , int pertNum, float pertAmp, int steps, const glm::vec4& color, float thickness);
   inline void   addRectFill(const glm::vec2& min, const glm::vec2& max, const glm::vec4& color) {
     addRectFill(min, max, color, _Data->whitePixelArea);
   }
@@ -60,6 +64,8 @@ struct  HephDrawList {
   void          addPolyline(const glm::vec2* points, uint32_t size, const glm::vec4& color, float thickness = 1.0);
 
   void          addText(const std::string& text, float size, const glm::vec4& clipRect, const glm::vec4& color);
+  void          addText(const char* text, float size, const glm::vec4& clipRect, const glm::vec4& color);
+  void          addText(const char* text, int textLen, float size, const glm::vec4& clipRect, const glm::vec4& color);
   glm::vec2     getTextSize(const std::string& text, float size);
 
   inline float  addGlyphRect(const HephFont* font, const HephFontFace& face, const glm::vec2& pos, int c, float size, const glm::vec4& color);
@@ -95,19 +101,45 @@ struct  HephDrawListDirectToGpu: public HephDrawList {
   HephDrawListDirectToGpu(): HephDrawList(nullptr) {}
   ~HephDrawListDirectToGpu() {}
 
-  HephVertex* vtxData = nullptr;
-  uint32_t*   idxData = nullptr;
-  uint32_t    vtxCount = 0;
-  uint32_t    idxCount = 0;
+  HephVertex*       vtxData = nullptr;
+  uint32_t*         idxData = nullptr;
+  uint32_t          vtxCount = 0;
+  uint32_t          idxCount = 0;
+  HephBufferWrapper vertexBuffer;
+  HephBufferWrapper indexBuffer;
 
-  inline virtual  void      idxBufferAdd(const uint32_t& idx) override {idxData[idxCount++] = idx;}
-  inline virtual  void      vtxBufferAdd(const HephVertex& vtx) override {vtxData[vtxCount++] = vtx;}
-  inline virtual  uint32_t  idxBufferCount() const override {return (idxCount);}
-  inline virtual  uint32_t  vtxBufferCount() const override {return (vtxCount);}
+  inline virtual  void      idxBufferAdd(const uint32_t& idx) override {
+    if (idxData != nullptr)
+      idxData[idxCount++] = idx;
+    else
+      idxBuffer.push_back(idx);
+  }
+  inline virtual  void      vtxBufferAdd(const HephVertex& vtx) override {
+    if (vtxData != nullptr)
+      vtxData[vtxCount++] = vtx;
+    else
+      vtxBuffer.push_back(vtx);
+  }
+  inline virtual  uint32_t  idxBufferCount() const override {
+    if (idxData != nullptr)
+      return (idxCount);
+    return (idxBuffer.size());
+  }
+  inline virtual  uint32_t  vtxBufferCount() const override {
+    if (vtxData != nullptr)
+      return (vtxCount);
+    return (vtxBuffer.size());
+  }
+
+  void                      allocateAndWriteToBuffer();
 
   void                      reset() {
+    vtxData = nullptr;
+    idxData = nullptr;
     vtxCount = 0;
     idxCount = 0;
+    vtxBuffer.resize(0);
+    idxBuffer.resize(0);
     drawCmdBuffer.resize(0);
     addDrawCmd();
   }
@@ -216,6 +248,19 @@ struct  HephWindow: public HephGuiLayout {
   std::vector<HephWindowItem> itemList;
 };
 
+struct  HephGuiInputTextState {
+  HephGuiContext*   ctx;
+  HephGuiId         id;
+  std::vector<char> text;
+  std::vector<char> textToRevertTo;
+  char*             textSrc;
+  int               textLen;
+
+  bool              editedBefore = false;     // edited since activated
+  bool              editedThisFrame = false;  // edited this frame
+  int               cursorPos = 0;
+};
+
 enum    HephGuiCursorType {
   HephGuiCursor_Arrow,
   HephGuiCursor_TextInput,
@@ -248,7 +293,7 @@ class   HephGuiContext {
       }
     };
 
-    HephResult          create(HephDevice& device, VkRenderPass renderPass = VK_NULL_HANDLE);
+    HephResult          create(HephGuiCreateInfo& createInfo);
     HephResult          createPipeline();
     void                updateDescriptorSets();
     void                destroy();
@@ -265,6 +310,12 @@ class   HephGuiContext {
       displaySize.x = width;
       displaySize.y = height;
       sharedData.clipRectFullScreen = glm::ivec4(displayPos.x, displayPos.y, displayPos.x + width, displayPos.y + height);
+    }
+
+    HephGuiInputTextState*  getInputTextState(const HephGuiId& id) {
+      if (inputTextState.id == id)
+        return (&inputTextState);
+      return (nullptr);
     }
 
     //EVENT CALLBACKS
@@ -293,14 +344,19 @@ class   HephGuiContext {
     HephGuiId                   activeId;
     HephGuiId                   hoveredId;
     bool                        activeIdIsJustActivated = false;
+    bool                        activeIdIsHeld = false;
+    HephGuiInputTextState       inputTextState;
 
-    HephDevice                  device;
-    VkRenderPass                renderPass = VK_NULL_HANDLE;
-		HephPipelineDescriptor	    pipelineDescriptor;
-		VkPipelineLayout            pipelineLayout = VK_NULL_HANDLE;
-		VkPipeline          		    pipeline = VK_NULL_HANDLE;
-		HephCommandPool			        commandPool;
-		HephMemoryAllocator	        memoryAllocator; 
+    HephDevice                        device;
+    VkRenderPass                      renderPass = VK_NULL_HANDLE;
+    VkPipelineRenderingCreateInfoKHR  pipelineRenderingInfo;
+    bool                              dynamicRendingEnable = false;
+		HephPipelineDescriptor	          pipelineDescriptor;
+		VkPipelineLayout                  pipelineLayout = VK_NULL_HANDLE;
+		VkPipeline          		          pipeline = VK_NULL_HANDLE;
+		HephCommandPool			              commandPool;
+		HephMemoryAllocator	              memoryAllocator; 
+    VkCommandBuffer                   currentCommandBuffer = VK_NULL_HANDLE;
 
     HephFont                    font;
     VkSampler                   sampler;

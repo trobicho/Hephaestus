@@ -10,3 +10,11 @@ void  HephExtensionDynamicRendering::deviceFunctionLoader(VkDevice device) {
   pfn_vkCmdEndRenderingKHR =
     reinterpret_cast<PFN_vkCmdEndRenderingKHR>(vkGetDeviceProcAddr(device, "vkCmdEndRenderingKHR"));
 }
+
+VKAPI_ATTR void VKAPI_CALL      vkCmdBeginRenderingKHR(VkCommandBuffer commandBuffer, const VkRenderingInfo *pRenderingInfo) {
+  pfn_vkCmdBeginRenderingKHR(commandBuffer, pRenderingInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL      vkCmdEndRenderingKHR(VkCommandBuffer commandBuffer) {
+  pfn_vkCmdEndRenderingKHR(commandBuffer);
+}

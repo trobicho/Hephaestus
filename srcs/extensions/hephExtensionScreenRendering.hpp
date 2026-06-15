@@ -6,20 +6,15 @@
 
 class	HephExtensionScreenRendering: public HephDeviceExtensionInterface, public HephInstanceExtensionInterface {
 	public:
-		inline std::vector<const char*>						instanceExtensions() override {
+		inline std::vector<const char*> instanceExtensions() override {
 			return (std::vector<const char*> {
 				VK_KHR_SURFACE_EXTENSION_NAME,
 			});
 		}
-		inline std::vector<const char*>						deviceExtensions() override {
+		inline std::vector<const char*> deviceExtensions() override {
 			return (std::vector<const char*> {
 				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 			});
-		}
-		inline std::list<std::unique_ptr<void*>>	deviceFeatures() override {
-			std::list<std::unique_ptr<void*>>	featuresBuffer;
-			//VIDEO FEATURES
-			return (featuresBuffer);
 		}
 		void	deviceFunctionLoader(VkDevice device) override;
 };

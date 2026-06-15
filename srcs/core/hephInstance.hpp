@@ -39,7 +39,7 @@ struct HephDeviceCreateInfo {
 	uint32_t													vkDeviceExtensionCount = 0;
 	const char**											ppVkValidationLayers = nullptr;
 	uint32_t													vkValidationLayerCount = 0;
-	const VkPhysicalDeviceFeatures*		pVkPhysicalDeviceFeatures = nullptr;
+	const VkPhysicalDeviceFeatures		features;
 	const VkPhysicalDeviceFeatures2*	pVkPhysicalDeviceFeatures2 = nullptr;
 };
 

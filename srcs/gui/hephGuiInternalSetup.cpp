@@ -168,6 +168,8 @@ HephResult	HephGuiContext::createPipeline() {
     .layout = pipelineLayout,
     .renderPass = renderPass,
   };
+  if (dynamicRendingEnable)
+    pipelineInfo.pNext = &pipelineRenderingInfo;
 
   HEPH_CHECK_RESULT(HephResult(vkCreateGraphicsPipelines(device.device, VK_NULL_HANDLE, 1,
         &pipelineInfo, nullptr, &pipeline), "failed to create graphics pipeline!"));
@@ -193,15 +195,18 @@ void        HephGuiContext::updateDescriptorSets() {
 	pipelineDescriptor.update(device, 0, updateInfo, 1);
 }
 
-HephResult  HephGuiContext::create(HephDevice& device_a, VkRenderPass renderPass_a) {
-  device = device_a;
-  renderPass = renderPass_a;
+HephResult  HephGuiContext::create(HephGuiCreateInfo& createInfo) {
+  device = createInfo.device;
+  renderPass = createInfo.renderPass;
+  pipelineRenderingInfo = createInfo.pipelineRenderingInfo;
+  dynamicRendingEnable = createInfo.dynamicRenderingEnable;
+
 	memoryAllocator.create(device);
   displayPos.x = 0;
   displayPos.y = 0;
 	HephCommandPoolCreateInfo	cmdPoolCreateInfo = {
 		.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-		.queueFamilyIndex = device.queues[0].familyIndex,
+		.queue = &device.queues[0],
 	};
 	HEPH_CHECK_RESULT(commandPool.create(device, cmdPoolCreateInfo));
 

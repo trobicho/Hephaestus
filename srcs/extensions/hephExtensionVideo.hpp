@@ -6,7 +6,7 @@
 
 class	HephExtensionVideo: public HephDeviceExtensionInterface, public HephInstanceExtensionInterface {
 	public:
-		inline std::vector<const char*>						deviceExtensions() override {
+		inline std::vector<const char*> deviceExtensions() override {
 			return (std::vector<const char*> {
 				VK_KHR_VIDEO_QUEUE_EXTENSION_NAME,
 				VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME,
@@ -17,11 +17,6 @@ class	HephExtensionVideo: public HephDeviceExtensionInterface, public HephInstan
 				VK_KHR_VIDEO_DECODE_H265_EXTENSION_NAME,
 				VK_KHR_VIDEO_ENCODE_H265_EXTENSION_NAME,
 			});
-		}
-		inline std::list<std::unique_ptr<void*>>	deviceFeatures() override {
-			std::list<std::unique_ptr<void*>>	featuresBuffer;
-			//VIDEO FEATURES
-			return (featuresBuffer);
 		}
 		void	instanceFunctionLoader(VkInstance instance) override;
 		void	deviceFunctionLoader(VkDevice device) override;

@@ -2,6 +2,7 @@
 #include "hephGui.hpp"
 #include "plugins/font/hephFont.hpp"
 #include "texture/hephTexture.hpp"
+#include <cmath>
 #include <cstdint>
 #include <glm/detail/qualifier.hpp>
 #include <glm/fwd.hpp>
@@ -236,7 +237,79 @@ void  HephDrawList::addRect(const glm::vec2& min, const glm::vec2& max, const gl
   pathStroke(color, thickness);
 }
 
-float HephDrawList::addGlyphRect(const HephFont* font, const HephFontFace& face, const glm::vec2& pos, int c, float size, const glm::vec4& color) {
+void  HephDrawList::addCircle(const glm::vec2& center, float radius, int steps, const glm::vec4& color, float thickness) {
+  radius += thickness / 2.0f;
+
+  glm::vec2 pos;
+
+  for (float i = 0.0; i < 360.0 + 360.0 / steps; i += 360.0 / steps) {
+    float alpha = i * (float)M_PI / 180.0f;
+    float sinalpha = std::sin(alpha);
+		float cosalpha = std::cos(alpha);
+    pos.x = center.x + radius * cosalpha;
+    pos.y = center.y + radius * sinalpha;
+    pathLineTo(pos);
+  }
+  pathStroke(color, thickness);
+}
+
+void  HephDrawList::addEllipsis(const glm::vec2& center, float r1, float r2, float angle, int steps, const glm::vec4& color, float thickness) {
+  glm::vec2 pos;
+  
+  float beta = -angle * (float)M_PI / 180.0f;
+  float sinbeta = std::sin(beta);
+  float cosbeta = std::cos(beta);
+
+  r1 += thickness / 2.0f;
+  r2 += thickness / 2.0f;
+  r1 *= 1.4;
+  r2 *= 1.4;
+
+  for (float i = 0.0; i < 360.0 + 360.0 / steps; i += 360.0 / steps) {
+    float alpha = i * ((float)M_PI / 180.0f);
+    float sinalpha = std::sin(alpha);
+		float cosalpha = std::cos(alpha);
+    pos.x = center.x + r1 * cosalpha * cosbeta - r2 * sinalpha * sinbeta;
+    pos.y = center.y + r1 * cosalpha * sinbeta + r2 * sinalpha * cosbeta;
+    pathLineTo(pos);
+  }
+  pathStroke(color, thickness);
+}
+
+void  HephDrawList::addEllipsis(const glm::vec2& center
+    , float r1, float r2
+    , float angle, int pertNum, float pertAmp
+    , int steps, const glm::vec4& color, float thickness)
+{
+  glm::vec2 pos;
+  
+  float beta = -angle * (float)M_PI / 180.0f;
+  float sinbeta = std::sin(beta);
+  float cosbeta = std::cos(beta);
+
+  r1 += thickness / 2.0f;
+  r2 += thickness / 2.0f;
+  r1 *= 1.4;
+  r2 *= 1.4;
+
+  for (float i = 0.0; i < 360.0 + 360.0 / steps; i += 360.0 / steps) {
+    float alpha = i * ((float)M_PI / 180.0f);
+    float sinalpha = std::sin(alpha);
+		float cosalpha = std::cos(alpha);
+    pos.x = center.x + (r1 * cosalpha * cosbeta - r2 * sinalpha * sinbeta);
+    pos.y = center.y + (r1 * cosalpha * sinbeta + r2 * sinalpha * cosbeta);
+
+    if (pertNum > 0) {
+      pos.x += (r1 / pertAmp) * std::sin(alpha * 2.0 * pertNum);
+      pos.y += (r1 / pertAmp) * std::cos(alpha * 2.0 * pertNum);
+    }
+
+    pathLineTo(pos);
+  }
+  pathStroke(color, thickness);
+}
+
+inline float HephDrawList::addGlyphRect(const HephFont* font, const HephFontFace& face, const glm::vec2& pos, int c, float size, const glm::vec4& color) {
   const HephFontGlyph&    glyph = face.getGlyph(c);
   const HephTextureArea&  area = font->getTextureAtlas().getArea(c + face.glyphOffsetInTex);
   if (size < 1.0f) {
@@ -261,6 +334,62 @@ void  HephDrawList::addText(const std::string& text, float size, const glm::vec4
   glm::vec2       rect = pos;
 
   for (int i = 0; i < text.size(); i++) {
+    if (text[i] == '\n') {
+      pos.y += lineSize;
+      rect.y = pos.y;
+      pos.x = clipRect.x;
+    }
+    else if (text[i] > 0) {
+      if (pos.x >= clipRect.x + clipRect.z)
+        continue;
+      if (pos.y >= clipRect.y + clipRect.w)
+        break;
+
+      pos.x += addGlyphRect(font, font->faceRegular, pos, font->faceRegular.getGlyphIndex(text[i]), size, color);
+      if (rect.x < pos.x)
+        rect.x = pos.x;
+    }
+  }
+}
+
+void  HephDrawList::addText(const char* text, float size, const glm::vec4& clipRect, const glm::vec4& color) {
+  glm::vec2       pos = glm::vec2((int)clipRect.x, (int)clipRect.y);
+  const HephFont* font = _Data->font;
+  if (size < 1.0f) {
+    size = font->getPixelSize();
+  }
+  float           lineSize = size;
+  glm::vec2       rect = pos;
+
+  for (int i = 0; text[i] != '\0'; i++) {
+    if (text[i] == '\n') {
+      pos.y += lineSize;
+      rect.y = pos.y;
+      pos.x = clipRect.x;
+    }
+    else if (text[i] > 0) {
+      if (pos.x >= clipRect.x + clipRect.z)
+        continue;
+      if (pos.y >= clipRect.y + clipRect.w)
+        break;
+
+      pos.x += addGlyphRect(font, font->faceRegular, pos, font->faceRegular.getGlyphIndex(text[i]), size, color);
+      if (rect.x < pos.x)
+        rect.x = pos.x;
+    }
+  }
+}
+
+void  HephDrawList::addText(const char* text, int textLen, float size, const glm::vec4& clipRect, const glm::vec4& color) {
+  glm::vec2       pos = glm::vec2((int)clipRect.x, (int)clipRect.y);
+  const HephFont* font = _Data->font;
+  if (size < 1.0f) {
+    size = font->getPixelSize();
+  }
+  float           lineSize = size;
+  glm::vec2       rect = pos;
+
+  for (int i = 0; i < textLen; i++) {
     if (text[i] == '\n') {
       pos.y += lineSize;
       rect.y = pos.y;

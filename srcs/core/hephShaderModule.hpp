@@ -27,6 +27,17 @@ struct	HephShaderStageWrapper: public HephShaderModuleWrapper {
     stageFlagBits = module.stageFlagBits;
     shaderModule = module.shaderModule;
   }
+	bool	init(HephDevice& device) {
+    if (!load(device)) {
+      return (false);
+    }
+    stageCreateInfo = {
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+      .stage = stageFlagBits,
+      .module = shaderModule,
+    };
+    return (true);
+  }
 
   VkPipelineShaderStageCreateInfo stageCreateInfo;
 };

@@ -38,6 +38,7 @@ HephResult	HephQueueReserveBasic::reserve(VkPhysicalDevice physicalDevice) {
 	for (uint32_t i = 0; i < m_queueFamilyProps.size(); i++) {
 		HephHelper::printQueueFamilyInfo(m_queueFamilyProps[i]);
 	}
+  std::cout << "==================" << std::endl;
 	rateQueueFamily();
 
 	for (int r = 0; r < m_queueReserveInfos.size(); r++) {
@@ -74,6 +75,7 @@ HephResult	HephQueueReserveBasic::reserve(VkPhysicalDevice physicalDevice) {
 				retrieveInfo.familyIndex = rating.family;
 				retrieveInfo.queueIndex = i + m_queueFamilyCurrentIndex[rating.family];
 				reserve.retrieveInfos.push_back(retrieveInfo);
+        HephHelper::printQueueFamilyInfo(m_queueFamilyProps[rating.family]);
 			}
 			m_queueFamilyCurrentIndex[rating.family] += queueCount;
 		}

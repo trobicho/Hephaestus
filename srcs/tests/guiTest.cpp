@@ -88,6 +88,13 @@ void      GuiTest::render() {
   MenuItem("salut 3");
   MenuItem("salut 4");
   Button("salut 5");
+  glm::ivec2    inputSize = drawList.getTextSize("testText", -1.0f);
+  InputText("InputBox1", inputSize, m_textValue.data(), m_textValue.capacity());
+  glm::ivec2    sliderSize = drawList.getTextSize("testTextfjkdjf", -1.0f);
+  SliderInt("SliderIntTest1", inputSize, m_sliderIntV1, 0, 10);
+  SliderInt("SliderIntTest2", inputSize, m_sliderIntV2, 0, 10);
+  SliderInt("SliderIntTest3", inputSize, m_sliderIntV3, 10, 0);
+  SliderInt("SliderIntTest4", inputSize, m_sliderIntV3, 0, 4);
   /*
   if (m_showInfo) {
     uint32_t  totalNodes = 0;

@@ -45,7 +45,7 @@ struct	HephImageCreateInfo {
 	VkImageLayout						layout;
 	VkImageAspectFlags      aspect;
 	VkComponentMapping 			components;
-	VkSharingMode						sharingMode = VK_SHARING_MODE_CONCURRENT;
+	VkSharingMode						sharingMode = VK_SHARING_MODE_EXCLUSIVE;
   VkSampleCountFlagBits   samples = VK_SAMPLE_COUNT_1_BIT;
   uint32_t								queueFamilyIndexCount = 0;
   const uint32_t*					pQueueFamilyIndices = nullptr;

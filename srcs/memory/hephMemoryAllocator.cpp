@@ -94,6 +94,7 @@ HephResult	HephMemoryAllocator::createImage(const HephImageCreateInfo& createInf
   };
 	image.usage = createInfo.usage;
 	image.extent = createInfo.extent;
+  image.layout = createInfo.layout;
 	HEPH_CHECK_RESULT(HephResult(vkCreateImage(m_device.device, &imageInfo, nullptr, &image.image)).errorFormat("Failed to begin Create image !"));
 
   VkMemoryRequirements  memoryReqs;

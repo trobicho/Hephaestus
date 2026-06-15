@@ -9,13 +9,11 @@
 class	HephExtensionDynamicRendering: public HephDeviceExtensionInterface {
 	public:
 		inline std::vector<const char*> deviceExtensions() override {
-			return (std::vector<const char*> {
-				VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-			});
+      return (std::vector<const char*>{});
 		}
 		inline uint32_t                 deviceFeatures(void* data = nullptr, void* link = nullptr) override {
       if (data != nullptr) {
-        VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRendering = {
+        VkPhysicalDeviceFill dynamicRendering = {
           .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
           .pNext = link,
           .dynamicRendering = VK_TRUE,

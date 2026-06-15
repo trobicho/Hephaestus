@@ -5,6 +5,11 @@
 #include "../memory/hephMemoryAllocator.hpp"
 #include "../plugins/font/hephFont.hpp"
 #include "hash/hashFunction.hpp"
+#include <vulkan/vulkan_core.h>
+
+#ifndef   HEPHGUI_ASSERT
+#define   HEPHGUI_ASSERT  assert
+#endif
 
 namespace HephGui {
 
@@ -57,9 +62,16 @@ class HephApp {
     virtual void  render() = 0;
 };
 
+struct  HephGuiCreateInfo {
+  HephDevice&                       device;
+  VkRenderPass                      renderPass = VK_NULL_HANDLE;
+  VkPipelineRenderingCreateInfoKHR  pipelineRenderingInfo;
+  bool                              dynamicRenderingEnable = false;
+};
+
 HephResult      init();
 void            setDisplaySize(int width, int height);
-HephResult      create(HephDevice& device, VkRenderPass renderPass = VK_NULL_HANDLE);
+HephResult      create(HephGuiCreateInfo& createInfo);
 void            destroy();
 HephGuiContext& getContext();
 HephGuiStyle&   GetStyle();
@@ -67,7 +79,7 @@ HephGuiStyle&   GetStyle();
 void            Render(VkCommandBuffer cmdBuffer);
 
 HephWindow*     GetCurrentWindowPtr();
-void            NewFrame();
+void            NewFrame(VkCommandBuffer commandBuffer = VK_NULL_HANDLE);
 
 void            SetPosCurrentWindow(glm::ivec2 pos, bool condFirstFrame = false);
 void            SetSizeCurrentWindow(glm::ivec2 size, bool condFirstFrame = false);
@@ -94,5 +106,8 @@ void            StyleColorsLight(HephGuiStyle* dst = nullptr);
 //Widgets
 bool            Button(const std::string& text);
 bool            MenuItem(const std::string& text);
+bool            InputText(const std::string& label, const glm::ivec2& size, char* buf, int bufSize);
+bool            SliderFloat(const std::string& label, const glm::ivec2& size, float& value, const float min, const float max, bool vertical = false);
+bool            SliderInt(const std::string& label, const glm::ivec2& size, int& value, const int min, const int max, bool vertical = false);
 
 }

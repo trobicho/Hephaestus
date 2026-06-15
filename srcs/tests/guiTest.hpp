@@ -36,4 +36,16 @@ class GuiTest: public HephGui::HephApp {
     HephBufferWrapper                 m_indexBuffer;
     std::atomic<bool>                 m_needUpdate{true};
     std::atomic<bool>                 m_needAlloc{false};
+
+    std::string                       m_textValue = "salut";
+
+    int                               m_sliderIntV1 = 1;
+    int                               m_sliderIntV2 = 10;
+    int                               m_sliderIntV3 = 0;
+    int                               m_sliderIntV4 = 10;
+
+    float                             m_sliderFloatV1 = 1.0f;
+    float                             m_sliderFloatV2 = 10.0f;
+    float                             m_sliderFloatV3 = 0.3f;
+    float                             m_sliderFloatV4 = 0.0001f;
 };

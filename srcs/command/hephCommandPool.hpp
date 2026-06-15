@@ -5,7 +5,7 @@
 
 struct	HephCommandPoolCreateInfo {
 	VkCommandPoolCreateFlagBits 	flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-	uint32_t											queueFamilyIndex;
+  HephQueue*                    queue = nullptr;
 };
 
 class		HephCommandPool : private HephCommandPoolCreateInfo {
@@ -24,5 +24,6 @@ class		HephCommandPool : private HephCommandPoolCreateInfo {
 		HephDevice										m_device;
 		VkCommandPool									m_commandPool;
 		VkCommandPoolCreateFlagBits 	m_flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+    HephQueue*                    m_queue = nullptr;
 		uint32_t											m_queueFamilyIndex;
 };

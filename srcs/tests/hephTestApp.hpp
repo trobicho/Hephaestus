@@ -36,7 +36,6 @@ class	  HephTestApp {
     void          parse();
 		HephResult		hephaestusSetup();
     HephResult		createHephSwapchain();
-    HephResult		createRenderPass();
     void  				setupCallbackForWindow(GLFWwindow *window);
 
     HephResult		render();
@@ -56,7 +55,6 @@ class	  HephTestApp {
 		HephSwapchain									m_swapchain;
     VkSurfaceKHR      						m_surface;
 		VkSurfaceFormatKHR						m_surfaceFormat;
-    VkRenderPass                  m_renderPass = VK_NULL_HANDLE;
     HephCommandPool               m_commandPool;
 		HephMemoryAllocator						m_allocator;
     uint32_t                      m_imageCount = 0;

@@ -64,7 +64,10 @@ HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevi
 	
 	std::vector<const char*>						deviceExtensionNames;
 	std::vector<const char*>						deviceLayerNames;
-	std::list<std::unique_ptr<void*>>		featuresBuffer;
+	void*                               featuresBuffer;
+	void*                               featuresBufferOffest;
+  void*                               featuresBufferLink = nullptr;
+	uint32_t                            featuresBufferSize = 0;
 	for (int i = 0; i < createInfo.hephDeviceExtensionsCount; i++) {
 		for (auto extensionName: createInfo.ppHephDeviceExtensions[i]->deviceExtensions()) {
 			deviceExtensionNames.push_back(extensionName);
@@ -72,19 +75,32 @@ HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevi
 		for (auto layerName: createInfo.ppHephDeviceExtensions[i]->deviceValidationLayers()) {
 			deviceLayerNames.push_back(layerName);
 		}
-		if (featuresBuffer.empty())
-			featuresBuffer = createInfo.ppHephDeviceExtensions[i]->deviceFeatures();
-		else {
-			VkPhysicalDeviceFeatures2KHR* feats = static_cast<VkPhysicalDeviceFeatures2KHR*>(*featuresBuffer.end()->get());
-			feats->pNext = *createInfo.ppHephDeviceExtensions[i]->deviceFeatures().front();
-		}
+    featuresBufferSize += createInfo.ppHephDeviceExtensions[i]->deviceFeatures();
 	}
+  if (featuresBufferSize > 0) {
+    featuresBuffer = malloc(featuresBufferSize);
+    featuresBufferOffest = featuresBuffer;
+    uint32_t  offset = 0;
+    for (int i = 0; i < createInfo.hephDeviceExtensionsCount; i++) {
+      offset = createInfo.ppHephDeviceExtensions[i]->deviceFeatures(featuresBufferOffest, featuresBufferLink);
+      if (offset > 0) {
+        featuresBufferLink = featuresBufferOffest;
+        featuresBufferOffest = (char*)featuresBufferOffest + offset;
+      }
+    }
+  }
 
 	HEPH_CHECK_RESULT(createInfo.pQueueReserveInterface->reserve(deviceTmp.physicalDevice));
 	uint32_t												queueCreateInfoCount = 0;
 	const VkDeviceQueueCreateInfo*	queueCreateInfos = createInfo.pQueueReserveInterface->getQueueCreateInfos(&queueCreateInfoCount);
 	if (queueCreateInfoCount == 0)
-		return (HephResult("empty QueueCreateInfo."));
+    return (HephResult("empty QueueCreateInfo."));
+
+  VkPhysicalDeviceFeatures2KHR  features = {
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR,
+    .pNext = featuresBufferLink,
+    .features = createInfo.features,
+  };
 
 	VkDeviceCreateInfo	deviceInfo = {
 		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -96,6 +112,10 @@ HephResult	HephInstance::createDevice(HephDeviceCreateInfo& createInfo, HephDevi
 		.enabledExtensionCount = static_cast<uint32_t>(deviceExtensionNames.size()),
 		.ppEnabledExtensionNames = deviceExtensionNames.data(),
 	};
+
+  if (featuresBufferSize > 0) {
+    deviceInfo.pNext = &features;
+  }
 
 	HEPH_CHECK_RESULT(HephResult(vkCreateDevice(deviceTmp.physicalDevice, &deviceInfo, m_pAllocationCallbacks, &deviceTmp.device)
 				, "Failed to create Logical Device! ({})"));

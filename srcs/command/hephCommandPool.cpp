@@ -4,11 +4,13 @@
 HephResult	HephCommandPool::create(HephDevice& device, HephCommandPoolCreateInfo createInfo) {
 	m_device = device;
 	m_flags = createInfo.flags;
-	m_queueFamilyIndex = createInfo.queueFamilyIndex;
+  m_queue = createInfo.queue;
+  if (m_queue == nullptr)
+    m_queue = &m_device.queues[0];
 	VkCommandPoolCreateInfo poolInfo = {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		.flags = m_flags,
-		.queueFamilyIndex = m_queueFamilyIndex,
+		.queueFamilyIndex = m_queue->familyIndex,
 	};
 	return (HephResult(vkCreateCommandPool(m_device.device, &poolInfo, m_device.pAllocationCallbacks, &m_commandPool)
 					, "Failed to create Command Pool ! {}"));
@@ -39,10 +41,10 @@ void				HephCommandPool::submit(VkCommandBuffer& cmdBuffer) {
     .commandBufferCount = 1,
     .pCommandBuffers = &cmdBuffer,
   };
-  vkQueueSubmit(m_device.queues[0].queue, 1, &info, VK_NULL_HANDLE);
+  vkQueueSubmit(m_queue->queue, 1, &info, VK_NULL_HANDLE);
 }
 
 HephResult	HephCommandPool::submitAndWait(VkCommandBuffer& cmdBuffer) {
   submit(cmdBuffer);
-  return (HephResult(vkQueueWaitIdle(m_device.queues[0].queue)).errorFormat("Failed to submit and wait: {{}} !"));
+  return (HephResult(vkQueueWaitIdle(m_queue->queue)).errorFormat("Failed to submit and wait: {{}} !"));
 }

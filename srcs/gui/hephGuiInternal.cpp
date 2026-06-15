@@ -200,6 +200,10 @@ void        HephGuiContext::callbackMouseButton(int button, int action, int mod)
       activeId = hoveredId;
       activeIdIsJustActivated = true;
     }
+    activeIdIsHeld = true;
+  }
+  else if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE) {
+    activeIdIsHeld = false;
   }
   if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackMouseButton != nullptr)
     getFocusedWindowPtr()->callbackMouseButton(getFocusedWindowPtr(), button, action, mod);
@@ -213,6 +217,49 @@ void        HephGuiContext::callbackScroll(double xoffset, double yoffset) {
 void        HephGuiContext::callbackDrop(int count, const char** paths) {
   if (getFocusedWindowPtr() != nullptr && getFocusedWindowPtr()->callbackDrop != nullptr)
     getFocusedWindowPtr()->callbackDrop(getFocusedWindowPtr(), count, paths);
+}
+
+void        HephDrawListDirectToGpu::allocateAndWriteToBuffer() {
+  uint32_t  totalVtx = vtxBuffer.size();
+  uint32_t  totalIdx = idxBuffer.size();
+
+  if (totalVtx > 0) {
+    HephBufferCreateInfo  bufInfo = {
+      .size = totalVtx * sizeof(HephVertex),
+      .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+      .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+      .propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+    };
+    getContext().memoryAllocator.destroyBuffer(vertexBuffer);
+    getContext().memoryAllocator.createBuffer(bufInfo, vertexBuffer);
+    vkMapMemory(getContext().device.device, vertexBuffer.memory, 0, vertexBuffer.size, 0, (void**)&vtxData);
+    memcpy(vtxData, vtxBuffer.data(), vtxBuffer.size() * sizeof(HephVertex));
+  }
+
+  if (totalIdx > 0) {
+    HephBufferCreateInfo  bufInfo = {
+      .size = totalIdx * sizeof(uint32_t),
+      .usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+      .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+      .propertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+    };
+    getContext().memoryAllocator.destroyBuffer(indexBuffer);
+    getContext().memoryAllocator.createBuffer(bufInfo, indexBuffer);
+    vkMapMemory(getContext().device.device, indexBuffer.memory, 0, indexBuffer.size, 0, (void**)&idxData);
+    memcpy(idxData, idxBuffer.data(), idxBuffer.size() * sizeof(uint32_t));
+  }
+  VkMappedMemoryRange range[2] = {};
+  range[0].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+  range[0].memory = vertexBuffer.memory;
+  range[0].size = VK_WHOLE_SIZE;
+  range[1].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+  range[1].memory = indexBuffer.memory;
+  range[1].size = VK_WHOLE_SIZE;
+  HEPH_PRINT_RESULT(vkFlushMappedMemoryRanges(getContext().device.device, 2, range));
+  vkUnmapMemory(getContext().device.device, vertexBuffer.memory);
+  vkUnmapMemory(getContext().device.device, indexBuffer.memory);
+  vtxData = nullptr;
+  idxData = nullptr;
 }
 
 void        HephGuiContext::render(VkCommandBuffer commandBuffer) {

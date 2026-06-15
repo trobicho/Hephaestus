@@ -1,4 +1,6 @@
 #include "hephTestApp.hpp"
+#include "extensions/hephExtensionDynamicRendering.hpp"
+#include "gui/hephGui.hpp"
 #include "thread"
 #include <GLFW/glfw3.h>
 #include <cstdint>
@@ -52,7 +54,7 @@ HephResult	HephTestApp::create() {
         , m_device.pAllocationCallbacks, &m_surface), "Failed to create Surface {{}} !"));
 	HephCommandPoolCreateInfo commandPoolCreateInfo = {
 		.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-		.queueFamilyIndex = m_device.queues[0].familyIndex,
+		.queue = &m_device.queues[0],
 	};
 	HEPH_CHECK_RESULT(m_commandPool.create(m_device, commandPoolCreateInfo).errorFormat("Failed to create CommandPool {{}} !"));
 	HEPH_CHECK_RESULT(m_allocator.create(m_device).errorFormat("Failed to create Memory Allocator {{}} !"));
@@ -63,7 +65,17 @@ HephResult	HephTestApp::create() {
 
   HEPH_CHECK_RESULT(HephGui::init());
   HephGui::setDisplaySize(m_width, m_height);
-  HEPH_CHECK_RESULT(HephGui::create(m_device, m_renderPass));
+  HephGui::HephGuiCreateInfo  createInfo = {
+    .device = m_device,
+    .renderPass = VK_NULL_HANDLE,
+    .pipelineRenderingInfo = (VkPipelineRenderingCreateInfoKHR) {
+      .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR,
+      .colorAttachmentCount = 1,
+      .pColorAttachmentFormats = &m_surfaceFormat.format,
+    },
+    .dynamicRenderingEnable = true,
+  };
+  HEPH_CHECK_RESULT(HephGui::create(createInfo));
 
 	return (HephResult());
 }
@@ -78,7 +90,6 @@ void  HephTestApp::destroy() {
   {
     m_swapchain.destroy();
     vkDestroySurfaceKHR(m_hephInstance.vulkanInstance, m_surface, m_device.pAllocationCallbacks);
-    vkDestroyRenderPass(m_device.device, m_renderPass, m_device.pAllocationCallbacks);
     m_commandPool.destroy();
   }
   glfwDestroyWindow(m_mainWindow);
@@ -134,22 +145,26 @@ HephResult	HephTestApp::render() {
   vkBeginCommandBuffer(commandBuffer, &beginInfo);
   {
     VkClearValue clearValue = (VkClearValue){0.0f, 0.0f, 0.0f, 1.0f};
-    VkRenderPassBeginInfo     renderPassInfo = {
-      .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-      .renderPass = m_renderPass,
-      .framebuffer = presentData.image.framebuffer,
+    VkRenderingAttachmentInfoKHR  colorAttachmentInfo = {
+      .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+      .imageView = presentData.image.imageView,
+      .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+      .clearValue = clearValue,
+    };
+    VkRenderingInfo               renderingInfo = {
+      .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
       .renderArea = (VkRect2D) {
         .offset = (VkOffset2D){0, 0},
         .extent = presentData.extent,
       },
-      .clearValueCount = 1,
-      .pClearValues = &clearValue,
+      .layerCount = 1,
+      .colorAttachmentCount = 1,
+      .pColorAttachments = &colorAttachmentInfo,
     };
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
+    vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
     HephGui::Render(commandBuffer);
 
-    vkCmdEndRenderPass(commandBuffer);
+    vkCmdEndRenderingKHR(commandBuffer);
     vkEndCommandBuffer(commandBuffer);
   }
   VkPipelineStageFlags  waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -238,6 +253,7 @@ HephResult	HephTestApp::hephaestusSetup() {
 	std::vector<HephInstanceExtensionInterface*>	instanceExtensions;
 	HephExtensionDebug                            extDebug;
 	HephExtensionScreenRendering									extScreenRendering;
+	HephExtensionDynamicRendering                 extDynamicRendering;
 	instanceExtensions.push_back(&extDebug);
 	instanceExtensions.push_back(&extScreenRendering);
 
@@ -259,6 +275,7 @@ HephResult	HephTestApp::hephaestusSetup() {
 	HephPhysicalDevicesSelectorTest	devicesSelect;
 	devicesSelect.selectDevices(m_hephInstance);
 	std::vector<HephDeviceExtensionInterface*>	deviceExtensions;
+	deviceExtensions.push_back(&extDynamicRendering);
 	deviceExtensions.push_back(&extScreenRendering);
 
 	std::vector<HephQueueReserveInfo>	queueReserveInfos;
@@ -290,7 +307,7 @@ HephResult	HephTestApp::createHephSwapchain() {
 	if (surfaceSupportDetails.formats[0].format != VK_FORMAT_UNDEFINED)
 		format = surfaceSupportDetails.formats[0];
 	m_surfaceFormat = format;
-	HEPH_CHECK_RESULT(createRenderPass());
+	//HEPH_CHECK_RESULT(createRenderPass());
 	HephSwapchainCreateInfo		swapchainCreateInfo;
 	VkSwapchainCreateInfoKHR	swapInfo = {
 		.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -310,52 +327,9 @@ HephResult	HephTestApp::createHephSwapchain() {
 		.oldSwapchain = VK_NULL_HANDLE,
 	};
 	swapchainCreateInfo.swapchainCreateInfo = swapInfo;
-	swapchainCreateInfo.renderPass = m_renderPass;
+	swapchainCreateInfo.renderPass = VK_NULL_HANDLE;
 	HEPH_CHECK_RESULT(m_swapchain.create(m_device, swapchainCreateInfo));
 	return (HephResult());
-}
-
-HephResult	HephTestApp::createRenderPass() {
-  VkAttachmentDescription attachmentDescription = {
-    .format = m_surfaceFormat.format,
-    .samples = VK_SAMPLE_COUNT_1_BIT,
-    .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-    .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-    .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-    .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-    .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-    .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-  };
-  VkAttachmentReference   colorAttachmentReference = {
-    .attachment = 0,
-    .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-  };
-  VkSubpassDescription    subpassDescription = {
-    .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
-    .colorAttachmentCount = 1,
-    .pColorAttachments = &colorAttachmentReference,
-  };
-  VkSubpassDependency     subpassDependency = {
-    .srcSubpass = VK_SUBPASS_EXTERNAL,
-    .dstSubpass = 0,
-    .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-    .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-    .srcAccessMask = 0,
-    .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT
-      | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-  };
-  VkRenderPassCreateInfo  renderPassInfo = {
-    .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-    .attachmentCount = 1,
-    .pAttachments = &attachmentDescription,
-    .subpassCount = 1,
-    .pSubpasses = &subpassDescription,
-    .dependencyCount = 1,
-    .pDependencies = &subpassDependency,
-  };
-	return (HephResult(vkCreateRenderPass(m_device.device, &renderPassInfo
-					, m_device.pAllocationCallbacks, &m_renderPass)
-					, "Failed to create RenderPass"));
 }
 
 int	main(int ac, char** av) {
